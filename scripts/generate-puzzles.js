@@ -13,13 +13,14 @@
  *   node scripts/generate-puzzles.js --sql --limit 50
  *
  * Options:
- *   --url <url>   Word list URL (default: Google 10k most common English, no swears)
+ *   --url <url>   Word list URL (default: Google 20k most common English)
  *   --file <path> Use local file instead of URL
  *   --output <path> Write JSON to file (default: stdout)
  *   --sql         Emit SQL INSERT statements for Supabase puzzles table
  *   --limit <n>   Max puzzles to output (default: no limit)
  *   --min-words <n> Min valid words per puzzle (default: 20)
  *   --min-points <n> Min total points per puzzle (default: 0)
+ *   --min-pangrams <n> Min pangrams per puzzle (default: 2)
  */
 
 const fs = require('fs');
@@ -50,9 +51,15 @@ function loadWords(source) {
   if (source.file) {
     return Promise.resolve(fs.readFileSync(source.file, 'utf8'));
   }
-  const url = source.url || 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt';
+  const url = source.url || 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt';
   return fetchUrl(url);
 }
+
+/** Words to exclude from puzzles (20k list has no no-swears variant). */
+const BLOCKLIST = new Set([
+  'ASS', 'ASSES', 'HELL', 'CRAP', 'DAMN', 'SHIT', 'SLUT', 'TITS', 'WHORE', 'BITCH', 'DICK', 'COCK', 'PUSSY', 'FUCK', 'FUCKS', 'FUCKED', 'FUCKING',
+  'CUNT', 'PISS', 'PISSED', 'NAZI', 'NIGGA', 'NIGGER', 'FAG', 'FAGGOT', 'RETARD', 'RETARDS'
+]);
 
 function parseWordList(text) {
   const seen = new Set();
@@ -62,6 +69,7 @@ function parseWordList(text) {
     const w = line.trim().toUpperCase().replace(/[^A-Z]/g, '');
     if (w.length < MIN_LENGTH || w.length > MAX_LENGTH) continue;
     if (seen.has(w)) continue;
+    if (BLOCKLIST.has(w)) continue;
     seen.add(w);
     words.push(w);
   }
@@ -114,7 +122,7 @@ function shuffleArray(arr) {
   }
 }
 
-function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE) {
+function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE, minPangrams = 2) {
   // Index: letter set (sorted string) -> list of words that use exactly those letters
   const letterSetToWords = new Map();
   for (const w of words) {
@@ -157,7 +165,7 @@ function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE) {
       const validWords = candidateWords.filter((w) => w.indexOf(center) !== -1);
       const pangrams = validWords.filter((w) => isPangram(w, allSeven));
 
-      if (pangrams.length < 1) continue;
+      if (pangrams.length < minPangrams) continue;
       if (validWords.length < minWordsPerPuzzle) continue;
 
       const totalPoints = validWords.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
@@ -207,6 +215,8 @@ function parseArgs() {
       opts.minWords = parseInt(args[++i], 10);
     } else if (args[i] === '--min-points' && args[i + 1]) {
       opts.minPoints = parseInt(args[++i], 10);
+    } else if (args[i] === '--min-pangrams' && args[i + 1]) {
+      opts.minPangrams = parseInt(args[++i], 10);
     }
   }
   return opts;
@@ -221,16 +231,28 @@ async function main() {
   process.stderr.write(`Loaded ${words.length} words (${MIN_LENGTH}+ letters).\n`);
 
   const minWords = opts.minWords != null ? opts.minWords : MIN_WORDS_PER_PUZZLE;
-  let puzzles = generatePuzzles(words, minWords);
+  const minPangrams = opts.minPangrams != null ? opts.minPangrams : 2;
+  let puzzles = generatePuzzles(words, minWords, minPangrams);
 
   if (opts.minPoints != null && opts.minPoints > 0) {
     puzzles = puzzles.filter((p) => p.total_points >= opts.minPoints);
   }
-  shuffleArray(puzzles);
+  // Prefer puzzles with lots of words and multiple pangrams: sort by word count then pangram count
+  puzzles.sort((a, b) => {
+    const aWords = a.valid_words.length;
+    const bWords = b.valid_words.length;
+    if (bWords !== aWords) return bWords - aWords;
+    return (b.pangrams.length - a.pangrams.length);
+  });
+  const poolSize = opts.limit ? Math.min(puzzles.length, Math.max(opts.limit * 3, 50)) : puzzles.length;
+  const pool = puzzles.slice(0, poolSize);
+  shuffleArray(pool);
   if (opts.limit) {
-    puzzles = puzzles.slice(0, opts.limit);
+    puzzles = pool.slice(0, opts.limit);
+  } else {
+    puzzles = pool;
   }
-  process.stderr.write(`Generated ${puzzles.length} puzzles (each with ≥1 pangram, ≥${minWords} words).\n`);
+  process.stderr.write(`Generated ${puzzles.length} puzzles (each with ≥${minPangrams} pangrams, ≥${minWords} words).\n`);
 
   let out;
   if (opts.sql) {
