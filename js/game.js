@@ -558,14 +558,16 @@
         return;
       }
       if (messageEl) messageEl.textContent = message;
+      var myName = state.myUsername || 'You';
+      var oppName = state.opponentUsername || 'Opponent';
       var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
       if (scoresEl) {
-        scoresEl.textContent = 'Your score: ' + state.score + (gameId ? ' · Opponent: ' + oppScore : '');
+        scoresEl.textContent = myName + ': ' + state.score + (gameId ? ' · ' + oppName + ': ' + oppScore : '');
       }
       var winnerText = '';
       if (gameId && state.opponentScore != null) {
-        if (state.score > state.opponentScore) winnerText = 'You win!';
-        else if (state.score < state.opponentScore) winnerText = 'Opponent wins!';
+        if (state.score > state.opponentScore) winnerText = (myName === 'You' ? 'You win!' : myName + ' wins!');
+        else if (state.score < state.opponentScore) winnerText = oppName + ' wins!';
         else winnerText = 'It\'s a tie!';
       } else {
         winnerText = 'Final score: ' + state.score;
