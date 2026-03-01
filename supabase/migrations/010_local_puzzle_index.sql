@@ -47,7 +47,7 @@ BEGIN
   END IF;
 
   INSERT INTO public.games (puzzle_id, puzzle_index, duration_seconds, status, started_at)
-  VALUES (NULL, pidx, 600, 'in_progress', now())
+  VALUES (NULL, pidx, 300, 'in_progress', now())
   RETURNING id INTO gid;
 
   INSERT INTO public.game_players (game_id, user_id, role) VALUES (gid, u1_id, 'player');
@@ -91,7 +91,7 @@ BEGIN
   pidx := floor(random() * 15)::int;
 
   INSERT INTO public.games (puzzle_id, puzzle_index, duration_seconds, status, started_at)
-  VALUES (NULL, pidx, 600, 'in_progress', now())
+  VALUES (NULL, pidx, 300, 'in_progress', now())
   RETURNING id INTO v_game_id;
 
   INSERT INTO public.game_players (game_id, user_id, role) VALUES (v_game_id, v_challenge.from_user_id, 'player');

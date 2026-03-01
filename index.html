@@ -104,13 +104,21 @@
           showError(signupError, '');
           window.db.signup(email, password, username).then(function (user) {
             showError(signupError, '');
-            if (signupSuccess) {
-              signupSuccess.textContent = 'Please check your email to verify your account. You can log in after verifying.';
+            if (user) {
+              window.location.href = 'lobby.html';
+            } else if (signupSuccess) {
+              signupSuccess.textContent = 'Account created! You can log in now.';
               signupSuccess.style.display = 'block';
             }
           }).catch(function (err) {
             if (signupSuccess) signupSuccess.style.display = 'none';
-            showError(signupError, err && err.message ? err.message : 'Username or email may already be in use.');
+            var msg = err && err.message ? err.message : 'Sign up failed.';
+            if (/rate limit|too many requests/i.test(msg)) {
+              msg = 'Too many signup attempts right now. Wait a few minutes and try again.';
+            } else if (/already registered|already in use|already exists/i.test(msg)) {
+              msg = 'That email or username is already in use.';
+            }
+            showError(signupError, msg);
           }).finally(function () {
             signupForm.querySelector('button[type="submit"]').disabled = false;
           });

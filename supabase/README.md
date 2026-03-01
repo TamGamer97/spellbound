@@ -75,6 +75,18 @@ To add or change puzzles from the client, you’d add a policy (e.g. `puzzles_in
 
 ---
 
+## “Email rate limit exceeded” on sign up
+
+If users see this when signing up, Supabase Auth is limiting how many signup emails can be sent in a short time (per IP or per project). To fix it:
+
+1. In the [Supabase Dashboard](https://supabase.com/dashboard), open your project.
+2. Go to **Authentication** → **Rate Limits** (or **Settings** → **Auth** → **Rate Limits**, depending on your dashboard).
+3. Increase or disable the **Email** rate limit for signups (e.g. raise the hourly limit or turn it off for development).
+
+Users can also wait a few minutes and try again; the limit resets after a short period.
+
+---
+
 ## Running migrations again
 
 The migration is not idempotent: running it a second time will create duplicate objects and fail. Run it **once** per project. To reset, drop tables in reverse order (or use **Database** → **Migrations** in the dashboard if you use Supabase CLI migrations).

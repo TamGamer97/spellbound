@@ -41,7 +41,7 @@
   const MIN_LENGTH = 4;
   const POINTS_PER_LETTER = 1;
   const PANGRAM_BONUS = 5;
-  const TOTAL_SECONDS = 10 * 60;
+  const TOTAL_SECONDS = 5 * 60;
 
   /* ========================================================================
      DOM references (optional elements may be null if not in layout)
@@ -629,7 +629,7 @@
       setPuzzleFromData(puzzle);
       renderHoneycomb();
       var startedAt = data.game.started_at;
-      var duration = data.game.duration_seconds || 600;
+      var duration = data.game.duration_seconds || 300;
       if (startedAt) {
         startTimerFromDB(startedAt, duration);
       } else {
