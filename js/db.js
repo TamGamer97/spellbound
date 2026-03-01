@@ -364,8 +364,12 @@
           return null;
         }
         var data = r.data;
-        if (!data || !data.game || !data.puzzle) return null;
-        return { game: data.game, puzzle: data.puzzle };
+        if (!data || !data.game) return null;
+        return {
+          game: data.game,
+          puzzle: data.puzzle || null,
+          puzzle_index: data.puzzle_index != null ? data.puzzle_index : null
+        };
       });
   }
 

@@ -36,7 +36,9 @@
 
 **Ninth (game finished + puzzles from Supabase):** New query, copy all of `supabase/migrations/009_game_finished_and_puzzles.sql`, paste, Run. Adds RPC `set_game_finished` to set `games.status` and `ended_at` when Round 1 ends; updates `try_match` and `accept_challenge` to pick a random puzzle from `puzzles`; inserts two more puzzles (200+ points) so games use variety from Supabase.
 
-Tables, triggers, RLS, seed puzzles, `try_match`, Realtime for `game_players` and `challenges`, `get_game_for_player`, challenge RPCs, Bitter End choice, one-click Continue, and game finished + random puzzles are in place.
+**Tenth (local puzzle set):** New query, copy all of `supabase/migrations/010_local_puzzle_index.sql`, paste, Run. Adds `games.puzzle_index` and makes `puzzle_id` nullable. `try_match` and `accept_challenge` now pick a random index 0..14 instead of a DB puzzle; `get_game_for_player` returns `puzzle_index` when set. The client loads `data/puzzles.json` (15 puzzles) and uses that for boards instead of the database puzzle set.
+
+Tables, triggers, RLS, seed puzzles, `try_match`, Realtime for `game_players` and `challenges`, `get_game_for_player`, challenge RPCs, Bitter End choice, one-click Continue, game finished, and local puzzle index are in place.
 
 ### 3. Confirm in the Table Editor
 

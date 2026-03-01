@@ -15,6 +15,9 @@
     return params && params.get('gameId') ? params.get('gameId') : null;
   })();
 
+  /** Local puzzle set (data/puzzles.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
+  var LOCAL_PUZZLES = [];
+
   /* ========================================================================
      Configuration: letter set & word list (set from DB in versus, else default)
      ======================================================================== */
@@ -691,6 +694,10 @@
      Init: versus (gameId + db) or solo
      ======================================================================== */
   function initSolo() {
+    if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
+      var idx = Math.floor(Math.random() * LOCAL_PUZZLES.length);
+      setPuzzleFromData(LOCAL_PUZZLES[idx]);
+    }
     renderHoneycomb();
     state.totalBoardPoints = state.totalBoardPoints || computeTotalBoardPoints();
     if (scoreEl) scoreEl.textContent = '0';
@@ -708,11 +715,21 @@
       }
       return db.getGameWithPuzzle(gameId);
     }).then(function (data) {
-      if (!data || !data.game || !data.puzzle) {
+      if (!data || !data.game) {
         initSolo();
         return;
       }
-      setPuzzleFromData(data.puzzle);
+      var puzzle = null;
+      if (data.puzzle_index != null && LOCAL_PUZZLES && LOCAL_PUZZLES[data.puzzle_index]) {
+        puzzle = LOCAL_PUZZLES[data.puzzle_index];
+      } else if (data.puzzle) {
+        puzzle = data.puzzle;
+      }
+      if (!puzzle) {
+        initSolo();
+        return;
+      }
+      setPuzzleFromData(puzzle);
       renderHoneycomb();
       var startedAt = data.game.started_at;
       var duration = data.game.duration_seconds || 600;
@@ -805,9 +822,22 @@
     });
   }
 
-  if (gameId && window.db) {
-    initVersus();
-  } else {
-    initSolo();
+  /** Load local puzzles then start versus or solo. */
+  function start() {
+    if (gameId && window.db) {
+      initVersus();
+    } else {
+      initSolo();
+    }
   }
+
+  fetch('data/puzzles.json')
+    .then(function (r) { return r.json(); })
+    .then(function (arr) {
+      LOCAL_PUZZLES = Array.isArray(arr) ? arr : [];
+    })
+    .catch(function () {
+      LOCAL_PUZZLES = [];
+    })
+    .finally(start);
 })();
