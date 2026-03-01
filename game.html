@@ -102,23 +102,13 @@
 
   <div class="round-end-overlay" id="round-end-overlay" aria-hidden="true">
     <div class="round-end-modal" role="dialog" aria-labelledby="round-end-title">
-      <h2 id="round-end-title" class="round-end-title">Round 1 complete</h2>
+      <h2 id="round-end-title" class="round-end-title">Game over</h2>
+      <p class="round-end-message" id="round-end-message"></p>
+      <p class="round-end-winner" id="round-end-winner"></p>
       <p class="round-end-scores" id="round-end-scores"></p>
-      <p class="round-end-bitter-label">The Bitter End</p>
-      <p class="round-end-bitter-desc">Continue with the same board — no time limit. Both players must choose the same option to continue.</p>
-      <p class="round-end-your-choice" id="round-end-your-choice">Your choice:</p>
-      <div class="round-end-actions" id="round-end-choice-actions">
-        <button type="button" class="btn btn-bitter-coop" id="btn-bitter-coop">Cooperative</button>
-        <button type="button" class="btn btn-bitter-competitive" id="btn-bitter-competitive">Competitive</button>
-      </div>
-      <p class="round-end-opponent-choice" id="round-end-opponent-choice"></p>
-      <div class="round-end-agreed" id="round-end-agreed" style="display: none;">
-        <p class="round-end-agreed-msg" id="round-end-agreed-msg"></p>
-        <button type="button" class="btn btn-bitter-continue" id="btn-bitter-continue">Continue to Bitter End</button>
-      </div>
-      <p class="round-end-competitive-hint">Competitive: winner needs highest score, at least one pangram, and 95% of total board points.</p>
-      <div class="round-end-back">
-        <a href="lobby.html" class="btn btn-round-back" id="btn-round-back">Back to lobby</a>
+      <div class="round-end-actions">
+        <button type="button" class="btn btn-round-keep-playing" id="btn-round-keep-playing">Keep finding words</button>
+        <button type="button" class="btn btn-round-leave" id="btn-round-leave">Leave</button>
       </div>
     </div>
   </div>

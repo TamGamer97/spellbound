@@ -546,7 +546,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Round 1 end — The Bitter End choice
+   Game over — winner, scores, Keep finding words / Leave
    -------------------------------------------------------------------------- */
 .round-end-overlay {
   position: fixed;
@@ -581,43 +581,42 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   color: #f5c518;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.5rem;
 }
 
-.round-end-scores {
+.round-end-message {
   font-size: 0.95rem;
-  color: #e8e8e8;
-  margin: 0 0 1rem;
-  line-height: 1.4;
-}
-
-.round-end-bitter-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: #b0b0b0;
   margin: 0 0 0.25rem;
 }
 
-.round-end-bitter-desc {
-  font-size: 0.9rem;
-  color: #888;
-  margin: 0 0 1rem;
+.round-end-winner {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8e8e8;
+  margin: 0 0 0.5rem;
+}
+
+.round-end-scores {
+  font-size: 0.95rem;
+  color: #b0b0b0;
+  margin: 0 0 1.25rem;
+  line-height: 1.4;
 }
 
 .round-end-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
 }
 
-.btn-bitter-coop,
-.btn-bitter-competitive {
+.btn-round-keep-playing,
+.btn-round-leave {
   flex: 1;
+  min-width: 120px;
   padding: 0.6rem 1rem;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
@@ -625,79 +624,24 @@ body {
   transition: background 0.2s, color 0.2s;
 }
 
-.btn-bitter-coop {
+.btn-round-keep-playing {
   background: #2a4a2a;
   color: #b8e0b8;
   border-color: #3a5a3a;
 }
 
-.btn-bitter-coop:hover {
+.btn-round-keep-playing:hover {
   background: #3a5a3a;
 }
 
-.btn-bitter-competitive {
-  background: #4a3a2a;
-  color: #f5c518;
-  border-color: #5a4a3a;
-}
-
-.btn-bitter-competitive:hover {
-  background: #5a4a3a;
-}
-
-.round-end-your-choice {
-  font-size: 0.85rem;
-  color: #b0b0b0;
-  margin: 0 0 0.35rem;
-}
-
-.round-end-opponent-choice {
-  font-size: 0.9rem;
+.btn-round-leave {
+  background: #333;
   color: #e8e8e8;
-  margin: 0.5rem 0 0.75rem;
-  min-height: 1.4em;
+  border-color: #555;
 }
 
-.round-end-agreed {
-  margin: 0.75rem 0 1rem;
-  padding: 0.75rem;
-  background: rgba(245, 197, 24, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(245, 197, 24, 0.3);
-}
-
-.round-end-agreed-msg {
-  font-size: 0.95rem;
-  color: #f5c518;
-  font-weight: 600;
-  margin: 0 0 0.5rem;
-}
-
-.btn-bitter-continue {
-  padding: 0.5rem 1rem;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: #f5c518;
-  color: #1a1a1a;
-  border: 1px solid #e0b015;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-bitter-continue:hover {
-  background: #e0b015;
-}
-
-.round-end-actions .btn.selected {
-  box-shadow: 0 0 0 2px #f5c518;
-}
-
-.round-end-competitive-hint {
-  font-size: 0.75rem;
-  color: #666;
-  margin: 0 0 1rem;
-  line-height: 1.35;
+.btn-round-leave:hover {
+  background: #444;
 }
 
 /* Opponent went back to lobby (round-end notification) */
@@ -765,23 +709,7 @@ body {
   background: #e0b015;
 }
 
-.round-end-back {
-  margin-top: 0.5rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #333;
-}
-
-.btn-round-back {
-  font-size: 0.85rem;
-  color: #888;
-  text-decoration: none;
-}
-
-.btn-round-back:hover {
-  color: #e8e8e8;
-}
-
-/* Bitter End: timer shows "No limit" */
+/* Timer in "keep finding words" mode shows no limit */
 .timer-display .timer-value.bitter-end {
   color: #888;
   font-variant-numeric: tabular-nums;
@@ -1050,8 +978,8 @@ body {
     flex-wrap: wrap;
   }
 
-  .btn-bitter-coop,
-  .btn-bitter-competitive {
+  .btn-round-keep-playing,
+  .btn-round-leave {
     min-height: 44px;
   }
 }

@@ -113,130 +113,33 @@
   setupWordsDropdownToggle('words-toggle-opponent', 'words-dropdown-opponent');
 
   var roundEndOverlay = $('round-end-overlay');
-  var btnBitterCoop = $('btn-bitter-coop');
-  var btnBitterCompetitive = $('btn-bitter-competitive');
-  var btnBitterContinue = $('btn-bitter-continue');
-  var btnRoundBack = $('btn-round-back');
-  var roundEndOpponentChoice = $('round-end-opponent-choice');
-  var roundEndAgreed = $('round-end-agreed');
-  var roundEndAgreedMsg = $('round-end-agreed-msg');
-  var roundEndChoiceActions = $('round-end-choice-actions');
-  var roundEndYourChoice = $('round-end-your-choice');
-  var bitterEndChoicePollId = null;
+  var roundEndMessage = $('round-end-message');
+  var roundEndWinner = $('round-end-winner');
+  var roundEndScores = $('round-end-scores');
+  var btnRoundKeepPlaying = $('btn-round-keep-playing');
+  var btnRoundLeave = $('btn-round-leave');
   var opponentLeftNotifOverlay = $('opponent-left-notif-overlay');
   var btnOpponentLeftBack = $('btn-opponent-left-back');
 
-  function enterBitterEnd(mode) {
-    state.roundPhase = mode === 'coop' ? 'bitter_end_coop' : 'bitter_end_competitive';
-    state.gameOver = false;
-    if (bitterEndChoicePollId) {
-      clearInterval(bitterEndChoicePollId);
-      bitterEndChoicePollId = null;
-    }
-    if (roundEndOverlay) {
-      roundEndOverlay.classList.remove('open');
-      roundEndOverlay.setAttribute('aria-hidden', 'true');
-    }
-    if (timerEl) {
-      timerEl.textContent = 'No limit';
-      timerEl.classList.add('bitter-end');
-    }
-  }
-
-  function updateRoundEndChoicesUI(players) {
-    if (!gameId || !state.myUserId || !players || !players.length) return;
-    var me = players.filter(function (p) { return p.user_id === state.myUserId; })[0];
-    var opponent = players.filter(function (p) { return p.user_id !== state.myUserId; })[0];
-    if (opponent && opponent.left_at && opponentLeftNotifOverlay) {
-      opponentLeftNotifOverlay.classList.add('open');
-      opponentLeftNotifOverlay.setAttribute('aria-hidden', 'false');
-      if (bitterEndChoicePollId) { clearInterval(bitterEndChoicePollId); bitterEndChoicePollId = null; }
-      return;
-    }
-    state.myBitterEndChoice = (me && me.bitter_end_choice) ? me.bitter_end_choice : null;
-    state.opponentBitterEndChoice = (opponent && opponent.bitter_end_choice) ? opponent.bitter_end_choice : null;
-    if (btnBitterCoop) {
-      btnBitterCoop.classList.toggle('selected', state.myBitterEndChoice === 'coop');
-    }
-    if (btnBitterCompetitive) {
-      btnBitterCompetitive.classList.toggle('selected', state.myBitterEndChoice === 'competitive');
-    }
-    if (roundEndOpponentChoice) {
-      if (state.opponentBitterEndChoice === 'coop') {
-        roundEndOpponentChoice.textContent = 'Opponent chose: Cooperative';
-      } else if (state.opponentBitterEndChoice === 'competitive') {
-        roundEndOpponentChoice.textContent = 'Opponent chose: Competitive';
-      } else {
-        roundEndOpponentChoice.textContent = 'Opponent: hasn\'t chosen yet';
+  if (btnRoundKeepPlaying) {
+    btnRoundKeepPlaying.addEventListener('click', function () {
+      state.gameOver = false;
+      if (roundEndOverlay) {
+        roundEndOverlay.classList.remove('open');
+        roundEndOverlay.setAttribute('aria-hidden', 'true');
       }
-    }
-    var agreed = state.myBitterEndChoice && state.opponentBitterEndChoice && state.myBitterEndChoice === state.opponentBitterEndChoice;
-    if (roundEndAgreed) {
-      roundEndAgreed.style.display = agreed ? 'block' : 'none';
-    }
-    if (roundEndAgreedMsg && agreed) {
-      var label = state.myBitterEndChoice === 'coop' ? 'Cooperative' : 'Competitive';
-      roundEndAgreedMsg.textContent = 'You both chose ' + label + '!';
-    }
-    if (btnBitterContinue && agreed) {
-      btnBitterContinue.dataset.mode = state.myBitterEndChoice;
-    }
-  }
-
-  function startBitterEndChoicePoll() {
-    if (bitterEndChoicePollId || !gameId || !window.db) return;
-    function poll() {
-      if (!roundEndOverlay || !roundEndOverlay.classList.contains('open')) {
-        if (bitterEndChoicePollId) clearInterval(bitterEndChoicePollId);
-        bitterEndChoicePollId = null;
-        return;
-      }
-      window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI).catch(function () {});
-      window.db.getGameWithPuzzle(gameId).then(function (data) {
-        if (data && data.game && data.game.bitter_end_mode) {
-          if (bitterEndChoicePollId) { clearInterval(bitterEndChoicePollId); bitterEndChoicePollId = null; }
-          enterBitterEnd(data.game.bitter_end_mode);
-        }
-      }).catch(function () {});
-    }
-    poll();
-    bitterEndChoicePollId = setInterval(poll, 1500);
-  }
-
-  if (btnBitterCoop) {
-    btnBitterCoop.addEventListener('click', function () {
-      if (gameId && window.db && window.db.updateBitterEndChoice) {
-        state.myBitterEndChoice = 'coop';
-        window.db.updateBitterEndChoice(gameId, 'coop').then(function () {
-          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI);
-        }).catch(function () {});
-      } else {
-        enterBitterEnd('coop');
+      if (timerEl) {
+        timerEl.textContent = '—';
+        timerEl.classList.add('bitter-end');
       }
     });
   }
-  if (btnBitterCompetitive) {
-    btnBitterCompetitive.addEventListener('click', function () {
-      if (gameId && window.db && window.db.updateBitterEndChoice) {
-        state.myBitterEndChoice = 'competitive';
-        window.db.updateBitterEndChoice(gameId, 'competitive').then(function () {
-          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI);
-        }).catch(function () {});
+  if (btnRoundLeave) {
+    btnRoundLeave.addEventListener('click', function () {
+      if (gameId && window.db && window.db.leaveGame) {
+        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
       } else {
-        enterBitterEnd('competitive');
-      }
-    });
-  }
-  if (btnBitterContinue) {
-    btnBitterContinue.addEventListener('click', function () {
-      var mode = btnBitterContinue.dataset.mode;
-      if (mode !== 'coop' && mode !== 'competitive') return;
-      if (gameId && window.db && window.db.startBitterEnd) {
-        window.db.startBitterEnd(gameId).then(function (startedMode) {
-          if (startedMode) enterBitterEnd(startedMode);
-        });
-      } else {
-        enterBitterEnd(mode);
+        window.location.href = 'lobby.html';
       }
     });
   }
@@ -253,29 +156,11 @@
       }
     });
   }
-  if (btnRoundBack) {
-    btnRoundBack.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (bitterEndChoicePollId) {
-        clearInterval(bitterEndChoicePollId);
-        bitterEndChoicePollId = null;
-      }
-      if (gameId && window.db && window.db.leaveGame) {
-        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
-      } else {
-        window.location.href = 'lobby.html';
-      }
-    });
-  }
   if (roundEndOverlay) {
     roundEndOverlay.addEventListener('click', function (e) {
       if (e.target === roundEndOverlay) {
         roundEndOverlay.classList.remove('open');
         roundEndOverlay.setAttribute('aria-hidden', 'true');
-        if (bitterEndChoicePollId) {
-          clearInterval(bitterEndChoicePollId);
-          bitterEndChoicePollId = null;
-        }
       }
     });
   }
@@ -288,14 +173,13 @@
     timerId: null,
     secondsLeft: TOTAL_SECONDS,
     gameOver: false,
+    roundOver: false,
     gameId: gameId,
     myUserId: null,
     opponentWords: new Set(),
     roundPhase: 'round_1',
     totalBoardPoints: 0,
     opponentScore: 0,
-    myBitterEndChoice: null,
-    opponentBitterEndChoice: null,
     myUsername: null,
     opponentUsername: null,
   };
@@ -535,32 +419,11 @@
     }
 
     checkWin();
-    if (state.roundPhase === 'bitter_end_competitive') {
-      checkBitterEndCompetitiveWin();
-    }
   }
 
-  /** Competitive Bitter End: winner needs highest score, at least one pangram, and 95% of board points. */
-  function checkBitterEndCompetitiveWin() {
-    if (!state.totalBoardPoints || state.totalBoardPoints <= 0) return;
-    var threshold = 0.95 * state.totalBoardPoints;
-    if (state.score < threshold) return;
-    var hasPangram = false;
-    state.found.forEach(function (w) {
-      if (isPangram(w)) hasPangram = true;
-    });
-    if (!hasPangram) return;
-    var aheadOfOpponent = !gameId || state.score > state.opponentScore;
-    if (aheadOfOpponent) {
-      state.gameOver = true;
-      if (timerEl) timerEl.textContent = '0:00';
-      alert('You win! (Competitive Bitter End)\nYou have the highest score, at least one pangram, and 95% of total board points.');
-    }
-  }
-
-  /** If all valid words found in Round 1, end the round (show Bitter End choice). */
+  /** If all valid words found in Round 1 and round not already over, end the game. */
   function checkWin() {
-    if (state.found.size === VALID_WORDS.size && !state.gameOver && state.roundPhase === 'round_1') {
+    if (state.found.size === VALID_WORDS.size && !state.gameOver && !state.roundOver && state.roundPhase === 'round_1') {
       endGame('All words found!');
     }
   }
@@ -580,9 +443,10 @@
     });
   }
 
-  /** Stops timer and shows Round 1 complete overlay (Bitter End choice). */
+  /** Stops timer and shows game-over overlay with winner, scores, and Keep finding words / Leave. */
   function endGame(message) {
     state.gameOver = true;
+    state.roundOver = true;
     if (state.timerId) {
       clearInterval(state.timerId);
       state.timerId = null;
@@ -591,6 +455,33 @@
     if (gameId && window.db && window.db.setGameFinished) {
       window.db.setGameFinished(gameId).catch(function () {});
     }
+    function showOverlay() {
+      var overlay = $('round-end-overlay');
+      var messageEl = $('round-end-message');
+      var winnerEl = $('round-end-winner');
+      var scoresEl = $('round-end-scores');
+      if (!overlay) {
+        alert(message + '\nFinal score: ' + state.score);
+        return;
+      }
+      if (messageEl) messageEl.textContent = message;
+      var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
+      if (scoresEl) {
+        scoresEl.textContent = 'Your score: ' + state.score + (gameId ? ' · Opponent: ' + oppScore : '');
+      }
+      var winnerText = '';
+      if (gameId && state.opponentScore != null) {
+        if (state.score > state.opponentScore) winnerText = 'You win!';
+        else if (state.score < state.opponentScore) winnerText = 'Opponent wins!';
+        else winnerText = 'It\'s a tie!';
+      } else {
+        winnerText = 'Final score: ' + state.score;
+      }
+      if (winnerEl) winnerEl.textContent = winnerText;
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+
     if (gameId && window.db && window.db.getGamePlayers) {
       window.db.getGamePlayers(gameId).then(function (players) {
         if (players && state.myUserId) {
@@ -598,36 +489,17 @@
           if (opponent && opponent.words_found && Array.isArray(opponent.words_found)) {
             state.opponentWords = new Set(opponent.words_found.map(function (w) { return String(w).toUpperCase(); }));
           }
+          if (opponent && opponent.score != null) state.opponentScore = opponent.score;
         }
         revealOpponentWords();
-      }).catch(function () { revealOpponentWords(); });
-    } else if (gameId) {
-      revealOpponentWords();
-    }
-    var overlay = $('round-end-overlay');
-    var scoresEl = $('round-end-scores');
-    if (overlay && scoresEl) {
-      var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
-      scoresEl.textContent = message + ' Your score: ' + state.score + (gameId ? ' · Opponent: ' + oppScore : '') + '.';
-      if (gameId && roundEndYourChoice && roundEndOpponentChoice && roundEndAgreed) {
-        roundEndYourChoice.style.display = 'block';
-        roundEndOpponentChoice.style.display = 'block';
-        roundEndChoiceActions.style.display = 'flex';
-        roundEndAgreed.style.display = 'none';
-        startBitterEndChoicePoll();
-        if (window.db && window.db.getGamePlayers) {
-          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI).catch(function () {});
-        }
-      } else if (!gameId && roundEndYourChoice && roundEndOpponentChoice && roundEndAgreed) {
-        roundEndYourChoice.style.display = 'none';
-        roundEndOpponentChoice.style.display = 'none';
-        roundEndAgreed.style.display = 'none';
-        roundEndChoiceActions.style.display = 'flex';
-      }
-      overlay.classList.add('open');
-      overlay.setAttribute('aria-hidden', 'false');
+        showOverlay();
+      }).catch(function () {
+        revealOpponentWords();
+        showOverlay();
+      });
     } else {
-      alert(message + '\nFinal score: ' + state.score);
+      if (gameId) revealOpponentWords();
+      showOverlay();
     }
   }
 
