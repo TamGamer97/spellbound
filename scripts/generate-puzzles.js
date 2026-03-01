@@ -13,7 +13,7 @@
  *   node scripts/generate-puzzles.js --sql --limit 50
  *
  * Options:
- *   --url <url>   Word list URL (default: dwyl english-words words_alpha.txt)
+ *   --url <url>   Word list URL (default: Google 10k most common English, no swears)
  *   --file <path> Use local file instead of URL
  *   --output <path> Write JSON to file (default: stdout)
  *   --sql         Emit SQL INSERT statements for Supabase puzzles table
@@ -50,7 +50,7 @@ function loadWords(source) {
   if (source.file) {
     return Promise.resolve(fs.readFileSync(source.file, 'utf8'));
   }
-  const url = source.url || 'https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt';
+  const url = source.url || 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt';
   return fetchUrl(url);
 }
 
@@ -106,6 +106,14 @@ function allSubsetKeys(sevenLetters) {
   return out;
 }
 
+/** Fisher–Yates shuffle in place. */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE) {
   // Index: letter set (sorted string) -> list of words that use exactly those letters
   const letterSetToWords = new Map();
@@ -121,6 +129,7 @@ function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE) {
   for (const [key, list] of letterSetToWords) {
     if (key.length === 7 && list.length > 0) sevenLetterKeys.push(key);
   }
+  shuffleArray(sevenLetterKeys);
 
   const puzzles = [];
   const seenPuzzles = new Set();
@@ -217,6 +226,7 @@ async function main() {
   if (opts.minPoints != null && opts.minPoints > 0) {
     puzzles = puzzles.filter((p) => p.total_points >= opts.minPoints);
   }
+  shuffleArray(puzzles);
   if (opts.limit) {
     puzzles = puzzles.slice(0, opts.limit);
   }

@@ -8,7 +8,7 @@ Generates 7-letter Spelling Bee–style game boards from a word list. Each puzzl
 - **Valid words**: 4+ letters, use only those 7 letters, and must include the center letter
 - **At least one pangram** (a word that uses all 7 letters at least once)
 
-Words are loaded from a text file (one word per line) or from a URL. The default source is [dwyl/english-words](https://github.com/dwyl/english-words) `words_alpha.txt`.
+Words are loaded from a text file (one word per line) or from a URL. The default is the **Google 10,000 most common English words** (USA, no swears) so puzzles use simpler, everyday vocabulary. To use a larger dictionary (harder words), pass `--url https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt`.
 
 ### Usage
 
@@ -36,7 +36,7 @@ node scripts/generate-puzzles.js --file path/to/words.txt --output puzzles.json
 
 | Option | Description |
 |--------|-------------|
-| `--url <url>` | Word list URL (default: dwyl english-words) |
+| `--url <url>` | Word list URL (default: Google 10k common words) |
 | `--file <path>` | Use a local word list file instead |
 | `--output <path>` | Write output to file (default: stdout) |
 | `--sql` | Emit SQL `INSERT` statements for `public.puzzles` |
