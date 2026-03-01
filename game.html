@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spellbound — Game</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/game.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="game-header">
+    <div class="game-header-center">
+      <h1 class="game-title">Spellbound</h1>
+      <div class="timer-display">
+        <span class="timer-value" id="timer">10:00</span>
+        <span class="timer-legend">Time (or find all words)</span>
+      </div>
+    </div>
+    <button type="button" class="btn-leave" id="btn-leave" aria-label="Leave game">Leave</button>
+  </header>
+
+  <div class="page-main">
+    <div class="game-row">
+    <aside class="side-panel side-panel-left">
+      <div class="player-panel">
+        <h2 class="player-panel-title">Player</h2>
+        <div class="player-score">
+          <span class="player-score-value" id="score">0</span>
+          <span class="player-score-legend">1 pt/letter · +5 pangram</span>
+        </div>
+        <h3 class="words-panel-title">Words found</h3>
+        <ul class="words-list" id="words-list"></ul>
+      </div>
+    </aside>
+    <div class="game-wrapper">
+      <div class="honeycomb" id="honeycomb">
+        <div class="hex center hex-center" id="hex-center"></div>
+        <div class="hex outer hex-top" id="hex-0"></div>
+        <div class="hex outer hex-tr" id="hex-1"></div>
+        <div class="hex outer hex-br" id="hex-2"></div>
+        <div class="hex outer hex-bot" id="hex-3"></div>
+        <div class="hex outer hex-bl" id="hex-4"></div>
+        <div class="hex outer hex-tl" id="hex-5"></div>
+      </div>
+      <div class="input-row">
+        <div class="input-wrapper">
+          <input type="text" class="word-input" id="word-input" placeholder="Type or tap letters" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="15" />
+        </div>
+      </div>
+      <div class="buttons-row">
+        <button type="button" class="btn" id="btn-delete">Delete</button>
+        <button type="button" class="btn btn-shuffle" id="btn-shuffle" title="Shuffle">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+        </button>
+        <button type="button" class="btn" id="btn-enter">Enter</button>
+      </div>
+      <div class="validation-message" id="validation-message" aria-live="polite"></div>
+    </div>
+    <aside class="side-panel side-panel-right">
+      <div class="player-panel">
+        <h2 class="player-panel-title">Opponent</h2>
+        <div class="player-score">
+          <span class="player-score-value" id="opponent-score">0</span>
+          <span class="player-score-legend">1 pt/letter · +5 pangram</span>
+        </div>
+        <h3 class="words-panel-title">Words found</h3>
+        <p class="opponent-left-msg" id="opponent-left-msg" style="display: none;">Opponent left the game</p>
+        <p class="words-list-placeholder" id="opponent-words-placeholder">Revealed when the round ends</p>
+        <ul class="words-list" id="opponent-words-list"></ul>
+      </div>
+    </aside>
+    </div>
+  </div>
+
+  <div class="challenge-notif-overlay" id="challenge-notif-overlay" aria-hidden="true">
+    <div class="challenge-notif-modal" role="dialog" aria-labelledby="challenge-notif-title">
+      <h2 id="challenge-notif-title" class="challenge-notif-title">Challenge</h2>
+      <p class="challenge-notif-msg" id="challenge-notif-msg"></p>
+      <div class="challenge-notif-actions" id="challenge-notif-actions-game">
+        <button type="button" class="btn btn-challenge-join btn-challenge-leave-join" id="challenge-notif-join-game">Leave this game & join</button>
+        <button type="button" class="btn btn-challenge-reject" id="challenge-notif-reject-game">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="round-end-overlay" id="round-end-overlay" aria-hidden="true">
+    <div class="round-end-modal" role="dialog" aria-labelledby="round-end-title">
+      <h2 id="round-end-title" class="round-end-title">Round 1 complete</h2>
+      <p class="round-end-scores" id="round-end-scores"></p>
+      <p class="round-end-bitter-label">The Bitter End</p>
+      <p class="round-end-bitter-desc">Continue with the same board — no time limit. Both players must choose the same option to continue.</p>
+      <p class="round-end-your-choice" id="round-end-your-choice">Your choice:</p>
+      <div class="round-end-actions" id="round-end-choice-actions">
+        <button type="button" class="btn btn-bitter-coop" id="btn-bitter-coop">Cooperative</button>
+        <button type="button" class="btn btn-bitter-competitive" id="btn-bitter-competitive">Competitive</button>
+      </div>
+      <p class="round-end-opponent-choice" id="round-end-opponent-choice"></p>
+      <div class="round-end-agreed" id="round-end-agreed" style="display: none;">
+        <p class="round-end-agreed-msg" id="round-end-agreed-msg"></p>
+        <button type="button" class="btn btn-bitter-continue" id="btn-bitter-continue">Continue to Bitter End</button>
+      </div>
+      <p class="round-end-competitive-hint">Competitive: winner needs highest score, at least one pangram, and 95% of total board points.</p>
+      <div class="round-end-back">
+        <a href="lobby.html" class="btn btn-round-back" id="btn-round-back">Back to lobby</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="opponent-left-notif-overlay" id="opponent-left-notif-overlay" aria-hidden="true">
+    <div class="opponent-left-notif-modal" role="dialog" aria-labelledby="opponent-left-notif-title">
+      <h2 id="opponent-left-notif-title" class="opponent-left-notif-title">Opponent went back to lobby</h2>
+      <p class="opponent-left-notif-msg">Your opponent left the round-end screen and returned to the lobby.</p>
+      <div class="opponent-left-notif-actions">
+        <button type="button" class="btn btn-opponent-left-back" id="btn-opponent-left-back">Back to lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="leave-overlay" id="leave-overlay" aria-hidden="true">
+    <div class="leave-modal" role="dialog" aria-labelledby="leave-modal-title">
+      <h2 id="leave-modal-title">Leave game?</h2>
+      <p class="leave-modal-text">Your progress will not be saved.</p>
+      <div class="leave-modal-actions">
+        <button type="button" class="btn btn-leave-cancel" id="btn-leave-cancel">Cancel</button>
+        <button type="button" class="btn btn-leave-confirm" id="btn-leave-confirm">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

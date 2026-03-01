@@ -1,0 +1,751 @@
+/* ==========================================================================
+   Spellbound — Game page (honeycomb, panels, timer, leave)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Layout: body & header
+   -------------------------------------------------------------------------- */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #1a1a1a;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.game-header {
+  width: 100%;
+  position: relative;
+  padding: 1.5rem 4rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.game-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.btn-leave {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.4rem 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #888;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-leave:hover {
+  color: #e8e8e8;
+  border-color: #666;
+}
+
+.game-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #e8e8e8;
+  text-transform: uppercase;
+  margin: 0;
+  text-align: center;
+  margin-right: -0.2em;
+  text-shadow:
+    0 0 40px rgba(245, 197, 24, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.timer-display {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.timer-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e8e8e8;
+}
+
+.timer-value.warning {
+  color: #e6b400;
+}
+
+.timer-value.danger {
+  color: #e55;
+}
+
+.timer-legend {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #666;
+}
+
+/* --------------------------------------------------------------------------
+   Main content area & game wrapper
+   -------------------------------------------------------------------------- */
+.page-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+}
+
+.game-row {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Side panels: Player & Opponent
+   -------------------------------------------------------------------------- */
+.side-panel {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.side-panel-left {
+  justify-content: flex-end;
+}
+
+.side-panel-right {
+  justify-content: flex-start;
+}
+
+.player-panel {
+  width: 100%;
+  max-width: 220px;
+  max-height: 520px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.player-panel-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e8e8e8;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.player-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.player-score-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f5c518;
+}
+
+.player-score-legend {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: #666;
+}
+
+.words-panel-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #333;
+}
+
+.words-list-placeholder {
+  font-size: 0.8rem;
+  color: #555;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  margin: 0;
+}
+
+.opponent-left-msg {
+  font-size: 0.85rem;
+  color: #e55;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem;
+  margin: 0 0 0.5rem;
+  background: rgba(229, 85, 85, 0.1);
+  border-radius: 6px;
+}
+
+.game-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+.words-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  line-height: 1.5;
+  flex: 1;
+  min-height: 0;
+}
+
+.words-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.words-list li:last-child {
+  border-bottom: none;
+}
+
+.words-list li.pangram {
+  color: #f5c518;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Honeycomb & hexagons
+   -------------------------------------------------------------------------- */
+.honeycomb {
+  position: relative;
+  width: 370px;
+  height: 360px;
+  flex-shrink: 0;
+}
+
+.hex {
+  position: absolute;
+  width: 115px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  user-select: none;
+}
+
+.hex:hover {
+  transform: scale(1.08);
+  filter: brightness(1.15);
+}
+
+.hex.outer {
+  background: #e8e8e8;
+  color: #333;
+}
+
+.hex.center {
+  background: #f5c518;
+  color: #1a1a1a;
+  filter: drop-shadow(0 0 12px rgba(245, 197, 24, 0.5));
+}
+
+.hex.center:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 20px rgba(245, 197, 24, 0.8)) brightness(1.1);
+}
+
+.hex-center { left: 143px; top: 140px; }
+.hex-top    { left: 143px; top: 30px; }
+.hex-tr     { left: 243px; top: 85px; }
+.hex-br     { left: 243px; top: 195px; }
+.hex-bot    { left: 143px; top: 250px; }
+.hex-bl     { left: 43px; top: 195px; }
+.hex-tl     { left: 43px; top: 85px; }
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(0.5); }
+  70%  { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.hex { animation: popIn 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+.hex-center { animation-delay: 0s; }
+.hex-top    { animation-delay: 0.1s; }
+.hex-tr     { animation-delay: 0.15s; }
+.hex-br     { animation-delay: 0.2s; }
+.hex-bot    { animation-delay: 0.25s; }
+.hex-bl     { animation-delay: 0.3s; }
+.hex-tl     { animation-delay: 0.35s; }
+
+/* --------------------------------------------------------------------------
+   Input & buttons
+   -------------------------------------------------------------------------- */
+.input-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.input-wrapper {
+  width: 100%;
+  max-width: 320px;
+}
+
+.word-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.15rem;
+  color: #e8e8e8;
+  caret-color: #f5c518;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.word-input:focus {
+  border-color: #f5c518;
+}
+
+.word-input::placeholder {
+  color: #666;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.5rem 1.25rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e8e8e8;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  background: #333;
+  border-color: #f5c518;
+  color: #f5c518;
+}
+
+.btn-shuffle {
+  padding: 0.5rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-shuffle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+.validation-message {
+  min-height: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: #888;
+}
+
+.validation-message.great   { color: #6bcf7f; }
+.validation-message.taken   { color: #888; }
+.validation-message.pangram { color: #f5c518; }
+.validation-message.invalid { color: #e55; }
+
+/* --------------------------------------------------------------------------
+   Leave game confirmation
+   -------------------------------------------------------------------------- */
+.leave-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.leave-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.leave-modal {
+  width: 100%;
+  max-width: 340px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+}
+
+.leave-modal h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #e8e8e8;
+  margin: 0 0 0.5rem;
+}
+
+.leave-modal-text {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 1.25rem;
+}
+
+.leave-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-leave-cancel {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: #e8e8e8;
+  background: #333;
+  border: 1px solid #444;
+}
+
+.btn-leave-cancel:hover {
+  background: #444;
+  border-color: #555;
+}
+
+.btn-leave-confirm {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: #e55;
+  background: transparent;
+  border: 1px solid #555;
+}
+
+.btn-leave-confirm:hover {
+  color: #fff;
+  border-color: #e55;
+  background: rgba(229, 85, 85, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Round 1 end — The Bitter End choice
+   -------------------------------------------------------------------------- */
+.round-end-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.round-end-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.round-end-modal {
+  width: 100%;
+  max-width: 380px;
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 1.75rem;
+}
+
+.round-end-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f5c518;
+  margin: 0 0 0.75rem;
+}
+
+.round-end-scores {
+  font-size: 0.95rem;
+  color: #e8e8e8;
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.round-end-bitter-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #b0b0b0;
+  margin: 0 0 0.25rem;
+}
+
+.round-end-bitter-desc {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 1rem;
+}
+
+.round-end-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn-bitter-coop,
+.btn-bitter-competitive {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid #444;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-bitter-coop {
+  background: #2a4a2a;
+  color: #b8e0b8;
+  border-color: #3a5a3a;
+}
+
+.btn-bitter-coop:hover {
+  background: #3a5a3a;
+}
+
+.btn-bitter-competitive {
+  background: #4a3a2a;
+  color: #f5c518;
+  border-color: #5a4a3a;
+}
+
+.btn-bitter-competitive:hover {
+  background: #5a4a3a;
+}
+
+.round-end-your-choice {
+  font-size: 0.85rem;
+  color: #b0b0b0;
+  margin: 0 0 0.35rem;
+}
+
+.round-end-opponent-choice {
+  font-size: 0.9rem;
+  color: #e8e8e8;
+  margin: 0.5rem 0 0.75rem;
+  min-height: 1.4em;
+}
+
+.round-end-agreed {
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem;
+  background: rgba(245, 197, 24, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(245, 197, 24, 0.3);
+}
+
+.round-end-agreed-msg {
+  font-size: 0.95rem;
+  color: #f5c518;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.btn-bitter-continue {
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #f5c518;
+  color: #1a1a1a;
+  border: 1px solid #e0b015;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-bitter-continue:hover {
+  background: #e0b015;
+}
+
+.round-end-actions .btn.selected {
+  box-shadow: 0 0 0 2px #f5c518;
+}
+
+.round-end-competitive-hint {
+  font-size: 0.75rem;
+  color: #666;
+  margin: 0 0 1rem;
+  line-height: 1.35;
+}
+
+/* Opponent went back to lobby (round-end notification) */
+.opponent-left-notif-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 1002;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.opponent-left-notif-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.opponent-left-notif-modal {
+  width: 100%;
+  max-width: 340px;
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.opponent-left-notif-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f5c518;
+  margin: 0 0 0.5rem;
+}
+
+.opponent-left-notif-msg {
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+.opponent-left-notif-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-opponent-left-back {
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #f5c518;
+  color: #1a1a1a;
+  border: 1px solid #e0b015;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-opponent-left-back:hover {
+  background: #e0b015;
+}
+
+.round-end-back {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #333;
+}
+
+.btn-round-back {
+  font-size: 0.85rem;
+  color: #888;
+  text-decoration: none;
+}
+
+.btn-round-back:hover {
+  color: #e8e8e8;
+}
+
+/* Bitter End: timer shows "No limit" */
+.timer-display .timer-value.bitter-end {
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .game-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .side-panel {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.5rem;
+    justify-content: center;
+  }
+
+  .player-panel {
+    max-height: 320px;
+  }
+}

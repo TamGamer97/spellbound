@@ -1,0 +1,746 @@
+/**
+ * Spellbound — Spelling Bee
+ *
+ * Round 1 rules:
+ * - 10-minute timer (from DB started_at in versus, or first interaction in solo)
+ * - 4-letter minimum, 1 pt/letter, +5 pangram
+ */
+
+(function () {
+  'use strict';
+
+  var gameId = (function () {
+    var p = typeof window !== 'undefined' && window.location && window.location.search && window.location.search.slice(1);
+    var params = p ? new URLSearchParams(p) : null;
+    return params && params.get('gameId') ? params.get('gameId') : null;
+  })();
+
+  /* ========================================================================
+     Configuration: letter set & word list (set from DB in versus, else default)
+     ======================================================================== */
+
+  var LETTER_SET = {
+    center: 'E',
+    outer: ['R', 'T', 'A', 'L', 'N', 'P'],
+  };
+
+  var VALID_WORDS = new Set([
+    'REAL', 'RATE', 'LATE', 'TEAR', 'NEAR', 'PEAR', 'LEAN', 'PEAL', 'LEAP', 'PALE',
+    'PANE', 'TAPE', 'REEL', 'PEER', 'LEER', 'RANT', 'ANTE', 'LANE', 'PEARL', 'LEARN',
+    'PLANE', 'PANEL', 'PLANET', 'REPEAT', 'REPEAL', 'REPLANT', 'PLANTER', 'PARENT',
+    'TREAT', 'ALTER', 'LATER', 'RENAL', 'APERT', 'PETAL', 'PLEAT', 'PLATE', 'REAP',
+  ]);
+
+  var PANGRAMS = new Set(
+    Array.from(VALID_WORDS).filter(function (w) { return usesAllSeven(w, LETTER_SET.center, LETTER_SET.outer); })
+  );
+
+  const MIN_LENGTH = 4;
+  const POINTS_PER_LETTER = 1;
+  const PANGRAM_BONUS = 5;
+  const TOTAL_SECONDS = 10 * 60;
+
+  /* ========================================================================
+     DOM references (optional elements may be null if not in layout)
+     ======================================================================== */
+  const $ = (id) => document.getElementById(id);
+  const timerEl = $('timer');
+  const scoreEl = $('score');
+  const opponentScoreEl = $('opponent-score');
+  const wordsListEl = $('words-list');
+  const honeycomb = $('honeycomb');
+  const wordInput = $('word-input');
+  const validationEl = $('validation-message');
+  const btnDelete = $('btn-delete');
+  const btnShuffle = $('btn-shuffle');
+  const btnEnter = $('btn-enter');
+  const btnLeave = $('btn-leave');
+  const leaveOverlay = $('leave-overlay');
+  const btnLeaveCancel = $('btn-leave-cancel');
+  const btnLeaveConfirm = $('btn-leave-confirm');
+  const opponentLeftEl = $('opponent-left-msg');
+  const opponentWordsPlaceholder = $('opponent-words-placeholder');
+  const opponentWordsListEl = document.getElementById('opponent-words-list');
+  const challengeNotifOverlay = $('challenge-notif-overlay');
+  const challengeNotifMsg = $('challenge-notif-msg');
+  const challengeNotifJoinGame = $('challenge-notif-join-game');
+  const challengeNotifRejectGame = $('challenge-notif-reject-game');
+  var unsubscribeGamePlayers = null;
+  var unsubscribeChallenges = null;
+
+  function openLeaveModal() {
+    if (leaveOverlay) { leaveOverlay.classList.add('open'); leaveOverlay.setAttribute('aria-hidden', 'false'); }
+  }
+  function closeLeaveModal() {
+    if (leaveOverlay) { leaveOverlay.classList.remove('open'); leaveOverlay.setAttribute('aria-hidden', 'true'); }
+  }
+  function doLeave() {
+    if (gameId && window.db && window.db.leaveGame) {
+      window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+    } else {
+      window.location.href = 'lobby.html';
+    }
+  }
+
+  if (btnLeave && leaveOverlay) {
+    btnLeave.addEventListener('click', openLeaveModal);
+    if (btnLeaveCancel) btnLeaveCancel.addEventListener('click', closeLeaveModal);
+    if (btnLeaveConfirm) btnLeaveConfirm.addEventListener('click', doLeave);
+    leaveOverlay.addEventListener('click', function (e) {
+      if (e.target === leaveOverlay) closeLeaveModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && leaveOverlay && leaveOverlay.classList.contains('open')) closeLeaveModal();
+    });
+  }
+
+  var roundEndOverlay = $('round-end-overlay');
+  var btnBitterCoop = $('btn-bitter-coop');
+  var btnBitterCompetitive = $('btn-bitter-competitive');
+  var btnBitterContinue = $('btn-bitter-continue');
+  var btnRoundBack = $('btn-round-back');
+  var roundEndOpponentChoice = $('round-end-opponent-choice');
+  var roundEndAgreed = $('round-end-agreed');
+  var roundEndAgreedMsg = $('round-end-agreed-msg');
+  var roundEndChoiceActions = $('round-end-choice-actions');
+  var roundEndYourChoice = $('round-end-your-choice');
+  var bitterEndChoicePollId = null;
+  var opponentLeftNotifOverlay = $('opponent-left-notif-overlay');
+  var btnOpponentLeftBack = $('btn-opponent-left-back');
+
+  function enterBitterEnd(mode) {
+    state.roundPhase = mode === 'coop' ? 'bitter_end_coop' : 'bitter_end_competitive';
+    state.gameOver = false;
+    if (bitterEndChoicePollId) {
+      clearInterval(bitterEndChoicePollId);
+      bitterEndChoicePollId = null;
+    }
+    if (roundEndOverlay) {
+      roundEndOverlay.classList.remove('open');
+      roundEndOverlay.setAttribute('aria-hidden', 'true');
+    }
+    if (timerEl) {
+      timerEl.textContent = 'No limit';
+      timerEl.classList.add('bitter-end');
+    }
+  }
+
+  function updateRoundEndChoicesUI(players) {
+    if (!gameId || !state.myUserId || !players || !players.length) return;
+    var me = players.filter(function (p) { return p.user_id === state.myUserId; })[0];
+    var opponent = players.filter(function (p) { return p.user_id !== state.myUserId; })[0];
+    if (opponent && opponent.left_at && opponentLeftNotifOverlay) {
+      opponentLeftNotifOverlay.classList.add('open');
+      opponentLeftNotifOverlay.setAttribute('aria-hidden', 'false');
+      if (bitterEndChoicePollId) { clearInterval(bitterEndChoicePollId); bitterEndChoicePollId = null; }
+      return;
+    }
+    state.myBitterEndChoice = (me && me.bitter_end_choice) ? me.bitter_end_choice : null;
+    state.opponentBitterEndChoice = (opponent && opponent.bitter_end_choice) ? opponent.bitter_end_choice : null;
+    if (btnBitterCoop) {
+      btnBitterCoop.classList.toggle('selected', state.myBitterEndChoice === 'coop');
+    }
+    if (btnBitterCompetitive) {
+      btnBitterCompetitive.classList.toggle('selected', state.myBitterEndChoice === 'competitive');
+    }
+    if (roundEndOpponentChoice) {
+      if (state.opponentBitterEndChoice === 'coop') {
+        roundEndOpponentChoice.textContent = 'Opponent chose: Cooperative';
+      } else if (state.opponentBitterEndChoice === 'competitive') {
+        roundEndOpponentChoice.textContent = 'Opponent chose: Competitive';
+      } else {
+        roundEndOpponentChoice.textContent = 'Opponent: hasn\'t chosen yet';
+      }
+    }
+    var agreed = state.myBitterEndChoice && state.opponentBitterEndChoice && state.myBitterEndChoice === state.opponentBitterEndChoice;
+    if (roundEndAgreed) {
+      roundEndAgreed.style.display = agreed ? 'block' : 'none';
+    }
+    if (roundEndAgreedMsg && agreed) {
+      var label = state.myBitterEndChoice === 'coop' ? 'Cooperative' : 'Competitive';
+      roundEndAgreedMsg.textContent = 'You both chose ' + label + '!';
+    }
+    if (btnBitterContinue && agreed) {
+      btnBitterContinue.dataset.mode = state.myBitterEndChoice;
+    }
+  }
+
+  function startBitterEndChoicePoll() {
+    if (bitterEndChoicePollId || !gameId || !window.db) return;
+    function poll() {
+      if (!roundEndOverlay || !roundEndOverlay.classList.contains('open')) {
+        if (bitterEndChoicePollId) clearInterval(bitterEndChoicePollId);
+        bitterEndChoicePollId = null;
+        return;
+      }
+      window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI).catch(function () {});
+      window.db.getGameWithPuzzle(gameId).then(function (data) {
+        if (data && data.game && data.game.bitter_end_mode) {
+          if (bitterEndChoicePollId) { clearInterval(bitterEndChoicePollId); bitterEndChoicePollId = null; }
+          enterBitterEnd(data.game.bitter_end_mode);
+        }
+      }).catch(function () {});
+    }
+    poll();
+    bitterEndChoicePollId = setInterval(poll, 1500);
+  }
+
+  if (btnBitterCoop) {
+    btnBitterCoop.addEventListener('click', function () {
+      if (gameId && window.db && window.db.updateBitterEndChoice) {
+        state.myBitterEndChoice = 'coop';
+        window.db.updateBitterEndChoice(gameId, 'coop').then(function () {
+          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI);
+        }).catch(function () {});
+      } else {
+        enterBitterEnd('coop');
+      }
+    });
+  }
+  if (btnBitterCompetitive) {
+    btnBitterCompetitive.addEventListener('click', function () {
+      if (gameId && window.db && window.db.updateBitterEndChoice) {
+        state.myBitterEndChoice = 'competitive';
+        window.db.updateBitterEndChoice(gameId, 'competitive').then(function () {
+          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI);
+        }).catch(function () {});
+      } else {
+        enterBitterEnd('competitive');
+      }
+    });
+  }
+  if (btnBitterContinue) {
+    btnBitterContinue.addEventListener('click', function () {
+      var mode = btnBitterContinue.dataset.mode;
+      if (mode !== 'coop' && mode !== 'competitive') return;
+      if (gameId && window.db && window.db.startBitterEnd) {
+        window.db.startBitterEnd(gameId).then(function (startedMode) {
+          if (startedMode) enterBitterEnd(startedMode);
+        });
+      } else {
+        enterBitterEnd(mode);
+      }
+    });
+  }
+  if (btnOpponentLeftBack) {
+    btnOpponentLeftBack.addEventListener('click', function () {
+      if (opponentLeftNotifOverlay) {
+        opponentLeftNotifOverlay.classList.remove('open');
+        opponentLeftNotifOverlay.setAttribute('aria-hidden', 'true');
+      }
+      if (gameId && window.db && window.db.leaveGame) {
+        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+      } else {
+        window.location.href = 'lobby.html';
+      }
+    });
+  }
+  if (btnRoundBack) {
+    btnRoundBack.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (bitterEndChoicePollId) {
+        clearInterval(bitterEndChoicePollId);
+        bitterEndChoicePollId = null;
+      }
+      if (gameId && window.db && window.db.leaveGame) {
+        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+      } else {
+        window.location.href = 'lobby.html';
+      }
+    });
+  }
+  if (roundEndOverlay) {
+    roundEndOverlay.addEventListener('click', function (e) {
+      if (e.target === roundEndOverlay) {
+        roundEndOverlay.classList.remove('open');
+        roundEndOverlay.setAttribute('aria-hidden', 'true');
+        if (bitterEndChoicePollId) {
+          clearInterval(bitterEndChoicePollId);
+          bitterEndChoicePollId = null;
+        }
+      }
+    });
+  }
+
+  /** Game state. */
+  var state = {
+    score: 0,
+    found: new Set(),
+    letters: [],
+    timerId: null,
+    secondsLeft: TOTAL_SECONDS,
+    gameOver: false,
+    gameId: gameId,
+    myUserId: null,
+    opponentWords: new Set(),
+    roundPhase: 'round_1',
+    totalBoardPoints: 0,
+    opponentScore: 0,
+    myBitterEndChoice: null,
+    opponentBitterEndChoice: null,
+  };
+
+  /**
+   * Index of the center hex in the layout.
+   * Order: hex-0, hex-1, hex-2, hex-center, hex-3, hex-4, hex-5.
+   */
+  const CENTER_INDEX = 3;
+
+  /* ========================================================================
+     Helpers: letters & validation
+     ======================================================================== */
+
+  /** Returns [center, ...outer] for the current puzzle. */
+  function getAllLetters() {
+    return [state.letters[CENTER_INDEX], ...state.letters.slice(0, CENTER_INDEX), ...state.letters.slice(CENTER_INDEX + 1, 7)];
+  }
+
+  /** True if word uses all 7 letters (center + outer). */
+  function usesAllSeven(word, center, outer) {
+    const all = new Set([center, ...outer]);
+    for (const c of word.toUpperCase()) {
+      all.delete(c);
+    }
+    return all.size === 0;
+  }
+
+  /** Returns the 6 outer letters in random order (center is never shuffled). */
+  function getShuffledOuterOnly() {
+    var outer = LETTER_SET.outer.slice ? LETTER_SET.outer.slice() : LETTER_SET.outer;
+    if (!outer.slice) outer = Array.from(outer);
+    for (var i = outer.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = outer[i]; outer[i] = outer[j]; outer[j] = t;
+    }
+    return outer;
+  }
+
+  /** Compute total points available on the board (for 95% competitive win). */
+  function computeTotalBoardPoints() {
+    var total = 0;
+    VALID_WORDS.forEach(function (w) {
+      total += w.length * POINTS_PER_LETTER;
+      if (PANGRAMS.has(w)) total += PANGRAM_BONUS;
+    });
+    return total;
+  }
+
+  /** Set puzzle from DB (versus mode). */
+  function setPuzzleFromData(puzzle) {
+    if (!puzzle) return;
+    LETTER_SET = {
+      center: puzzle.center_letter,
+      outer: typeof puzzle.outer_letters === 'string' ? puzzle.outer_letters.split('') : (puzzle.outer_letters || []),
+    };
+    VALID_WORDS = new Set(Array.isArray(puzzle.valid_words) ? puzzle.valid_words : []);
+    PANGRAMS = new Set(Array.isArray(puzzle.pangrams) ? puzzle.pangrams : []);
+    state.totalBoardPoints = (puzzle.total_points != null && puzzle.total_points > 0)
+      ? puzzle.total_points
+      : computeTotalBoardPoints();
+  }
+
+  /** Update opponent panel: score and "opponent left". Opponent words are not shown; we only store them for validation (no reusing except pangrams). */
+  function applyOpponentPlayers(players, myUserId) {
+    if (!players || !players.length || !myUserId) return;
+    var opponent = players.filter(function (p) { return p.user_id !== myUserId; })[0];
+    if (!opponent) return;
+    state.opponentScore = opponent.score || 0;
+    if (opponentScoreEl) opponentScoreEl.textContent = state.opponentScore;
+    if (opponent.words_found && Array.isArray(opponent.words_found)) {
+      state.opponentWords = new Set(opponent.words_found.map(function (w) { return String(w).toUpperCase(); }));
+    }
+    if (opponent.left_at && opponentLeftEl) {
+      opponentLeftEl.style.display = 'block';
+      if (opponentWordsPlaceholder) opponentWordsPlaceholder.style.display = 'none';
+    }
+  }
+
+  /** Timer driven by DB started_at so both players stay in sync. */
+  function startTimerFromDB(startedAtIso, durationSeconds) {
+    if (state.timerId) return;
+    var startMs = new Date(startedAtIso).getTime();
+    var durationMs = (durationSeconds || 600) * 1000;
+    function tickFromDB() {
+      if (state.gameOver) return;
+      var elapsed = Date.now() - startMs;
+      state.secondsLeft = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
+      var m = Math.floor(state.secondsLeft / 60);
+      var s = state.secondsLeft % 60;
+      if (timerEl) {
+        timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        timerEl.classList.remove('warning', 'danger');
+        if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+        else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
+      }
+      if (state.secondsLeft <= 0) endGame('Time\'s up!');
+    }
+    tickFromDB();
+    state.timerId = setInterval(tickFromDB, 1000);
+  }
+
+  /* ========================================================================
+     Honeycomb: render letters
+     ======================================================================== */
+
+  /**
+   * Updates the 7 hex elements with current letters.
+   * @param {boolean} [shuffleOuterLettersOnly] - If true, only reorder outer letters; center stays the same.
+   */
+  function renderHoneycomb(shuffleOuterLettersOnly) {
+    const center = LETTER_SET.center;
+    if (shuffleOuterLettersOnly && state.letters.length === 7) {
+      const outer = [state.letters[0], state.letters[1], state.letters[2], state.letters[4], state.letters[5], state.letters[6]];
+      const shuffled = getShuffledOuterOnly();
+      state.letters = [shuffled[0], shuffled[1], shuffled[2], center, shuffled[3], shuffled[4], shuffled[5]];
+    } else {
+      const outer = getShuffledOuterOnly();
+      state.letters = [outer[0], outer[1], outer[2], center, outer[3], outer[4], outer[5]];
+    }
+    const hexIds = ['hex-0', 'hex-1', 'hex-2', 'hex-center', 'hex-3', 'hex-4', 'hex-5'];
+    hexIds.forEach((id, i) => {
+      const el = $(id);
+      if (!el) return;
+      el.textContent = state.letters[i];
+      el.dataset.letter = state.letters[i];
+    });
+  }
+
+  /** Appends a letter to the input (e.g. when clicking a hex). Cursor is moved to end. */
+  function addLetter(letter) {
+    if (state.gameOver) return;
+    const val = wordInput.value.toUpperCase();
+    if (val.length < 15) {
+      wordInput.value = val + letter;
+      wordInput.setSelectionRange(wordInput.value.length, wordInput.value.length);
+    }
+  }
+
+  /** Shows validation message (Great, Taken, Pangram, or error). */
+  function showValidation(message, className) {
+    if (validationEl) {
+      validationEl.textContent = message;
+      validationEl.className = 'validation-message ' + (className || '');
+    }
+  }
+
+  /* ========================================================================
+     Submit word: validate and add to list
+     ======================================================================== */
+
+  function submitWord() {
+    const raw = wordInput.value.trim().toUpperCase();
+    if (validationEl) {
+      validationEl.textContent = '';
+      validationEl.className = 'validation-message';
+    }
+
+    if (!raw) return;
+
+    if (raw.length < MIN_LENGTH) {
+      showValidation('Too short', 'invalid');
+      return;
+    }
+
+    const center = state.letters[CENTER_INDEX];
+    const allowed = new Set(getAllLetters());
+    for (const c of raw) {
+      if (!allowed.has(c)) {
+        showValidation('Invalid letters', 'invalid');
+        return;
+      }
+    }
+    if (!raw.includes(center)) {
+      showValidation('Must use center letter', 'invalid');
+      return;
+    }
+
+    if (!VALID_WORDS.has(raw)) {
+      showValidation('Not a word', 'invalid');
+      return;
+    }
+
+    if (state.found.has(raw)) {
+      showValidation('Taken', 'taken');
+      return;
+    }
+
+    if (gameId && state.opponentWords && state.opponentWords.has(raw) && !PANGRAMS.has(raw)) {
+      showValidation('Already found by opponent', 'invalid');
+      return;
+    }
+
+    if (state.gameOver) return;
+
+    state.found.add(raw);
+    const basePoints = raw.length * POINTS_PER_LETTER;
+    const bonus = PANGRAMS.has(raw) ? PANGRAM_BONUS : 0;
+    state.score += basePoints + bonus;
+
+    wordInput.value = '';
+    if (scoreEl) scoreEl.textContent = state.score;
+    if (!gameId || !window.db || !window.db.updateMyGamePlayer) {
+      if (opponentScoreEl) opponentScoreEl.textContent = state.score;
+    }
+    if (gameId && window.db && window.db.updateMyGamePlayer) {
+      window.db.updateMyGamePlayer(gameId, { score: state.score, words_found: Array.from(state.found) }).catch(function () {});
+    }
+
+    var li = document.createElement('li');
+    li.textContent = raw;
+    if (PANGRAMS.has(raw)) li.classList.add('pangram');
+    if (wordsListEl) wordsListEl.appendChild(li);
+
+    if (PANGRAMS.has(raw)) {
+      showValidation('Pangram!', 'pangram');
+    } else {
+      showValidation('Great!', 'great');
+    }
+
+    checkWin();
+    if (state.roundPhase === 'bitter_end_competitive') {
+      checkBitterEndCompetitiveWin();
+    }
+  }
+
+  /** Competitive Bitter End: winner needs highest score, at least one pangram, and 95% of board points. */
+  function checkBitterEndCompetitiveWin() {
+    if (!state.totalBoardPoints || state.totalBoardPoints <= 0) return;
+    var threshold = 0.95 * state.totalBoardPoints;
+    if (state.score < threshold) return;
+    var hasPangram = false;
+    state.found.forEach(function (w) {
+      if (PANGRAMS.has(w)) hasPangram = true;
+    });
+    if (!hasPangram) return;
+    var aheadOfOpponent = !gameId || state.score > state.opponentScore;
+    if (aheadOfOpponent) {
+      state.gameOver = true;
+      if (timerEl) timerEl.textContent = '0:00';
+      alert('You win! (Competitive Bitter End)\nYou have the highest score, at least one pangram, and 95% of total board points.');
+    }
+  }
+
+  /** If all valid words found in Round 1, end the round (show Bitter End choice). */
+  function checkWin() {
+    if (state.found.size === VALID_WORDS.size && !state.gameOver && state.roundPhase === 'round_1') {
+      endGame('All words found!');
+    }
+  }
+
+  /** Stops timer and shows Round 1 complete overlay (Bitter End choice). */
+  function endGame(message) {
+    state.gameOver = true;
+    if (state.timerId) {
+      clearInterval(state.timerId);
+      state.timerId = null;
+    }
+    if (timerEl) timerEl.textContent = '0:00';
+    if (gameId && window.db && window.db.setGameFinished) {
+      window.db.setGameFinished(gameId).catch(function () {});
+    }
+    var overlay = $('round-end-overlay');
+    var scoresEl = $('round-end-scores');
+    if (overlay && scoresEl) {
+      var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
+      scoresEl.textContent = message + ' Your score: ' + state.score + (gameId ? ' · Opponent: ' + oppScore : '') + '.';
+      if (gameId && roundEndYourChoice && roundEndOpponentChoice && roundEndAgreed) {
+        roundEndYourChoice.style.display = 'block';
+        roundEndOpponentChoice.style.display = 'block';
+        roundEndChoiceActions.style.display = 'flex';
+        roundEndAgreed.style.display = 'none';
+        startBitterEndChoicePoll();
+        if (window.db && window.db.getGamePlayers) {
+          window.db.getGamePlayers(gameId).then(updateRoundEndChoicesUI).catch(function () {});
+        }
+      } else if (!gameId && roundEndYourChoice && roundEndOpponentChoice && roundEndAgreed) {
+        roundEndYourChoice.style.display = 'none';
+        roundEndOpponentChoice.style.display = 'none';
+        roundEndAgreed.style.display = 'none';
+        roundEndChoiceActions.style.display = 'flex';
+      }
+      overlay.classList.add('open');
+      overlay.setAttribute('aria-hidden', 'false');
+    } else {
+      alert(message + '\nFinal score: ' + state.score);
+    }
+  }
+
+  /** Timer tick: update display, end game when time runs out. */
+  function tick() {
+    if (state.gameOver) return;
+    state.secondsLeft--;
+    const m = Math.floor(state.secondsLeft / 60);
+    const s = state.secondsLeft % 60;
+    if (timerEl) {
+      timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+      else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
+    }
+    if (state.secondsLeft <= 0) endGame('Time\'s up!');
+  }
+
+  /** Starts the 10-minute countdown (only once). */
+  function startTimer() {
+    if (state.timerId) return;
+    state.timerId = setInterval(tick, 1000);
+  }
+
+  /* ========================================================================
+     Event listeners
+     ======================================================================== */
+
+  honeycomb.addEventListener('click', (e) => {
+    const btn = e.target.closest('.hex');
+    if (btn && btn.dataset.letter) addLetter(btn.dataset.letter);
+  });
+
+  wordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      submitWord();
+    }
+  });
+
+  btnDelete.addEventListener('click', () => {
+    wordInput.value = wordInput.value.slice(0, -1);
+    wordInput.setSelectionRange(wordInput.value.length, wordInput.value.length);
+  });
+
+  btnShuffle.addEventListener('click', () => {
+    if (state.gameOver) return;
+    renderHoneycomb(true);
+  });
+
+  btnEnter.addEventListener('click', () => submitWord());
+
+  wordInput.addEventListener('focus', function () {
+    if (!gameId) startTimer();
+  });
+
+  document.body.addEventListener('keydown', function startOnce() {
+    if (!gameId) { startTimer(); document.body.removeEventListener('keydown', startOnce); }
+  });
+  if (honeycomb) honeycomb.addEventListener('click', function startOnce() {
+    if (!gameId) { startTimer(); honeycomb.removeEventListener('click', startOnce); }
+  });
+
+  /* ========================================================================
+     Init: versus (gameId + db) or solo
+     ======================================================================== */
+  function initSolo() {
+    renderHoneycomb();
+    state.totalBoardPoints = state.totalBoardPoints || computeTotalBoardPoints();
+    if (scoreEl) scoreEl.textContent = '0';
+    if (opponentScoreEl) opponentScoreEl.textContent = '0';
+  }
+
+  function initVersus() {
+    var db = window.db;
+    if (!gameId || !db || !db.getGameWithPuzzle) { initSolo(); return; }
+    db.getCurrentUserAsync().then(function (me) {
+      state.myUserId = me ? me.id : null;
+      return db.getGameWithPuzzle(gameId);
+    }).then(function (data) {
+      if (!data || !data.game || !data.puzzle) {
+        initSolo();
+        return;
+      }
+      setPuzzleFromData(data.puzzle);
+      renderHoneycomb();
+      var startedAt = data.game.started_at;
+      var duration = data.game.duration_seconds || 600;
+      if (startedAt) {
+        startTimerFromDB(startedAt, duration);
+      } else {
+        state.secondsLeft = duration;
+        startTimerFromDB(new Date().toISOString(), duration);
+      }
+      return db.getGamePlayers(gameId).then(function (players) {
+        if (!players || !players.length) return;
+        var myRow = players.filter(function (p) { return p.user_id === state.myUserId; })[0];
+        if (myRow) {
+          state.score = myRow.score || 0;
+          state.found = new Set(Array.isArray(myRow.words_found) ? myRow.words_found : []);
+          if (scoreEl) scoreEl.textContent = state.score;
+          state.found.forEach(function (w) {
+            var li = document.createElement('li');
+            li.textContent = w;
+            if (PANGRAMS.has(w)) li.classList.add('pangram');
+            if (wordsListEl) wordsListEl.appendChild(li);
+          });
+        }
+        applyOpponentPlayers(players, state.myUserId);
+        if (db.subscribeToGamePlayers) {
+          unsubscribeGamePlayers = db.subscribeToGamePlayers(gameId, function (updated) {
+            applyOpponentPlayers(updated, state.myUserId);
+          });
+        }
+        var pollId = setInterval(function () {
+          if (state.gameOver) { clearInterval(pollId); return; }
+          db.getGamePlayers(gameId).then(function (updated) {
+            applyOpponentPlayers(updated, state.myUserId);
+          }).catch(function () {});
+        }, 2500);
+
+        function showInGameChallengePopup(challenge) {
+          if (!challenge || !challengeNotifOverlay) return;
+          if (challengeNotifMsg) {
+            var name = challenge.from_username || 'Someone';
+            challengeNotifMsg.textContent = name + ' challenged you to a game. Joining will leave your current game.';
+          }
+          challengeNotifOverlay.classList.add('open');
+          challengeNotifOverlay.setAttribute('aria-hidden', 'false');
+          state.pendingChallenge = challenge;
+        }
+        function closeInGameChallengePopup() {
+          state.pendingChallenge = null;
+          if (challengeNotifOverlay) {
+            challengeNotifOverlay.classList.remove('open');
+            challengeNotifOverlay.setAttribute('aria-hidden', 'true');
+          }
+        }
+        if (challengeNotifJoinGame) {
+          challengeNotifJoinGame.addEventListener('click', function () {
+            if (!state.pendingChallenge || !db.acceptChallenge) return;
+            var id = state.pendingChallenge.id;
+            closeInGameChallengePopup();
+            db.acceptChallenge(id).then(function (gameId) {
+              window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
+            }).catch(closeInGameChallengePopup);
+          });
+        }
+        if (challengeNotifRejectGame) {
+          challengeNotifRejectGame.addEventListener('click', function () {
+            if (state.pendingChallenge && db.rejectChallenge) {
+              db.rejectChallenge(state.pendingChallenge.id).then(closeInGameChallengePopup);
+            } else closeInGameChallengePopup();
+          });
+        }
+        challengeNotifOverlay && challengeNotifOverlay.addEventListener('click', function (e) {
+          if (e.target === challengeNotifOverlay) closeInGameChallengePopup();
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && challengeNotifOverlay && challengeNotifOverlay.classList.contains('open')) closeInGameChallengePopup();
+        });
+
+        db.getMyPendingChallenges().then(function (list) {
+          if (list && list.length && list[0]) showInGameChallengePopup(list[0]);
+        });
+        if (db.subscribeToIncomingChallenges) {
+          db.subscribeToIncomingChallenges(function (list) {
+            if (list && list.length && list[0]) showInGameChallengePopup(list[0]);
+          }).then(function (unsub) { unsubscribeChallenges = unsub; });
+        }
+      });
+    }).catch(function (err) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('Spellbound initVersus:', err);
+      initSolo();
+    });
+  }
+
+  if (gameId && window.db) {
+    initVersus();
+  } else {
+    initSolo();
+  }
+})();

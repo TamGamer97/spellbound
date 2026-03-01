@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spellbound — Play</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="pages">
+  <div class="lobby-wrap">
+    <button type="button" class="lobby-settings" id="btn-settings" title="Settings" aria-label="Settings">⚙</button>
+    <p class="lobby-welcome" id="lobby-welcome">Welcome</p>
+    <h1 class="page-title">Choose how to play</h1>
+    <div class="lobby-actions">
+      <div class="mode-card" id="challenge-card" data-mode="challenge">
+        <h3>Challenge a friend</h3>
+        <p>Search for a user and send them a game invite.</p>
+        <div class="mode-content" id="challenge-content">
+          <label for="search-username">Search by username</label>
+          <input type="text" id="search-username" placeholder="Enter username" autocomplete="off" />
+          <div class="search-results" id="search-results"></div>
+          <div class="btn-row" id="challenge-search-row">
+            <button type="button" id="btn-search">Search</button>
+          </div>
+          <p class="challenge-declined-msg" id="challenge-declined-msg" style="display: none;" aria-live="polite"></p>
+          <div class="waiting-state" id="challenge-waiting" style="display: none;">
+            <div class="spinner"></div>
+            <p id="challenge-waiting-msg">Waiting for <strong id="challenge-username"></strong> to accept…</p>
+            <button type="button" class="cancel-btn" id="btn-cancel-challenge">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="mode-card" id="match-card" data-mode="match">
+        <h3>Match me</h3>
+        <p>Get paired with another player who is also looking for a match.</p>
+        <div class="mode-content" id="match-content">
+          <div class="waiting-state" id="match-waiting" style="display: none;">
+            <div class="spinner"></div>
+            <p>Looking for another player…</p>
+            <p class="hint">Someone else must press "Match me" to pair with you.</p>
+            <button type="button" class="cancel-btn" id="btn-cancel-match">Cancel</button>
+          </div>
+          <div id="match-start-row" class="btn-row">
+            <button type="button" id="btn-match-me">Find match</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top: 1.5rem; font-size: 0.85rem;">
+      <a href="game.html" style="color: #888;">Play solo (demo) →</a>
+    </p>
+  </div>
+
+  <div class="challenge-notif-overlay" id="challenge-notif-overlay" aria-hidden="true">
+    <div class="challenge-notif-modal" role="dialog" aria-labelledby="challenge-notif-title">
+      <h2 id="challenge-notif-title" class="challenge-notif-title">Challenge</h2>
+      <p class="challenge-notif-msg" id="challenge-notif-msg"></p>
+      <div class="challenge-notif-actions" id="challenge-notif-actions">
+        <button type="button" class="btn btn-challenge-join" id="challenge-notif-join">Join</button>
+        <button type="button" class="btn btn-challenge-reject" id="challenge-notif-reject">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-overlay" id="settings-overlay" aria-hidden="true">
+    <div class="settings-modal" role="dialog" aria-labelledby="settings-title">
+      <div class="settings-header">
+        <h2 id="settings-title">Account settings</h2>
+        <button type="button" class="settings-close" id="btn-close-settings" aria-label="Close">×</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-field">
+          <label>Username</label>
+          <p class="settings-value" id="settings-username">—</p>
+        </div>
+        <div class="settings-field">
+          <label>Account ID</label>
+          <p class="settings-value settings-value-muted" id="settings-user-id">—</p>
+        </div>
+        <div class="settings-field settings-field-password">
+          <label for="settings-new-password">New password</label>
+          <input type="password" id="settings-new-password" class="settings-input" placeholder="At least 6 characters" autocomplete="new-password" />
+        </div>
+        <div class="settings-field">
+          <label for="settings-confirm-password">Confirm new password</label>
+          <input type="password" id="settings-confirm-password" class="settings-input" placeholder="Confirm" autocomplete="new-password" />
+        </div>
+        <p class="settings-msg" id="settings-password-msg" aria-live="polite"></p>
+        <div class="settings-actions settings-actions-password">
+          <button type="button" class="btn btn-change-password" id="btn-change-password">Change password</button>
+        </div>
+        <div class="settings-actions">
+          <a href="index.html" class="btn btn-logout" id="btn-logout">Log out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    (function () {
+      if (!window.db) {
+        window.location.href = 'index.html';
+        return;
+      }
+      window.db.getCurrentUserAsync().then(function (u) {
+        if (!u) {
+          window.location.href = 'index.html';
+          return;
+        }
+        var user = u;
+      var welcomeEl = document.getElementById('lobby-welcome');
+      if (welcomeEl && user) {
+        welcomeEl.textContent = 'Welcome, ' + (user.username || '') + '.';
+      }
+
+      var overlay = document.getElementById('settings-overlay');
+      var btnSettings = document.getElementById('btn-settings');
+      var btnCloseSettings = document.getElementById('btn-close-settings');
+
+      function openSettings() {
+        if (user) {
+          document.getElementById('settings-username').textContent = user.username || '—';
+          document.getElementById('settings-user-id').textContent = user.id || '—';
+        }
+        if (overlay) {
+          overlay.classList.add('open');
+          overlay.setAttribute('aria-hidden', 'false');
+        }
+      }
+
+      function closeSettings() {
+        if (overlay) {
+          overlay.classList.remove('open');
+          overlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      if (btnSettings) btnSettings.addEventListener('click', openSettings);
+      if (btnCloseSettings) btnCloseSettings.addEventListener('click', closeSettings);
+      if (overlay) {
+        overlay.addEventListener('click', function (e) {
+          if (e.target === overlay) closeSettings();
+        });
+      }
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) closeSettings();
+      });
+
+      var newPasswordEl = document.getElementById('settings-new-password');
+      var confirmPasswordEl = document.getElementById('settings-confirm-password');
+      var passwordMsgEl = document.getElementById('settings-password-msg');
+      document.getElementById('btn-change-password').addEventListener('click', function () {
+        var newPw = newPasswordEl && newPasswordEl.value ? newPasswordEl.value.trim() : '';
+        var confirmPw = confirmPasswordEl && confirmPasswordEl.value ? confirmPasswordEl.value : '';
+        if (!passwordMsgEl) return;
+        passwordMsgEl.textContent = '';
+        passwordMsgEl.classList.remove('success', 'error');
+        if (newPw.length < 6) {
+          passwordMsgEl.textContent = 'Password must be at least 6 characters.';
+          passwordMsgEl.classList.add('error');
+          return;
+        }
+        if (newPw !== confirmPw) {
+          passwordMsgEl.textContent = 'Passwords do not match.';
+          passwordMsgEl.classList.add('error');
+          return;
+        }
+        window.db.changePassword(newPw).then(function () {
+          passwordMsgEl.textContent = 'Password updated.';
+          passwordMsgEl.classList.add('success');
+          if (newPasswordEl) newPasswordEl.value = '';
+          if (confirmPasswordEl) confirmPasswordEl.value = '';
+        }).catch(function (err) {
+          passwordMsgEl.textContent = err && err.message ? err.message : 'Failed to update password.';
+          passwordMsgEl.classList.add('error');
+        });
+      });
+
+      document.getElementById('btn-logout').addEventListener('click', function (e) {
+        e.preventDefault();
+        window.db.logout().then(function () {
+          window.location.href = 'index.html';
+        });
+      });
+
+      var challengeCard = document.getElementById('challenge-card');
+      var challengeContent = document.getElementById('challenge-content');
+      var searchInput = document.getElementById('search-username');
+      var searchResults = document.getElementById('search-results');
+      var btnSearch = document.getElementById('btn-search');
+      var challengeSearchRow = document.getElementById('challenge-search-row');
+      var challengeWaiting = document.getElementById('challenge-waiting');
+      var challengeUsernameEl = document.getElementById('challenge-username');
+      var btnCancelChallenge = document.getElementById('btn-cancel-challenge');
+      var challengeDeclinedEl = document.getElementById('challenge-declined-msg');
+
+      var matchCard = document.getElementById('match-card');
+      var matchContent = document.getElementById('match-content');
+      var matchStartRow = document.getElementById('match-start-row');
+      var matchWaiting = document.getElementById('match-waiting');
+      var btnMatchMe = document.getElementById('btn-match-me');
+      var btnCancelMatch = document.getElementById('btn-cancel-match');
+
+      var searchTimeout = null;
+
+      function expandCard(card) {
+        document.querySelectorAll('.mode-card').forEach(function (c) {
+          c.classList.remove('expanded');
+        });
+        card.classList.add('expanded');
+      }
+
+      challengeCard.addEventListener('click', function (e) {
+        if (!challengeCard.classList.contains('expanded') && !e.target.closest('.mode-content')) {
+          expandCard(challengeCard);
+        }
+      });
+
+      matchCard.addEventListener('click', function (e) {
+        if (!matchCard.classList.contains('expanded') && !e.target.closest('.mode-content')) {
+          expandCard(matchCard);
+        }
+      });
+
+      function renderSearchResults(users) {
+        searchResults.innerHTML = '';
+        users.forEach(function (u) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = u.username;
+          btn.addEventListener('click', function () {
+            window.db.sendChallenge(u.id, u.username).then(function () {
+              challengeSearchRow.style.display = 'none';
+              searchResults.innerHTML = '';
+              searchInput.value = '';
+              challengeUsernameEl.textContent = u.username;
+              challengeWaiting.style.display = 'block';
+              startChallengeStatusPoll();
+            });
+          });
+          searchResults.appendChild(btn);
+        });
+      }
+
+      btnSearch.addEventListener('click', function () {
+        var q = searchInput.value.trim();
+        if (!q) return;
+        window.db.searchUsers(q).then(renderSearchResults);
+      });
+
+      searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        var q = searchInput.value.trim();
+        if (q.length < 2) {
+          searchResults.innerHTML = '';
+          return;
+        }
+        searchTimeout = setTimeout(function () {
+          window.db.searchUsers(q).then(renderSearchResults);
+        }, 300);
+      });
+
+      btnCancelChallenge.addEventListener('click', function () {
+        if (challengePollId) clearInterval(challengePollId);
+        challengePollId = null;
+        window.db.cancelChallenge().then(function () {
+          challengeWaiting.style.display = 'none';
+          challengeSearchRow.style.display = 'flex';
+        });
+      });
+
+      var matchPollId = null;
+      function pollMatchStatus() {
+        if (!user) return;
+        window.db.getMatchStatus().then(function (s) {
+          if (s && s.status === 'matched' && s.gameId) {
+            if (matchPollId) clearInterval(matchPollId);
+            window.location.href = 'game.html?gameId=' + encodeURIComponent(s.gameId);
+          }
+        });
+      }
+      function startMatchPoll() {
+        if (matchPollId) return;
+        matchPollId = setInterval(pollMatchStatus, 2000);
+      }
+
+      btnMatchMe.addEventListener('click', function () {
+        window.db.findMatch().then(function () {
+          matchStartRow.style.display = 'none';
+          matchWaiting.style.display = 'block';
+          expandCard(matchCard);
+          pollMatchStatus();
+          startMatchPoll();
+        }).catch(function () {
+          matchStartRow.style.display = 'flex';
+        });
+      });
+
+      btnCancelMatch.addEventListener('click', function () {
+        if (matchPollId) clearInterval(matchPollId);
+        window.db.cancelMatch().then(function () {
+          matchWaiting.style.display = 'none';
+          matchStartRow.style.display = 'flex';
+        });
+      });
+
+      var challengePollId = null;
+      function startChallengeStatusPoll() {
+        if (challengePollId) return;
+        challengePollId = setInterval(function () {
+          if (!challengeWaiting || challengeWaiting.style.display !== 'block') {
+            if (challengePollId) clearInterval(challengePollId);
+            challengePollId = null;
+            return;
+          }
+          window.db.getSentChallengeStatus().then(function (s) {
+            if (!s) return;
+            if (s.status === 'accepted' && s.game_id) {
+              if (challengePollId) clearInterval(challengePollId);
+              challengePollId = null;
+              window.location.href = 'game.html?gameId=' + encodeURIComponent(s.game_id);
+            } else if (s.status === 'declined' || s.status === 'expired') {
+              if (challengePollId) clearInterval(challengePollId);
+              challengePollId = null;
+              challengeWaiting.style.display = 'none';
+              challengeSearchRow.style.display = 'flex';
+              if (challengeDeclinedEl) {
+                challengeDeclinedEl.textContent = (s.toUsername ? s.toUsername + ' declined.' : 'Challenge declined.');
+                challengeDeclinedEl.style.display = 'block';
+                setTimeout(function () { challengeDeclinedEl.style.display = 'none'; }, 3000);
+              }
+            }
+          });
+        }, 2000);
+      }
+
+      var challengeNotifOverlay = document.getElementById('challenge-notif-overlay');
+      var challengeNotifMsg = document.getElementById('challenge-notif-msg');
+      var challengeNotifActions = document.getElementById('challenge-notif-actions');
+      var challengeNotifJoin = document.getElementById('challenge-notif-join');
+      var challengeNotifReject = document.getElementById('challenge-notif-reject');
+      var currentChallenge = null;
+      var unsubChallenges = null;
+
+      function showChallengePopup(challenge) {
+        if (!challenge || !challengeNotifOverlay) return;
+        currentChallenge = challenge;
+        var name = challenge.from_username || 'Someone';
+        challengeNotifMsg.textContent = name + ' challenged you to a game.';
+        challengeNotifOverlay.classList.add('open');
+        challengeNotifOverlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeChallengePopup() {
+        currentChallenge = null;
+        if (challengeNotifOverlay) {
+          challengeNotifOverlay.classList.remove('open');
+          challengeNotifOverlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      function checkAndShowPendingChallenges() {
+        window.db.getMyPendingChallenges().then(function (list) {
+          if (list && list.length && list[0]) showChallengePopup(list[0]);
+        });
+      }
+
+      if (challengeNotifJoin) {
+        challengeNotifJoin.addEventListener('click', function () {
+          if (!currentChallenge) return;
+          var id = currentChallenge.id;
+          closeChallengePopup();
+          window.db.acceptChallenge(id).then(function (gameId) {
+            window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
+          }).catch(function () {
+            checkAndShowPendingChallenges();
+          });
+        });
+      }
+      if (challengeNotifReject) {
+        challengeNotifReject.addEventListener('click', function () {
+          if (!currentChallenge) return;
+          var id = currentChallenge.id;
+          closeChallengePopup();
+          window.db.rejectChallenge(id).then(function () {
+            checkAndShowPendingChallenges();
+          });
+        });
+      }
+      challengeNotifOverlay.addEventListener('click', function (e) {
+        if (e.target === challengeNotifOverlay) closeChallengePopup();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && challengeNotifOverlay && challengeNotifOverlay.classList.contains('open')) closeChallengePopup();
+      });
+
+      checkAndShowPendingChallenges();
+      window.db.subscribeToIncomingChallenges(function (list) {
+        if (list && list.length && list[0]) showChallengePopup(list[0]);
+      }).then(function (unsub) { unsubChallenges = unsub; });
+    });
+    })();
+  </script>
+</body>
+</html>

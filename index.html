@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spellbound</title>
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body class="pages">
+  <h1 class="page-title">Spellbound</h1>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-tab="login">Log in</button>
+      <button type="button" class="auth-tab" data-tab="signup">Sign up</button>
+    </div>
+    <form id="login-form" class="auth-form active" data-action="login">
+      <p class="auth-error" id="auth-error" aria-live="polite"></p>
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" name="email" required autocomplete="email" />
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" name="password" required autocomplete="current-password" />
+      <button type="submit">Log in</button>
+    </form>
+    <form id="signup-form" class="auth-form" data-action="signup">
+      <p class="auth-error" id="signup-error" aria-live="polite"></p>
+      <p class="auth-success" id="signup-success" aria-live="polite" style="display: none;"></p>
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" name="email" required autocomplete="email" />
+      <label for="signup-username">Username</label>
+      <input type="text" id="signup-username" name="username" required autocomplete="username" />
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" name="password" required autocomplete="new-password" />
+      <button type="submit">Sign up</button>
+    </form>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/db.js"></script>
+  <script>
+    (function () {
+      var loginForm = document.getElementById('login-form');
+      var signupForm = document.getElementById('signup-form');
+      var loginError = document.getElementById('auth-error');
+      var signupError = document.getElementById('signup-error');
+
+      function showError(el, msg) {
+        if (el) { el.textContent = msg || ''; }
+      }
+
+      window.db.getCurrentUserAsync().then(function (user) {
+        if (user) {
+          window.location.href = 'lobby.html';
+          return;
+        }
+        var tabs = document.querySelectorAll('.auth-tab');
+        tabs.forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            var t = tab.getAttribute('data-tab');
+            tabs.forEach(function (x) { x.classList.remove('active'); });
+            tab.classList.add('active');
+            loginForm.classList.toggle('active', t === 'login');
+            signupForm.classList.toggle('active', t === 'signup');
+            showError(loginError, '');
+            showError(signupError, '');
+            var signupSuccess = document.getElementById('signup-success');
+            if (signupSuccess) signupSuccess.style.display = 'none';
+          });
+        });
+
+        loginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var email = document.getElementById('login-email').value.trim();
+          var password = document.getElementById('login-password').value;
+          showError(loginError, '');
+          loginForm.querySelector('button[type="submit"]').disabled = true;
+          window.db.login(email, password).then(function (user) {
+            if (user) {
+              window.location.href = 'lobby.html';
+            } else {
+              showError(loginError, 'Invalid email or password.');
+            }
+          }).catch(function () {
+            showError(loginError, 'Invalid email or password.');
+          }).finally(function () {
+            loginForm.querySelector('button[type="submit"]').disabled = false;
+          });
+        });
+
+        signupForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var email = document.getElementById('signup-email').value.trim();
+          var username = document.getElementById('signup-username').value.trim();
+          var password = document.getElementById('signup-password').value;
+          showError(signupError, '');
+          if (!email || !username || !password) {
+            showError(signupError, 'Please enter email, username and password.');
+            return;
+          }
+          signupForm.querySelector('button[type="submit"]').disabled = true;
+          var signupSuccess = document.getElementById('signup-success');
+          if (signupSuccess) signupSuccess.style.display = 'none';
+          showError(signupError, '');
+          window.db.signup(email, password, username).then(function (user) {
+            showError(signupError, '');
+            if (signupSuccess) {
+              signupSuccess.textContent = 'Please check your email to verify your account. You can log in after verifying.';
+              signupSuccess.style.display = 'block';
+            }
+          }).catch(function (err) {
+            if (signupSuccess) signupSuccess.style.display = 'none';
+            showError(signupError, err && err.message ? err.message : 'Username or email may already be in use.');
+          }).finally(function () {
+            signupForm.querySelector('button[type="submit"]').disabled = false;
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

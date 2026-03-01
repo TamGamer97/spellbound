@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Spellbound — Shared reset and base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Challenge notification — bottom-right toast style (lobby + game) */
+.challenge-notif-overlay {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  background: transparent;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+.challenge-notif-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.challenge-notif-modal {
+  pointer-events: auto;
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  min-width: 260px;
+  max-width: 320px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 197, 24, 0.15);
+}
+.challenge-notif-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+  color: #f5c518;
+}
+.challenge-notif-msg {
+  font-size: 0.9rem;
+  color: #e8e8e8;
+  margin-bottom: 1rem;
+  line-height: 1.35;
+}
+.challenge-notif-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.challenge-notif-actions .btn {
+  padding: 0.4rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #444;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-challenge-join {
+  background: #f5c518;
+  color: #1a1a1a;
+  border-color: #e0b015;
+}
+.btn-challenge-join:hover {
+  background: #e0b015;
+}
+.btn-challenge-leave-join {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+}
+.btn-challenge-reject {
+  background: transparent;
+  color: #b0b0b0;
+}
+.btn-challenge-reject:hover {
+  background: #333;
+  color: #e8e8e8;
+}
+.btn-challenge-dismiss {
+  background: #333;
+  color: #e8e8e8;
+}
+.btn-challenge-dismiss:hover {
+  background: #444;
+}
