@@ -921,25 +921,25 @@ body {
   }
 
   .honeycomb {
-    width: 300px;
-    height: 292px;
-    transform: scale(0.95);
+    width: 345px;
+    height: 336px;
+    transform: scale(1);
     transform-origin: center top;
   }
 
   .hex {
-    width: 93px;
-    height: 81px;
-    font-size: 1.45rem;
+    width: 107px;
+    height: 93px;
+    font-size: 1.65rem;
   }
 
-  .hex-center { left: 116px; top: 113px; }
-  .hex-top    { left: 116px; top: 24px; }
-  .hex-tr     { left: 197px; top: 69px; }
-  .hex-br     { left: 197px; top: 157px; }
-  .hex-bot    { left: 116px; top: 202px; }
-  .hex-bl     { left: 35px; top: 157px; }
-  .hex-tl     { left: 35px; top: 69px; }
+  .hex-center { left: 133px; top: 130px; }
+  .hex-top    { left: 133px; top: 28px; }
+  .hex-tr     { left: 227px; top: 79px; }
+  .hex-br     { left: 227px; top: 181px; }
+  .hex-bot    { left: 133px; top: 232px; }
+  .hex-bl     { left: 40px; top: 181px; }
+  .hex-tl     { left: 40px; top: 79px; }
 
   .input-wrapper {
     max-width: 100%;
@@ -1027,24 +1027,24 @@ body {
   }
 
   .honeycomb {
-    width: 260px;
-    height: 253px;
-    transform: scale(0.88);
+    width: 300px;
+    height: 292px;
+    transform: scale(0.98);
   }
 
   .hex {
-    width: 81px;
-    height: 70px;
-    font-size: 1.25rem;
+    width: 93px;
+    height: 81px;
+    font-size: 1.45rem;
   }
 
-  .hex-center { left: 100px; top: 98px; }
-  .hex-top    { left: 100px; top: 21px; }
-  .hex-tr     { left: 171px; top: 60px; }
-  .hex-br     { left: 171px; top: 136px; }
-  .hex-bot    { left: 100px; top: 175px; }
-  .hex-bl     { left: 29px; top: 136px; }
-  .hex-tl     { left: 29px; top: 60px; }
+  .hex-center { left: 115px; top: 113px; }
+  .hex-top    { left: 115px; top: 24px; }
+  .hex-tr     { left: 197px; top: 69px; }
+  .hex-br     { left: 197px; top: 157px; }
+  .hex-bot    { left: 115px; top: 202px; }
+  .hex-bl     { left: 33px; top: 157px; }
+  .hex-tl     { left: 33px; top: 69px; }
 
   .game-wrapper {
     padding: 0.5rem;
