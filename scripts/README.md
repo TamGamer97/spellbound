@@ -8,7 +8,7 @@ Generates 7-letter Spelling Bee–style game boards from a word list. Each puzzl
 - **Valid words**: 4+ letters, use only those 7 letters, and must include the center letter
 - **At least two pangrams** by default (configurable via `--min-pangrams`)
 
-Words are loaded from a text file (one word per line) or from a URL. The default is the **Google 20,000 most common English words** (`20k.txt`) so puzzles include more everyday words (plurals, common verb forms, etc.); a small blocklist filters inappropriate terms. To use the smaller 10k list or the full dictionary, pass `--url <url>`.
+Words are loaded from a text file (one word per line) or from a URL. The default is the **Google 20,000 most common English words** (`20k.txt`). You can supply a **blocklist** of words to exclude (e.g. inappropriate terms) via `--blocklist-url` or `--blocklist-file`; the source can be one word per line or a JSON array of strings.
 
 ### Usage
 
@@ -30,6 +30,10 @@ node scripts/generate-puzzles.js --min-words 20 --min-points 200 --limit 100
 
 # Use a local word list
 node scripts/generate-puzzles.js --file path/to/words.txt --output puzzles.json
+
+# Exclude words from an API or file (one word per line or JSON array)
+node scripts/generate-puzzles.js --blocklist-url https://example.com/blocklist.txt --output puzzles.json
+node scripts/generate-puzzles.js --blocklist-file data/blocklist.txt --output puzzles.json
 ```
 
 ### Options
@@ -44,6 +48,8 @@ node scripts/generate-puzzles.js --file path/to/words.txt --output puzzles.json
 | `--min-words <n>` | Minimum valid words per puzzle (default: 20) |
 | `--min-points <n>` | Minimum total points per puzzle |
 | `--min-pangrams <n>` | Minimum pangrams per puzzle (default: 2) |
+| `--blocklist-url <url>` | URL to fetch blocklist (one word per line or JSON array) |
+| `--blocklist-file <path>` | Local blocklist file (one word per line or JSON array) |
 
 ### Seeding Supabase
 

@@ -21,6 +21,8 @@
  *   --min-words <n> Min valid words per puzzle (default: 20)
  *   --min-points <n> Min total points per puzzle (default: 0)
  *   --min-pangrams <n> Min pangrams per puzzle (default: 2)
+ *   --blocklist-url <url>  URL to fetch blocklist (one word per line or JSON array)
+ *   --blocklist-file <path> Local file for blocklist (one word per line or JSON array)
  */
 
 const fs = require('fs');
@@ -55,13 +57,43 @@ function loadWords(source) {
   return fetchUrl(url);
 }
 
-/** Words to exclude from puzzles (20k list has no no-swears variant). */
-const BLOCKLIST = new Set([
-  'ASS', 'ASSES', 'HELL', 'CRAP', 'DAMN', 'SHIT', 'SLUT', 'TITS', 'WHORE', 'BITCH', 'DICK', 'COCK', 'PUSSY', 'FUCK', 'FUCKS', 'FUCKED', 'FUCKING',
-  'CUNT', 'PISS', 'PISSED', 'NAZI', 'NIGGA', 'NIGGER', 'FAG', 'FAGGOT', 'RETARD', 'RETARDS'
-]);
+/** Load blocklist from URL or file. Returns Set of uppercase words. Empty if no source. */
+function parseBlocklistContent(raw) {
+  const set = new Set();
+  const trimmed = raw.trim();
+  if (!trimmed) return set;
+  if (trimmed.startsWith('[')) {
+    try {
+      const arr = JSON.parse(trimmed);
+      if (Array.isArray(arr)) {
+        for (const item of arr) {
+          const w = String(item).trim().toUpperCase().replace(/[^A-Z]/g, '');
+          if (w) set.add(w);
+        }
+      }
+      return set;
+    } catch (_) { /* fall through to line-by-line */ }
+  }
+  for (const line of trimmed.split(/\r?\n/)) {
+    const w = line.trim().toUpperCase().replace(/[^A-Z]/g, '');
+    if (w) set.add(w);
+  }
+  return set;
+}
 
-function parseWordList(text) {
+async function loadBlocklist(opts) {
+  if (opts.blocklistFile) {
+    const raw = fs.readFileSync(opts.blocklistFile, 'utf8');
+    return parseBlocklistContent(raw);
+  }
+  if (opts.blocklistUrl) {
+    const raw = await fetchUrl(opts.blocklistUrl);
+    return parseBlocklistContent(raw);
+  }
+  return new Set();
+}
+
+function parseWordList(text, blocklist = new Set()) {
   const seen = new Set();
   const words = [];
   const lines = text.split(/\r?\n/);
@@ -69,7 +101,7 @@ function parseWordList(text) {
     const w = line.trim().toUpperCase().replace(/[^A-Z]/g, '');
     if (w.length < MIN_LENGTH || w.length > MAX_LENGTH) continue;
     if (seen.has(w)) continue;
-    if (BLOCKLIST.has(w)) continue;
+    if (blocklist.has(w)) continue;
     seen.add(w);
     words.push(w);
   }
@@ -217,6 +249,10 @@ function parseArgs() {
       opts.minPoints = parseInt(args[++i], 10);
     } else if (args[i] === '--min-pangrams' && args[i + 1]) {
       opts.minPangrams = parseInt(args[++i], 10);
+    } else if (args[i] === '--blocklist-url' && args[i + 1]) {
+      opts.blocklistUrl = args[++i];
+    } else if (args[i] === '--blocklist-file' && args[i + 1]) {
+      opts.blocklistFile = args[++i];
     }
   }
   return opts;
@@ -226,8 +262,14 @@ async function main() {
   const opts = parseArgs();
   const source = opts.file ? { file: opts.file } : { url: opts.url };
   process.stderr.write('Loading word list...\n');
-  const text = await loadWords(source);
-  const words = parseWordList(text);
+  const [text, blocklist] = await Promise.all([
+    loadWords(source),
+    loadBlocklist(opts),
+  ]);
+  if (blocklist.size > 0) {
+    process.stderr.write(`Blocklist: ${blocklist.size} words (from ${opts.blocklistUrl ? 'URL' : 'file'}).\n`);
+  }
+  const words = parseWordList(text, blocklist);
   process.stderr.write(`Loaded ${words.length} words (${MIN_LENGTH}+ letters).\n`);
 
   const minWords = opts.minWords != null ? opts.minWords : MIN_WORDS_PER_PUZZLE;
