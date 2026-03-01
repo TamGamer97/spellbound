@@ -338,11 +338,23 @@
   }
 
   /** Shows validation message (Great, Taken, Pangram, or error). */
+  var validationClearTimeoutId = null;
   function showValidation(message, className) {
+    if (validationClearTimeoutId) {
+      clearTimeout(validationClearTimeoutId);
+      validationClearTimeoutId = null;
+    }
     if (validationEl) {
       validationEl.textContent = message;
       validationEl.className = 'validation-message ' + (className || '');
     }
+    validationClearTimeoutId = setTimeout(function () {
+      validationClearTimeoutId = null;
+      if (validationEl) {
+        validationEl.textContent = '';
+        validationEl.className = 'validation-message';
+      }
+    }, 2200);
   }
 
   /* ========================================================================
@@ -351,6 +363,10 @@
 
   function submitWord() {
     const raw = wordInput.value.trim().toUpperCase();
+    if (validationClearTimeoutId) {
+      clearTimeout(validationClearTimeoutId);
+      validationClearTimeoutId = null;
+    }
     if (validationEl) {
       validationEl.textContent = '';
       validationEl.className = 'validation-message';
@@ -360,6 +376,7 @@
 
     if (raw.length < MIN_LENGTH) {
       showValidation('Too short', 'invalid');
+      wordInput.value = '';
       return;
     }
 
@@ -368,26 +385,31 @@
     for (const c of raw) {
       if (!allowed.has(c)) {
         showValidation('Invalid letters', 'invalid');
+        wordInput.value = '';
         return;
       }
     }
     if (!raw.includes(center)) {
       showValidation('Must use center letter', 'invalid');
+      wordInput.value = '';
       return;
     }
 
     if (!VALID_WORDS.has(raw)) {
       showValidation('Not a word', 'invalid');
+      wordInput.value = '';
       return;
     }
 
     if (state.found.has(raw)) {
       showValidation('Taken', 'taken');
+      wordInput.value = '';
       return;
     }
 
     if (gameId && state.opponentWords && state.opponentWords.has(raw) && !isPangram(raw)) {
       showValidation('Already found by opponent', 'invalid');
+      wordInput.value = '';
       return;
     }
 
@@ -410,7 +432,10 @@
     var li = document.createElement('li');
     li.textContent = raw;
     if (isPangram(raw)) li.classList.add('pangram');
-    if (wordsListEl) wordsListEl.appendChild(li);
+    if (wordsListEl) {
+      wordsListEl.appendChild(li);
+      li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     if (isPangram(raw)) {
       showValidation('Pangram!', 'pangram');
