@@ -19,8 +19,20 @@
   var LOCAL_PUZZLES = [];
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
-  /** Prevents double-submit while dictionary API request is in flight. */
+  /** Prevents double-submit while dictionary/profanity check is in flight. */
   var dictionaryCheckInFlight = false;
+
+  /** Returns a Promise<boolean>: true if the word contains profanity (Purgomalum API). */
+  function checkProfanity(word) {
+    var base = (typeof window.__SPELLBOUND_PROFANITY_API__ !== 'undefined' && window.__SPELLBOUND_PROFANITY_API__)
+      ? window.__SPELLBOUND_PROFANITY_API__
+      : 'https://www.purgomalum.com/service/containsprofanity';
+    var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'text=' + encodeURIComponent(word);
+    return fetch(url)
+      .then(function (r) { return r.text(); })
+      .then(function (text) { return (String(text).trim().toLowerCase() === 'true'); })
+      .catch(function () { return false; });
+  }
 
   /* ========================================================================
      Configuration: letter set & word list (set from DB in versus, else default)
@@ -415,7 +427,18 @@
 
     var inPuzzleList = VALID_WORDS.has(raw);
     if (inPuzzleList) {
-      acceptAndRecordWord(raw);
+      if (dictionaryCheckInFlight) return;
+      dictionaryCheckInFlight = true;
+      checkProfanity(raw)
+        .then(function (hasProfanity) {
+          if (hasProfanity) {
+            showValidation("That word isn't allowed", 'invalid');
+            wordInput.value = '';
+          } else {
+            acceptAndRecordWord(raw);
+          }
+        })
+        .finally(function () { dictionaryCheckInFlight = false; });
       return;
     }
 
@@ -434,11 +457,20 @@
     dictionaryCheckInFlight = true;
     fetch(apiUrl)
       .then(function (res) {
-        if (res.ok) {
-          acceptAndRecordWord(raw);
-        } else {
+        if (!res.ok) {
           showValidation('Not a word', 'invalid');
           wordInput.value = '';
+          return null;
+        }
+        return checkProfanity(raw);
+      })
+      .then(function (hasProfanity) {
+        if (hasProfanity === null) return;
+        if (hasProfanity) {
+          showValidation("That word isn't allowed", 'invalid');
+          wordInput.value = '';
+        } else {
+          acceptAndRecordWord(raw);
         }
       })
       .catch(function () {
