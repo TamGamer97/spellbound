@@ -8,13 +8,13 @@ window.__SPELLBOUND_SUPABASE__ = {
 };
 
 /**
- * Optional: full dictionary for fallback word validation (one word per line or JSON array).
- * If set, words not in the puzzle's list are accepted if they appear here and pass rules.
+ * Dictionary API for fallback word validation. Words not in the puzzle list are
+ * checked here: GET https://api.dictionaryapi.dev/api/v2/entries/en/<word>
  */
-window.__SPELLBOUND_DICTIONARY_URL__ = 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt';
+window.__SPELLBOUND_DICTIONARY_API__ = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 
 /**
  * Optional: blocklist URL for dictionary fallback (one word per line or JSON array).
- * Words from the dictionary that appear here are still rejected.
+ * Words that appear here are never accepted, even if the dictionary API returns them.
  */
 window.__SPELLBOUND_BLOCKLIST_URL__ = '';

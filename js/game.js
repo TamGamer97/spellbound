@@ -17,10 +17,10 @@
 
   /** Local puzzle set (data/puzzles.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
-  /** Full dictionary for fallback validation: if a word isn't in the puzzle list, accept it if it's here (and not blocklisted). */
-  var FULL_DICTIONARY = new Set();
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
+  /** Prevents double-submit while dictionary API request is in flight. */
+  var dictionaryCheckInFlight = false;
 
   /* ========================================================================
      Configuration: letter set & word list (set from DB in versus, else default)
@@ -399,14 +399,6 @@
       return;
     }
 
-    var inPuzzleList = VALID_WORDS.has(raw);
-    var inDictionary = FULL_DICTIONARY.size > 0 && FULL_DICTIONARY.has(raw) && !DICTIONARY_BLOCKLIST.has(raw);
-    if (!inPuzzleList && !inDictionary) {
-      showValidation('Not a word', 'invalid');
-      wordInput.value = '';
-      return;
-    }
-
     if (state.found.has(raw)) {
       showValidation('Taken', 'taken');
       wordInput.value = '';
@@ -421,9 +413,47 @@
 
     if (state.gameOver) return;
 
+    var inPuzzleList = VALID_WORDS.has(raw);
+    if (inPuzzleList) {
+      acceptAndRecordWord(raw);
+      return;
+    }
+
+    if (DICTIONARY_BLOCKLIST.has(raw)) {
+      showValidation('Not a word', 'invalid');
+      wordInput.value = '';
+      return;
+    }
+
+    var apiBase = typeof window.__SPELLBOUND_DICTIONARY_API__ !== 'undefined' && window.__SPELLBOUND_DICTIONARY_API__
+      ? window.__SPELLBOUND_DICTIONARY_API__
+      : 'https://api.dictionaryapi.dev/api/v2/entries/en';
+    var apiUrl = apiBase.replace(/\/$/, '') + '/' + encodeURIComponent(raw.toLowerCase());
+
+    if (dictionaryCheckInFlight) return;
+    dictionaryCheckInFlight = true;
+    fetch(apiUrl)
+      .then(function (res) {
+        if (res.ok) {
+          acceptAndRecordWord(raw);
+        } else {
+          showValidation('Not a word', 'invalid');
+          wordInput.value = '';
+        }
+      })
+      .catch(function () {
+        showValidation('Not a word', 'invalid');
+        wordInput.value = '';
+      })
+      .finally(function () {
+        dictionaryCheckInFlight = false;
+      });
+  }
+
+  function acceptAndRecordWord(raw) {
     state.found.add(raw);
-    const basePoints = raw.length * POINTS_PER_LETTER;
-    const bonus = isPangram(raw) ? PANGRAM_BONUS : 0;
+    var basePoints = raw.length * POINTS_PER_LETTER;
+    var bonus = isPangram(raw) ? PANGRAM_BONUS : 0;
     state.score += basePoints + bonus;
 
     wordInput.value = '';
@@ -768,15 +798,11 @@
       .catch(function () { return new Set(); });
   }
 
-  function loadDictionaryAndBlocklist() {
-    var cfg = window.__SPELLBOUND_DICTIONARY_URL__;
+  function loadBlocklist() {
     var blockUrl = (typeof window.__SPELLBOUND_BLOCKLIST_URL__ !== 'undefined' && window.__SPELLBOUND_BLOCKLIST_URL__) ? window.__SPELLBOUND_BLOCKLIST_URL__ : '';
-    return Promise.all([
-      cfg ? fetchWordSet(cfg) : Promise.resolve(new Set()),
-      blockUrl ? fetchWordSet(blockUrl) : Promise.resolve(new Set()),
-    ]).then(function (results) {
-      FULL_DICTIONARY = results[0];
-      DICTIONARY_BLOCKLIST = results[1];
+    if (!blockUrl) return Promise.resolve();
+    return fetchWordSet(blockUrl).then(function (set) {
+      DICTIONARY_BLOCKLIST = set;
     });
   }
 
@@ -784,6 +810,6 @@
     fetch('data/puzzles.json').then(function (r) { return r.json(); }).then(function (arr) {
       LOCAL_PUZZLES = Array.isArray(arr) ? arr : [];
     }).catch(function () { LOCAL_PUZZLES = []; }),
-    loadDictionaryAndBlocklist(),
+    loadBlocklist(),
   ]).then(function () { start(); });
 })();
