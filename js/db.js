@@ -370,12 +370,12 @@
   }
 
   /**
-   * Get both game_players for a game (score, words_found, left_at, bitter_end_choice).
+   * Get both game_players for a game (score, words_found, left_at, bitter_end_choice, username via users).
    */
   function getGamePlayers(gameId) {
     if (!supabase) return noClient();
     return supabase.from('game_players')
-      .select('id, user_id, role, score, words_found, left_at, bitter_end_choice')
+      .select('id, user_id, role, score, words_found, left_at, bitter_end_choice, users!user_id(username)')
       .eq('game_id', gameId)
       .then(function (r) {
         if (r.data) return r.data;

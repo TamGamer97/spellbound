@@ -10,6 +10,7 @@ body.pages {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  overflow-x: hidden;
 }
 
 .pages .page-title {
@@ -62,6 +63,8 @@ body.pages {
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .auth-tabs button.active {
@@ -542,4 +545,109 @@ body.pages {
   color: #fff;
   border-color: #e55;
   background: rgba(229, 85, 85, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive — intro & lobby
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  body.pages {
+    padding: 1rem 1rem 2rem;
+    justify-content: flex-start;
+    min-height: 100vh;
+  }
+
+  .pages .page-title {
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 1rem;
+    padding: 1.25rem;
+  }
+
+  .auth-tabs button {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .auth-form input {
+    padding: 0.65rem 0.75rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .auth-form button[type="submit"] {
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+  }
+
+  .lobby-wrap {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .lobby-actions {
+    max-width: 100%;
+    margin-top: 1.25rem;
+  }
+
+  .mode-card {
+    padding: 1rem 1.25rem;
+  }
+
+  .mode-card h3 {
+    font-size: 1rem;
+  }
+
+  .mode-content input {
+    min-height: 44px;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .mode-content button,
+  .search-results button {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+  }
+
+  .settings-modal {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+
+  .settings-input {
+    min-height: 44px;
+  }
+
+  .btn-change-password,
+  .btn-logout {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+  }
+
+  .lobby-settings {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .pages .page-title {
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+  }
+
+  .auth-card {
+    padding: 1rem;
+  }
+
+  .mode-card {
+    padding: 0.85rem 1rem;
+  }
 }

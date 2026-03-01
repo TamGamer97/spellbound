@@ -25,12 +25,20 @@
     <aside class="side-panel side-panel-left">
       <div class="player-panel">
         <h2 class="player-panel-title">Player</h2>
+        <p class="player-panel-username" id="player-username"></p>
         <div class="player-score">
           <span class="player-score-value" id="score">0</span>
           <span class="player-score-legend">1 pt/letter · +5 pangram</span>
         </div>
-        <h3 class="words-panel-title">Words found</h3>
-        <ul class="words-list" id="words-list"></ul>
+        <div class="words-panel-dropdown" id="words-dropdown-player">
+          <button type="button" class="words-panel-toggle" aria-expanded="false" aria-controls="words-list-player" id="words-toggle-player">
+            <span class="words-panel-toggle-text">Words found</span>
+            <span class="words-panel-toggle-icon" aria-hidden="true"></span>
+          </button>
+          <div class="words-panel-body" id="words-list-player">
+            <ul class="words-list" id="words-list"></ul>
+          </div>
+        </div>
       </div>
     </aside>
     <div class="game-wrapper">
@@ -60,14 +68,22 @@
     <aside class="side-panel side-panel-right">
       <div class="player-panel">
         <h2 class="player-panel-title">Opponent</h2>
+        <p class="player-panel-username" id="opponent-username"></p>
         <div class="player-score">
           <span class="player-score-value" id="opponent-score">0</span>
           <span class="player-score-legend">1 pt/letter · +5 pangram</span>
         </div>
-        <h3 class="words-panel-title">Words found</h3>
-        <p class="opponent-left-msg" id="opponent-left-msg" style="display: none;">Opponent left the game</p>
-        <p class="words-list-placeholder" id="opponent-words-placeholder">Revealed when the round ends</p>
-        <ul class="words-list" id="opponent-words-list"></ul>
+        <div class="words-panel-dropdown" id="words-dropdown-opponent">
+          <button type="button" class="words-panel-toggle" aria-expanded="false" aria-controls="words-list-opponent" id="words-toggle-opponent">
+            <span class="words-panel-toggle-text">Words found</span>
+            <span class="words-panel-toggle-icon" aria-hidden="true"></span>
+          </button>
+          <div class="words-panel-body" id="words-list-opponent">
+            <p class="opponent-left-msg" id="opponent-left-msg" style="display: none;">Opponent left the game</p>
+            <p class="words-list-placeholder" id="opponent-words-placeholder">Revealed when the round ends</p>
+            <ul class="words-list" id="opponent-words-list"></ul>
+          </div>
+        </div>
       </div>
     </aside>
     </div>

@@ -61,6 +61,8 @@
   const opponentLeftEl = $('opponent-left-msg');
   const opponentWordsPlaceholder = $('opponent-words-placeholder');
   const opponentWordsListEl = document.getElementById('opponent-words-list');
+  const playerUsernameEl = $('player-username');
+  const opponentUsernameEl = $('opponent-username');
   const challengeNotifOverlay = $('challenge-notif-overlay');
   const challengeNotifMsg = $('challenge-notif-msg');
   const challengeNotifJoinGame = $('challenge-notif-join-game');
@@ -93,6 +95,19 @@
       if (e.key === 'Escape' && leaveOverlay && leaveOverlay.classList.contains('open')) closeLeaveModal();
     });
   }
+
+  /** Mobile: toggle Words found dropdown */
+  function setupWordsDropdownToggle(toggleId, dropdownId) {
+    var btn = document.getElementById(toggleId);
+    var dropdown = document.getElementById(dropdownId);
+    if (!btn || !dropdown) return;
+    btn.addEventListener('click', function () {
+      var isOpen = dropdown.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+  setupWordsDropdownToggle('words-toggle-player', 'words-dropdown-player');
+  setupWordsDropdownToggle('words-toggle-opponent', 'words-dropdown-opponent');
 
   var roundEndOverlay = $('round-end-overlay');
   var btnBitterCoop = $('btn-bitter-coop');
@@ -278,6 +293,8 @@
     opponentScore: 0,
     myBitterEndChoice: null,
     opponentBitterEndChoice: null,
+    myUsername: null,
+    opponentUsername: null,
   };
 
   /**
@@ -295,13 +312,22 @@
     return [state.letters[CENTER_INDEX], ...state.letters.slice(0, CENTER_INDEX), ...state.letters.slice(CENTER_INDEX + 1, 7)];
   }
 
-  /** True if word uses all 7 letters (center + outer). */
+  /** True if word uses all 7 letters (center + outer) at least once. */
   function usesAllSeven(word, center, outer) {
-    const all = new Set([center, ...outer]);
-    for (const c of word.toUpperCase()) {
-      all.delete(c);
+    const all = new Set([center.toUpperCase(), ...(outer || []).map(function (c) { return String(c).toUpperCase(); })]);
+    const w = String(word).toUpperCase();
+    for (var i = 0; i < w.length; i++) {
+      all.delete(w[i]);
     }
     return all.size === 0;
+  }
+
+  /** True if word is a pangram for the current puzzle (uses all 7 letters at least once). */
+  function isPangram(word) {
+    if (!word || !LETTER_SET || !LETTER_SET.center) return false;
+    var outer = LETTER_SET.outer;
+    if (typeof outer === 'string') outer = outer.split('');
+    return usesAllSeven(word, LETTER_SET.center, outer);
   }
 
   /** Returns the 6 outer letters in random order (center is never shuffled). */
@@ -320,12 +346,12 @@
     var total = 0;
     VALID_WORDS.forEach(function (w) {
       total += w.length * POINTS_PER_LETTER;
-      if (PANGRAMS.has(w)) total += PANGRAM_BONUS;
+      if (isPangram(w)) total += PANGRAM_BONUS;
     });
     return total;
   }
 
-  /** Set puzzle from DB (versus mode). */
+  /** Set puzzle from DB (versus mode). Pangrams derived by definition (word uses all 7 letters). */
   function setPuzzleFromData(puzzle) {
     if (!puzzle) return;
     LETTER_SET = {
@@ -333,19 +359,28 @@
       outer: typeof puzzle.outer_letters === 'string' ? puzzle.outer_letters.split('') : (puzzle.outer_letters || []),
     };
     VALID_WORDS = new Set(Array.isArray(puzzle.valid_words) ? puzzle.valid_words : []);
-    PANGRAMS = new Set(Array.isArray(puzzle.pangrams) ? puzzle.pangrams : []);
+    PANGRAMS = new Set(Array.from(VALID_WORDS).filter(isPangram));
     state.totalBoardPoints = (puzzle.total_points != null && puzzle.total_points > 0)
       ? puzzle.total_points
       : computeTotalBoardPoints();
   }
 
-  /** Update opponent panel: score and "opponent left". Opponent words are not shown; we only store them for validation (no reusing except pangrams). */
+  /** Update opponent panel: score, username, and "opponent left". Opponent words are not shown; we only store them for validation (no reusing except pangrams). */
   function applyOpponentPlayers(players, myUserId) {
     if (!players || !players.length || !myUserId) return;
+    var myRow = players.filter(function (p) { return p.user_id === myUserId; })[0];
     var opponent = players.filter(function (p) { return p.user_id !== myUserId; })[0];
+    if (myRow && myRow.users && myRow.users.username) {
+      state.myUsername = myRow.users.username;
+      if (playerUsernameEl) playerUsernameEl.textContent = state.myUsername;
+    }
     if (!opponent) return;
     state.opponentScore = opponent.score || 0;
     if (opponentScoreEl) opponentScoreEl.textContent = state.opponentScore;
+    if (opponent.users && opponent.users.username) {
+      state.opponentUsername = opponent.users.username;
+      if (opponentUsernameEl) opponentUsernameEl.textContent = state.opponentUsername;
+    }
     if (opponent.words_found && Array.isArray(opponent.words_found)) {
       state.opponentWords = new Set(opponent.words_found.map(function (w) { return String(w).toUpperCase(); }));
     }
@@ -464,7 +499,7 @@
       return;
     }
 
-    if (gameId && state.opponentWords && state.opponentWords.has(raw) && !PANGRAMS.has(raw)) {
+    if (gameId && state.opponentWords && state.opponentWords.has(raw) && !isPangram(raw)) {
       showValidation('Already found by opponent', 'invalid');
       return;
     }
@@ -473,7 +508,7 @@
 
     state.found.add(raw);
     const basePoints = raw.length * POINTS_PER_LETTER;
-    const bonus = PANGRAMS.has(raw) ? PANGRAM_BONUS : 0;
+    const bonus = isPangram(raw) ? PANGRAM_BONUS : 0;
     state.score += basePoints + bonus;
 
     wordInput.value = '';
@@ -487,10 +522,10 @@
 
     var li = document.createElement('li');
     li.textContent = raw;
-    if (PANGRAMS.has(raw)) li.classList.add('pangram');
+    if (isPangram(raw)) li.classList.add('pangram');
     if (wordsListEl) wordsListEl.appendChild(li);
 
-    if (PANGRAMS.has(raw)) {
+    if (isPangram(raw)) {
       showValidation('Pangram!', 'pangram');
     } else {
       showValidation('Great!', 'great');
@@ -509,7 +544,7 @@
     if (state.score < threshold) return;
     var hasPangram = false;
     state.found.forEach(function (w) {
-      if (PANGRAMS.has(w)) hasPangram = true;
+      if (isPangram(w)) hasPangram = true;
     });
     if (!hasPangram) return;
     var aheadOfOpponent = !gameId || state.score > state.opponentScore;
@@ -527,6 +562,21 @@
     }
   }
 
+  /** Reveal opponent's words in the opponent panel (at end of round). */
+  function revealOpponentWords() {
+    if (!opponentWordsListEl || !gameId) return;
+    if (opponentWordsPlaceholder) opponentWordsPlaceholder.style.display = 'none';
+    opponentWordsListEl.innerHTML = '';
+    var words = state.opponentWords ? Array.from(state.opponentWords) : [];
+    words.sort();
+    words.forEach(function (w) {
+      var li = document.createElement('li');
+      li.textContent = w;
+      if (isPangram(w)) li.classList.add('pangram');
+      opponentWordsListEl.appendChild(li);
+    });
+  }
+
   /** Stops timer and shows Round 1 complete overlay (Bitter End choice). */
   function endGame(message) {
     state.gameOver = true;
@@ -537,6 +587,19 @@
     if (timerEl) timerEl.textContent = '0:00';
     if (gameId && window.db && window.db.setGameFinished) {
       window.db.setGameFinished(gameId).catch(function () {});
+    }
+    if (gameId && window.db && window.db.getGamePlayers) {
+      window.db.getGamePlayers(gameId).then(function (players) {
+        if (players && state.myUserId) {
+          var opponent = players.filter(function (p) { return p.user_id !== state.myUserId; })[0];
+          if (opponent && opponent.words_found && Array.isArray(opponent.words_found)) {
+            state.opponentWords = new Set(opponent.words_found.map(function (w) { return String(w).toUpperCase(); }));
+          }
+        }
+        revealOpponentWords();
+      }).catch(function () { revealOpponentWords(); });
+    } else if (gameId) {
+      revealOpponentWords();
     }
     var overlay = $('round-end-overlay');
     var scoresEl = $('round-end-scores');
@@ -639,6 +702,10 @@
     if (!gameId || !db || !db.getGameWithPuzzle) { initSolo(); return; }
     db.getCurrentUserAsync().then(function (me) {
       state.myUserId = me ? me.id : null;
+      if (me && me.username) {
+        state.myUsername = me.username;
+        if (playerUsernameEl) playerUsernameEl.textContent = me.username;
+      }
       return db.getGameWithPuzzle(gameId);
     }).then(function (data) {
       if (!data || !data.game || !data.puzzle) {
@@ -665,7 +732,7 @@
           state.found.forEach(function (w) {
             var li = document.createElement('li');
             li.textContent = w;
-            if (PANGRAMS.has(w)) li.classList.add('pangram');
+            if (isPangram(w)) li.classList.add('pangram');
             if (wordsListEl) wordsListEl.appendChild(li);
           });
         }

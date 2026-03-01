@@ -101,3 +101,22 @@
 .btn-challenge-dismiss:hover {
   background: #444;
 }
+
+/* Challenge notification — mobile */
+@media (max-width: 600px) {
+  .challenge-notif-overlay {
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    justify-content: center;
+  }
+  .challenge-notif-modal {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  .challenge-notif-actions .btn {
+    padding: 0.5rem 1rem;
+    min-height: 44px;
+  }
+}
