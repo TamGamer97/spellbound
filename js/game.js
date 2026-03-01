@@ -17,6 +17,10 @@
 
   /** Local puzzle set (data/puzzles.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
+  /** Full dictionary for fallback validation: if a word isn't in the puzzle list, accept it if it's here (and not blocklisted). */
+  var FULL_DICTIONARY = new Set();
+  /** Blocklist for dictionary fallback: words in this set are never accepted. */
+  var DICTIONARY_BLOCKLIST = new Set();
 
   /* ========================================================================
      Configuration: letter set & word list (set from DB in versus, else default)
@@ -395,7 +399,9 @@
       return;
     }
 
-    if (!VALID_WORDS.has(raw)) {
+    var inPuzzleList = VALID_WORDS.has(raw);
+    var inDictionary = FULL_DICTIONARY.size > 0 && FULL_DICTIONARY.has(raw) && !DICTIONARY_BLOCKLIST.has(raw);
+    if (!inPuzzleList && !inDictionary) {
       showValidation('Not a word', 'invalid');
       wordInput.value = '';
       return;
@@ -728,13 +734,56 @@
     }
   }
 
-  fetch('data/puzzles.json')
-    .then(function (r) { return r.json(); })
-    .then(function (arr) {
+  /** Parse word list from text: one word per line or JSON array. Returns Set of uppercase words (4–15 letters). */
+  function parseWordListToSet(text) {
+    var set = new Set();
+    var trimmed = (text || '').trim();
+    if (!trimmed) return set;
+    if (trimmed.indexOf('[') === 0) {
+      try {
+        var arr = JSON.parse(trimmed);
+        if (Array.isArray(arr)) {
+          for (var i = 0; i < arr.length; i++) {
+            var w = String(arr[i]).trim().toUpperCase().replace(/[^A-Z]/g, '');
+            if (w.length >= 4 && w.length <= 15) set.add(w);
+          }
+        }
+        return set;
+      } catch (e) { /* fall through to line-by-line */ }
+    }
+    var lines = trimmed.split(/\r?\n/);
+    for (var j = 0; j < lines.length; j++) {
+      var word = lines[j].trim().toUpperCase().replace(/[^A-Z]/g, '');
+      if (word.length >= 4 && word.length <= 15) set.add(word);
+    }
+    return set;
+  }
+
+  /** Load URL and parse into word set. */
+  function fetchWordSet(url) {
+    if (!url) return Promise.resolve(new Set());
+    return fetch(url)
+      .then(function (r) { return r.text(); })
+      .then(parseWordListToSet)
+      .catch(function () { return new Set(); });
+  }
+
+  function loadDictionaryAndBlocklist() {
+    var cfg = window.__SPELLBOUND_DICTIONARY_URL__;
+    var blockUrl = (typeof window.__SPELLBOUND_BLOCKLIST_URL__ !== 'undefined' && window.__SPELLBOUND_BLOCKLIST_URL__) ? window.__SPELLBOUND_BLOCKLIST_URL__ : '';
+    return Promise.all([
+      cfg ? fetchWordSet(cfg) : Promise.resolve(new Set()),
+      blockUrl ? fetchWordSet(blockUrl) : Promise.resolve(new Set()),
+    ]).then(function (results) {
+      FULL_DICTIONARY = results[0];
+      DICTIONARY_BLOCKLIST = results[1];
+    });
+  }
+
+  Promise.all([
+    fetch('data/puzzles.json').then(function (r) { return r.json(); }).then(function (arr) {
       LOCAL_PUZZLES = Array.isArray(arr) ? arr : [];
-    })
-    .catch(function () {
-      LOCAL_PUZZLES = [];
-    })
-    .finally(start);
+    }).catch(function () { LOCAL_PUZZLES = []; }),
+    loadDictionaryAndBlocklist(),
+  ]).then(function () { start(); });
 })();
