@@ -175,6 +175,8 @@ function generatePuzzles(words, minWordsPerPuzzle = MIN_WORDS_PER_PUZZLE, minPan
   const seenPuzzles = new Set();
 
   for (const letterSetKey of sevenLetterKeys) {
+    // Skip any boards that would include S or Q entirely.
+    if (letterSetKey.indexOf('S') !== -1 || letterSetKey.indexOf('Q') !== -1) continue;
     const allSeven = new Set(letterSetKey);
     const letters = [...allSeven];
 
