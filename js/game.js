@@ -566,9 +566,31 @@
       }
       var winnerText = '';
       if (gameId && state.opponentScore != null) {
-        if (state.score > state.opponentScore) winnerText = (myName === 'You' ? 'You win!' : myName + ' wins!');
-        else if (state.score < state.opponentScore) winnerText = oppName + ' wins!';
-        else winnerText = 'It\'s a tie!';
+        var myHasPangram = false;
+        state.found.forEach(function (w) {
+          if (!myHasPangram && isPangram(w)) myHasPangram = true;
+        });
+        var opponentHasPangram = false;
+        if (state.opponentWords && state.opponentWords.forEach) {
+          state.opponentWords.forEach(function (w) {
+            if (!opponentHasPangram && isPangram(w)) opponentHasPangram = true;
+          });
+        }
+        if (!myHasPangram && !opponentHasPangram) {
+          winnerText = 'No winner (no pangrams found).';
+        } else if (myHasPangram && opponentHasPangram) {
+          if (state.score > state.opponentScore) {
+            winnerText = (myName === 'You' ? 'You win!' : myName + ' wins!');
+          } else if (state.score < state.opponentScore) {
+            winnerText = oppName + ' wins!';
+          } else {
+            winnerText = 'It\'s a tie!';
+          }
+        } else if (myHasPangram && !opponentHasPangram) {
+          winnerText = (myName === 'You' ? 'You win (pangram)!' : myName + ' wins (pangram)!');
+        } else if (!myHasPangram && opponentHasPangram) {
+          winnerText = oppName + ' wins (pangram)!';
+        }
       } else {
         winnerText = 'Final score: ' + state.score;
       }
