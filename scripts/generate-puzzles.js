@@ -279,14 +279,32 @@ async function main() {
   if (opts.minPoints != null && opts.minPoints > 0) {
     puzzles = puzzles.filter((p) => p.total_points >= opts.minPoints);
   }
-  // Prefer puzzles with lots of words and multiple pangrams: sort by word count then pangram count
+  // Prefer puzzles with total points in a sweet spot (around 200–500) so boards
+  // aren't overwhelmingly dense. If we can't get enough in-range, fall back to all.
+  const TARGET_MIN_POINTS = 200;
+  const TARGET_MAX_POINTS = 500;
+  const inRange = puzzles.filter((p) => p.total_points >= TARGET_MIN_POINTS && p.total_points <= TARGET_MAX_POINTS);
+  if (inRange.length > 0 && (!opts.limit || inRange.length >= Math.min(opts.limit, 10))) {
+    puzzles = inRange;
+  }
+
+  // Prefer puzzles with lots of words and multiple pangrams, but also penalise
+  // overuse of very common letters like S so letter sets are more diverse.
   puzzles.sort((a, b) => {
     const aWords = a.valid_words.length;
     const bWords = b.valid_words.length;
     if (bWords !== aWords) return bWords - aWords;
-    return (b.pangrams.length - a.pangrams.length);
+    const aPangs = a.pangrams.length;
+    const bPangs = b.pangrams.length;
+    if (bPangs !== aPangs) return bPangs - aPangs;
+    const aLetters = (a.center_letter + a.outer_letters);
+    const bLetters = (b.center_letter + b.outer_letters);
+    const aS = (aLetters.match(/S/g) || []).length;
+    const bS = (bLetters.match(/S/g) || []).length;
+    return aS - bS; // fewer S's first
   });
-  const poolSize = opts.limit ? Math.min(puzzles.length, Math.max(opts.limit * 3, 50)) : puzzles.length;
+
+  const poolSize = opts.limit ? Math.min(puzzles.length, Math.max(opts.limit * 4, 80)) : puzzles.length;
   const pool = puzzles.slice(0, poolSize);
   shuffleArray(pool);
   if (opts.limit) {
