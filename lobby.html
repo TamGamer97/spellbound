@@ -13,6 +13,9 @@
     <button type="button" class="lobby-settings" id="btn-settings" title="Settings" aria-label="Settings">⚙</button>
     <p class="lobby-welcome" id="lobby-welcome">Welcome</p>
     <h1 class="page-title">Choose how to play</h1>
+    <p class="lobby-how-to-wrap">
+      <button type="button" class="lobby-how-to-btn" id="btn-how-to-play" aria-label="How to play">How to play</button>
+    </p>
     <div class="lobby-actions">
       <div class="mode-card" id="challenge-card" data-mode="challenge">
         <h3>Challenge a friend</h3>
@@ -60,6 +63,22 @@
       <div class="challenge-notif-actions" id="challenge-notif-actions">
         <button type="button" class="btn btn-challenge-join" id="challenge-notif-join">Join</button>
         <button type="button" class="btn btn-challenge-reject" id="challenge-notif-reject">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-to-play-overlay" id="how-to-play-overlay" aria-hidden="true">
+    <div class="how-to-play-modal" role="dialog" aria-labelledby="how-to-play-title" aria-modal="true">
+      <div class="how-to-play-header">
+        <h2 id="how-to-play-title">How to play</h2>
+        <button type="button" class="how-to-play-close" id="btn-close-how-to-play" aria-label="Close">×</button>
+      </div>
+      <div class="how-to-play-body">
+        <p>Find words just like in Spelling Bee. Four letters minimum, and you must use the center letter. One point per letter, plus a five-point bonus for pangrams.</p>
+        <p>In versus games, words found by your opponent are taken off the board for you, and vice versa. This applies to all words <strong>except pangrams</strong>, which are available for both players.</p>
+        <p>To win, you must score more points in five minutes than your opponent, <strong>and</strong> have at least one pangram.</p>
+        <p>Once time is up you can keep looking for words, but the game is over.</p>
+        <p class="how-to-play-hint">For maximum speed, use a keyboard.</p>
       </div>
     </div>
   </div>
@@ -147,8 +166,32 @@
           if (e.target === overlay) closeSettings();
         });
       }
+      var howToOverlay = document.getElementById('how-to-play-overlay');
+      var btnHowToPlay = document.getElementById('btn-how-to-play');
+      var btnCloseHowTo = document.getElementById('btn-close-how-to-play');
+      function openHowToPlay() {
+        if (howToOverlay) {
+          howToOverlay.classList.add('open');
+          howToOverlay.setAttribute('aria-hidden', 'false');
+        }
+      }
+      function closeHowToPlay() {
+        if (howToOverlay) {
+          howToOverlay.classList.remove('open');
+          howToOverlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+      if (btnHowToPlay) btnHowToPlay.addEventListener('click', openHowToPlay);
+      if (btnCloseHowTo) btnCloseHowTo.addEventListener('click', closeHowToPlay);
+      if (howToOverlay) {
+        howToOverlay.addEventListener('click', function (e) {
+          if (e.target === howToOverlay) closeHowToPlay();
+        });
+      }
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) closeSettings();
+        if (e.key !== 'Escape') return;
+        if (howToOverlay && howToOverlay.classList.contains('open')) closeHowToPlay();
+        else if (overlay && overlay.classList.contains('open')) closeSettings();
       });
 
       var newPasswordEl = document.getElementById('settings-new-password');

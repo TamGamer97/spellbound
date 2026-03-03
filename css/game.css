@@ -140,6 +140,11 @@ body {
   justify-content: flex-start;
 }
 
+/* Solo mode: same layout as versus; opponent panel invisible but keeps its space */
+body.solo-mode .side-panel-right {
+  visibility: hidden;
+}
+
 .player-panel {
   width: 100%;
   max-width: 220px;

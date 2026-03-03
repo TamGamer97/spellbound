@@ -17,6 +17,9 @@
 
   /** Local puzzle set (data/puzzles.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
+  /** localStorage key for solo: last 10 puzzles' letter sets (JSON array of 7-letter strings); prioritize next puzzle with fewer letters in common with these. */
+  var SPELLBOUND_SOLO_LAST_LETTERS = 'spellbound_solo_last_letters';
+  var SOLO_RECENT_PUZZLES_MAX = 10;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
   /** Prevents double-submit while dictionary/profanity check is in flight. */
@@ -34,39 +37,13 @@
       .catch(function () { return false; });
   }
 
-  /** Single-word country names blocklist for proper-noun rejection. */
-  var COUNTRY_WORDS = new Set([
-    'AFGHANISTAN', 'ALBANIA', 'ALGERIA', 'ANDORRA', 'ANGOLA', 'ARGENTINA', 'ARMENIA', 'AUSTRALIA', 'AUSTRIA', 'AZERBAIJAN',
-    'BAHAMAS', 'BAHRAIN', 'BANGLADESH', 'BARBADOS', 'BELARUS', 'BELGIUM', 'BELIZE', 'BENIN', 'BHUTAN', 'BOLIVIA', 'BOTSWANA', 'BRAZIL', 'BRUNEI', 'BULGARIA', 'BURUNDI',
-    'CAMBODIA', 'CAMEROON', 'CANADA', 'CHAD', 'CHILE', 'CHINA', 'COLOMBIA', 'COMOROS', 'CONGO', 'CROATIA', 'CUBA', 'CYPRUS',
-    'DENMARK', 'DJIBOUTI', 'DOMINICA',
-    'ECUADOR', 'EGYPT', 'ERITREA', 'ESTONIA', 'ETHIOPIA',
-    'FIJI', 'FINLAND', 'FRANCE',
-    'GABON', 'GAMBIA', 'GEORGIA', 'GERMANY', 'GHANA', 'GREECE', 'GRENADA', 'GUATEMALA', 'GUINEA', 'GUYANA',
-    'HAITI', 'HONDURAS', 'HUNGARY',
-    'ICELAND', 'INDIA', 'INDONESIA', 'IRAN', 'IRAQ', 'IRELAND', 'ISRAEL', 'ITALY',
-    'JAMAICA', 'JAPAN', 'JORDAN',
-    'KAZAKHSTAN', 'KENYA', 'KIRIBATI', 'KOREA', 'KUWAIT', 'KYRGYZSTAN',
-    'LAOS', 'LATVIA', 'LEBANON', 'LESOTHO', 'LIBERIA', 'LIBYA', 'LIECHTENSTEIN', 'LITHUANIA', 'LUXEMBOURG',
-    'MADAGASCAR', 'MALAWI', 'MALAYSIA', 'MALDIVES', 'MALI', 'MALTA', 'MAURITANIA', 'MAURITIUS', 'MEXICO', 'MOLDOVA', 'MONACO', 'MONGOLIA', 'MONTENEGRO', 'MOROCCO', 'MOZAMBIQUE', 'MYANMAR',
-    'NAMIBIA', 'NAURU', 'NEPAL', 'NIGER', 'NIGERIA', 'NORWAY',
-    'OMAN',
-    'PAKISTAN', 'PALAU', 'PANAMA', 'PARAGUAY', 'PERU', 'POLAND', 'PORTUGAL',
-    'QATAR',
-    'ROMANIA', 'RUSSIA', 'RWANDA',
-    'SAMOA', 'SENEGAL', 'SERBIA', 'SEYCHELLES', 'SINGAPORE', 'SLOVAKIA', 'SLOVENIA', 'SOMALIA', 'SPAIN', 'SUDAN', 'SURINAME', 'SWEDEN', 'SWITZERLAND', 'SYRIA',
-    'TAIWAN', 'TAJIKISTAN', 'TANZANIA', 'THAILAND', 'TOGO', 'TONGA', 'TRINIDAD', 'TUNISIA', 'TURKEY', 'TURKMENISTAN', 'TUVALU',
-    'UGANDA', 'UKRAINE', 'URUGUAY', 'UZBEKISTAN',
-    'VANUATU', 'VENEZUELA', 'VIETNAM',
-    'YEMEN', 'ZAMBIA', 'ZIMBABWE'
-  ]);
-
-  /** Returns true if the word (case-insensitive) is in the country blocklist. */
+  /** Returns true if the word (case-insensitive) is in the shared blocklist (countries, months, names). See js/proper-noun-blocklist.js */
   function isProperNoun(word) {
     if (!word || typeof word !== 'string') return false;
     var w = word.trim().toUpperCase();
     if (!w) return false;
-    return COUNTRY_WORDS.has(w);
+    var blocklist = typeof window !== 'undefined' && window.SpellboundBlocklist && window.SpellboundBlocklist.all;
+    return blocklist ? blocklist.has(w) : false;
   }
 
   /* ========================================================================
@@ -675,9 +652,17 @@
     if (state.secondsLeft <= 0) endGame('Time\'s up!');
   }
 
-  /** Starts the 10-minute countdown (only once). */
+  /** Starts the countdown (solo only, once). Updates display immediately. */
   function startTimer() {
     if (state.timerId) return;
+    if (timerEl) {
+      var m = Math.floor(state.secondsLeft / 60);
+      var s = state.secondsLeft % 60;
+      timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      timerEl.classList.remove('warning', 'danger', 'bitter-end');
+      if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+      else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
+    }
     state.timerId = setInterval(tick, 1000);
   }
 
@@ -691,6 +676,7 @@
   });
 
   wordInput.addEventListener('keydown', (e) => {
+    if (!gameId) startTimer();
     if (e.key === 'Enter') {
       e.preventDefault();
       submitWord();
@@ -698,16 +684,21 @@
   });
 
   btnDelete.addEventListener('click', () => {
+    if (!gameId) startTimer();
     wordInput.value = wordInput.value.slice(0, -1);
     wordInput.setSelectionRange(wordInput.value.length, wordInput.value.length);
   });
 
   btnShuffle.addEventListener('click', () => {
+    if (!gameId) startTimer();
     if (state.gameOver) return;
     renderHoneycomb(true);
   });
 
-  btnEnter.addEventListener('click', () => submitWord());
+  btnEnter.addEventListener('click', () => {
+    if (!gameId) startTimer();
+    submitWord();
+  });
 
   wordInput.addEventListener('focus', function () {
     if (!gameId) startTimer();
@@ -720,13 +711,101 @@
     if (!gameId) { startTimer(); honeycomb.removeEventListener('click', startOnce); }
   });
 
+  /** Return 7-letter string (sorted) for a puzzle. */
+  function getPuzzleLetterSet(puzzle) {
+    var s = (puzzle.center_letter + (puzzle.outer_letters || '')).toUpperCase().replace(/[^A-Z]/g, '');
+    return s.split('').sort().join('');
+  }
+
+  /** Number of letters in common between two 7-letter strings (e.g. from getPuzzleLetterSet). */
+  function letterOverlap(lettersA, lettersB) {
+    var setA = new Set((lettersA || '').split(''));
+    var count = 0;
+    for (var i = 0; i < (lettersB || '').length; i++) { if (setA.has(lettersB[i])) count++; }
+    return count;
+  }
+
+  /** Get recent letter sets from localStorage (last 10 puzzles). Returns array of 7-letter strings, may be empty. */
+  function getSoloRecentLetterSets() {
+    try {
+      if (typeof localStorage === 'undefined') return [];
+      var raw = localStorage.getItem(SPELLBOUND_SOLO_LAST_LETTERS);
+      if (!raw) return [];
+      var arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(function (s) { return typeof s === 'string' && s.length === 7; });
+    } catch (e) { return []; }
+  }
+
+  /** Save recent letter sets to localStorage (prepend new set, keep at most SOLO_RECENT_PUZZLES_MAX). */
+  function saveSoloRecentLetterSet(letterSet) {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      var recent = getSoloRecentLetterSets();
+      recent.unshift(letterSet);
+      if (recent.length > SOLO_RECENT_PUZZLES_MAX) recent = recent.slice(0, SOLO_RECENT_PUZZLES_MAX);
+      localStorage.setItem(SPELLBOUND_SOLO_LAST_LETTERS, JSON.stringify(recent));
+    } catch (e) { /* ignore */ }
+  }
+
+  /** Pick a solo puzzle: prefer ones that share fewer letters with the last 10 played boards (sum overlap with recent). */
+  function pickSoloPuzzle() {
+    if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return null;
+    var recent = getSoloRecentLetterSets();
+    if (!recent.length) {
+      var idx = Math.floor(Math.random() * LOCAL_PUZZLES.length);
+      return LOCAL_PUZZLES[idx];
+    }
+    var minScore = 1e9;
+    var i;
+    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
+      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
+      var score = 0;
+      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
+      if (score < minScore) minScore = score;
+    }
+    var best = [];
+    var recentSet = new Set(recent);
+    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
+      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
+      var score = 0;
+      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
+      if (score !== minScore) continue;
+      if (recentSet.has(set)) continue;
+      best.push(LOCAL_PUZZLES[i]);
+    }
+    if (best.length === 0) {
+      for (i = 0; i < LOCAL_PUZZLES.length; i++) {
+        var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
+        var score = 0;
+        for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
+        if (score === minScore) best.push(LOCAL_PUZZLES[i]);
+      }
+    }
+    return best.length ? best[Math.floor(Math.random() * best.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
+  }
+
   /* ========================================================================
      Init: versus (gameId + db) or solo
      ======================================================================== */
   function initSolo() {
+    document.body.classList.add('solo-mode');
+    state.gameOver = false;
+    state.roundOver = false;
+    state.secondsLeft = TOTAL_SECONDS;
+    state.timerId = null;
+    if (timerEl) {
+      var m = Math.floor(state.secondsLeft / 60);
+      var s = state.secondsLeft % 60;
+      timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      timerEl.classList.remove('warning', 'danger', 'bitter-end');
+    }
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-      var idx = Math.floor(Math.random() * LOCAL_PUZZLES.length);
-      setPuzzleFromData(LOCAL_PUZZLES[idx]);
+      var chosen = pickSoloPuzzle();
+      if (chosen) {
+        setPuzzleFromData(chosen);
+        saveSoloRecentLetterSet(getPuzzleLetterSet(chosen));
+      }
     }
     renderHoneycomb();
     state.totalBoardPoints = state.totalBoardPoints || computeTotalBoardPoints();
@@ -735,6 +814,7 @@
   }
 
   function initVersus() {
+    document.body.classList.remove('solo-mode');
     var db = window.db;
     if (!gameId || !db || !db.getGameWithPuzzle) { initSolo(); return; }
     db.getCurrentUserAsync().then(function (me) {
