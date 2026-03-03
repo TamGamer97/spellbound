@@ -165,7 +165,7 @@ const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
 const POINTS_PER_LETTER = 1;
 const PANGRAM_BONUS = 5;
 /** Run generation for this many milliseconds (e.g. 5 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
-const GENERATE_DURATION_MS = 15 * 60 * 1000;
+const GENERATE_DURATION_MS = 30 * 60 * 1000;
 /** When GENERATE_DURATION_MS is 0, generate exactly this many puzzles. */
 const TARGET_PUZZLE_COUNT = 50;
 
