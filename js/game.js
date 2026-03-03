@@ -19,7 +19,7 @@
   var LOCAL_PUZZLES = [];
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
-  /** Prevents double-submit while dictionary/profanity/POS check is in flight. */
+  /** Prevents double-submit while dictionary/profanity check is in flight. */
   var dictionaryCheckInFlight = false;
 
   /** Returns a Promise<boolean>: true if the word contains profanity (Purgomalum API). */
@@ -34,20 +34,39 @@
       .catch(function () { return false; });
   }
 
-  /** Returns a Promise<boolean>: true if POS tagger thinks this is a proper noun. */
-  function checkProperNoun(originalWord) {
-    var base = (typeof window.__SPELLBOUND_POS_API__ !== 'undefined' && window.__SPELLBOUND_POS_API__)
-      ? window.__SPELLBOUND_POS_API__
-      : '';
-    if (!base) return Promise.resolve(false);
-    var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'word=' + encodeURIComponent(originalWord);
-    return fetch(url)
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data) return false;
-        return !!data.isProperNoun;
-      })
-      .catch(function () { return false; });
+  /** Single-word country names blocklist for proper-noun rejection. */
+  var COUNTRY_WORDS = new Set([
+    'AFGHANISTAN', 'ALBANIA', 'ALGERIA', 'ANDORRA', 'ANGOLA', 'ARGENTINA', 'ARMENIA', 'AUSTRALIA', 'AUSTRIA', 'AZERBAIJAN',
+    'BAHAMAS', 'BAHRAIN', 'BANGLADESH', 'BARBADOS', 'BELARUS', 'BELGIUM', 'BELIZE', 'BENIN', 'BHUTAN', 'BOLIVIA', 'BOTSWANA', 'BRAZIL', 'BRUNEI', 'BULGARIA', 'BURUNDI',
+    'CAMBODIA', 'CAMEROON', 'CANADA', 'CHAD', 'CHILE', 'CHINA', 'COLOMBIA', 'COMOROS', 'CONGO', 'CROATIA', 'CUBA', 'CYPRUS',
+    'DENMARK', 'DJIBOUTI', 'DOMINICA',
+    'ECUADOR', 'EGYPT', 'ERITREA', 'ESTONIA', 'ETHIOPIA',
+    'FIJI', 'FINLAND', 'FRANCE',
+    'GABON', 'GAMBIA', 'GEORGIA', 'GERMANY', 'GHANA', 'GREECE', 'GRENADA', 'GUATEMALA', 'GUINEA', 'GUYANA',
+    'HAITI', 'HONDURAS', 'HUNGARY',
+    'ICELAND', 'INDIA', 'INDONESIA', 'IRAN', 'IRAQ', 'IRELAND', 'ISRAEL', 'ITALY',
+    'JAMAICA', 'JAPAN', 'JORDAN',
+    'KAZAKHSTAN', 'KENYA', 'KIRIBATI', 'KOREA', 'KUWAIT', 'KYRGYZSTAN',
+    'LAOS', 'LATVIA', 'LEBANON', 'LESOTHO', 'LIBERIA', 'LIBYA', 'LIECHTENSTEIN', 'LITHUANIA', 'LUXEMBOURG',
+    'MADAGASCAR', 'MALAWI', 'MALAYSIA', 'MALDIVES', 'MALI', 'MALTA', 'MAURITANIA', 'MAURITIUS', 'MEXICO', 'MOLDOVA', 'MONACO', 'MONGOLIA', 'MONTENEGRO', 'MOROCCO', 'MOZAMBIQUE', 'MYANMAR',
+    'NAMIBIA', 'NAURU', 'NEPAL', 'NIGER', 'NIGERIA', 'NORWAY',
+    'OMAN',
+    'PAKISTAN', 'PALAU', 'PANAMA', 'PARAGUAY', 'PERU', 'POLAND', 'PORTUGAL',
+    'QATAR',
+    'ROMANIA', 'RUSSIA', 'RWANDA',
+    'SAMOA', 'SENEGAL', 'SERBIA', 'SEYCHELLES', 'SINGAPORE', 'SLOVAKIA', 'SLOVENIA', 'SOMALIA', 'SPAIN', 'SUDAN', 'SURINAME', 'SWEDEN', 'SWITZERLAND', 'SYRIA',
+    'TAIWAN', 'TAJIKISTAN', 'TANZANIA', 'THAILAND', 'TOGO', 'TONGA', 'TRINIDAD', 'TUNISIA', 'TURKEY', 'TURKMENISTAN', 'TUVALU',
+    'UGANDA', 'UKRAINE', 'URUGUAY', 'UZBEKISTAN',
+    'VANUATU', 'VENEZUELA', 'VIETNAM',
+    'YEMEN', 'ZAMBIA', 'ZIMBABWE'
+  ]);
+
+  /** Returns true if the word (case-insensitive) is in the country blocklist. */
+  function isProperNoun(word) {
+    if (!word || typeof word !== 'string') return false;
+    var w = word.trim().toUpperCase();
+    if (!w) return false;
+    return COUNTRY_WORDS.has(w);
   }
 
   /* ========================================================================
@@ -394,8 +413,7 @@
      ======================================================================== */
 
   function submitWord() {
-    const original = wordInput.value.trim();
-    const raw = original.toUpperCase();
+    const raw = wordInput.value.trim().toUpperCase();
     if (validationClearTimeoutId) {
       clearTimeout(validationClearTimeoutId);
       validationClearTimeoutId = null;
@@ -428,6 +446,12 @@
       return;
     }
 
+    if (isProperNoun(raw)) {
+      showValidation('Proper nouns are not allowed', 'invalid');
+      wordInput.value = '';
+      return;
+    }
+
     if (state.found.has(raw)) {
       showValidation('Taken', 'taken');
       wordInput.value = '';
@@ -446,17 +470,8 @@
     if (inPuzzleList) {
       if (dictionaryCheckInFlight) return;
       dictionaryCheckInFlight = true;
-      checkProperNoun(original || raw)
-        .then(function (isProper) {
-          if (isProper) {
-            showValidation('Proper nouns are not allowed', 'invalid');
-            wordInput.value = '';
-            return null;
-          }
-          return checkProfanity(raw);
-        })
+      checkProfanity(raw)
         .then(function (hasProfanity) {
-          if (hasProfanity === null) return;
           if (hasProfanity) {
             showValidation("That word isn't allowed", 'invalid');
             wordInput.value = '';
@@ -485,15 +500,6 @@
       .then(function (res) {
         if (!res.ok) {
           showValidation('Not a word', 'invalid');
-          wordInput.value = '';
-          return null;
-        }
-        return checkProperNoun(original || raw);
-      })
-      .then(function (isProper) {
-        if (isProper === null) return null;
-        if (isProper) {
-          showValidation('Proper nouns are not allowed', 'invalid');
           wordInput.value = '';
           return null;
         }
