@@ -51,9 +51,6 @@
         </div>
       </div>
     </div>
-    <p style="margin-top: 1.5rem; font-size: 0.85rem;">
-      <a href="game.html" style="color: #888;">Play solo (demo) →</a>
-    </p>
   </div>
 
   <div class="challenge-notif-overlay" id="challenge-notif-overlay" aria-hidden="true">
@@ -118,6 +115,7 @@
   </div>
 
   <script src="js/config.js"></script>
+  <script src="js/recent-boards.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/db.js"></script>
   <script>
@@ -125,6 +123,16 @@
       if (!window.db) {
         window.location.href = 'index.html';
         return;
+      }
+      var lobbyPuzzles = [];
+      fetch('data/puzzles-2.json').then(function (r) { return r.json(); }).then(function (arr) {
+        lobbyPuzzles = Array.isArray(arr) ? arr : [];
+      }).catch(function () {});
+      function getPreferredPuzzleIndices() {
+        if (window.SpellboundRecentBoards && lobbyPuzzles.length) {
+          return window.SpellboundRecentBoards.getPreferredPuzzleIndices(lobbyPuzzles);
+        }
+        return [];
       }
       window.db.getCurrentUserAsync().then(function (u) {
         if (!u) {
@@ -277,7 +285,8 @@
           btn.type = 'button';
           btn.textContent = u.username;
           btn.addEventListener('click', function () {
-            window.db.sendChallenge(u.id, u.username).then(function () {
+            var preferred = getPreferredPuzzleIndices();
+            window.db.sendChallenge(u.id, u.username, preferred).then(function () {
               challengeSearchRow.style.display = 'none';
               searchResults.innerHTML = '';
               searchInput.value = '';
@@ -333,7 +342,8 @@
       }
 
       btnMatchMe.addEventListener('click', function () {
-        window.db.findMatch().then(function () {
+        var preferred = getPreferredPuzzleIndices();
+        window.db.findMatch(preferred).then(function () {
           matchStartRow.style.display = 'none';
           matchWaiting.style.display = 'block';
           expandCard(matchCard);

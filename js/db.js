@@ -148,16 +148,19 @@
 
   /**
    * Send a challenge to a user. Returns challenge or throws.
+   * @param {string} toUserId
+   * @param {string} toUsername
+   * @param {number[]} [preferredPuzzleIndices] - Challenger's preferred indices (low overlap with recent boards).
    */
-  function sendChallenge(toUserId, toUsername) {
+  function sendChallenge(toUserId, toUsername, preferredPuzzleIndices) {
     if (!supabase) return noClient();
     return getCurrentUserAsync().then(function (me) {
       if (!me) return Promise.reject(new Error('Not logged in'));
-      return supabase.from('challenges').insert({
-        from_user_id: me.id,
-        to_user_id: toUserId,
-        status: 'pending'
-      }).select('id, created_at').single().then(function (r) {
+      var row = { from_user_id: me.id, to_user_id: toUserId, status: 'pending' };
+      if (preferredPuzzleIndices && Array.isArray(preferredPuzzleIndices) && preferredPuzzleIndices.length > 0) {
+        row.preferred_puzzle_indices = preferredPuzzleIndices;
+      }
+      return supabase.from('challenges').insert(row).select('id, created_at').single().then(function (r) {
         if (r.error) return Promise.reject(r.error);
         return { toUserId: toUserId, toUsername: toUsername, status: 'pending', sentAt: Date.now() };
       });
@@ -303,19 +306,22 @@
 
   /**
    * Join matchmaking queue and try to match. Returns promise.
+   * @param {number[]} [preferredPuzzleIndices] - Indices with low overlap to recent boards (first player's preference).
    */
-  function findMatch() {
+  function findMatch(preferredPuzzleIndices) {
     if (!supabase) return noClient();
     return getCurrentUserAsync().then(function (me) {
       if (!me) return Promise.reject(new Error('Not logged in'));
-      return supabase.from('matchmaking_queue').upsert(
-        { user_id: me.id, joined_at: new Date().toISOString(), matched_game_id: null },
-        { onConflict: 'user_id' }
-      ).then(function () {
-        return supabase.rpc('try_match');
-      }).then(function (r) {
-        return (r.data && r.data) || true;
-      });
+      var row = { user_id: me.id, joined_at: new Date().toISOString(), matched_game_id: null };
+      if (preferredPuzzleIndices && Array.isArray(preferredPuzzleIndices) && preferredPuzzleIndices.length > 0) {
+        row.preferred_puzzle_indices = preferredPuzzleIndices;
+      }
+      return supabase.from('matchmaking_queue').upsert(row, { onConflict: 'user_id' })
+        .then(function () {
+          return supabase.rpc('try_match');
+        }).then(function (r) {
+          return (r.data && r.data) || true;
+        });
     });
   }
 
@@ -433,13 +439,26 @@
   }
 
   /**
-   * Mark game as finished (status, ended_at). Call when Round 1 ends (time up or all words found).
+   * Mark game as finished (status, ended_at, end_reason). Call when Round 1 ends.
+   * @param {string} gameId
+   * @param {string} [endReason] - 'all_words_found' or 'time_up' (default). Opponent sees same message.
    */
-  function setGameFinished(gameId) {
+  function setGameFinished(gameId, endReason) {
     if (!supabase) return Promise.resolve(false);
-    return supabase.rpc('set_game_finished', { p_game_id: gameId }).then(function (r) {
+    return supabase.rpc('set_game_finished', { p_game_id: gameId, p_end_reason: endReason || 'time_up' }).then(function (r) {
       if (r.error) return false;
       return r.data === true;
+    });
+  }
+
+  /**
+   * Get game status and end_reason (for opponent to poll and show same end message, stop clock).
+   */
+  function getGameStatus(gameId) {
+    if (!supabase) return Promise.resolve(null);
+    return supabase.rpc('get_game_status', { p_game_id: gameId }).then(function (r) {
+      if (r.error || !r.data) return null;
+      return r.data;
     });
   }
 
@@ -505,6 +524,7 @@
     updateBitterEndChoice: updateBitterEndChoice,
     startBitterEnd: startBitterEnd,
     setGameFinished: setGameFinished,
+    getGameStatus: getGameStatus,
     leaveGame: leaveGame,
     subscribeToGamePlayers: subscribeToGamePlayers,
   };

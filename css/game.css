@@ -616,6 +616,7 @@ body.solo-mode .side-panel-right {
 }
 
 .btn-round-keep-playing,
+.btn-round-close,
 .btn-round-leave {
   flex: 1;
   min-width: 120px;
@@ -637,6 +638,16 @@ body.solo-mode .side-panel-right {
 
 .btn-round-keep-playing:hover {
   background: #3a5a3a;
+}
+
+.btn-round-close {
+  background: #333;
+  color: #e8e8e8;
+  border-color: #555;
+}
+
+.btn-round-close:hover {
+  background: #444;
 }
 
 .btn-round-leave {
@@ -984,6 +995,7 @@ body.solo-mode .side-panel-right {
   }
 
   .btn-round-keep-playing,
+  .btn-round-close,
   .btn-round-leave {
     min-height: 44px;
   }

@@ -17,9 +17,8 @@
 
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
-  /** localStorage key for solo: last 10 puzzles' letter sets (JSON array of 7-letter strings); prioritize next puzzle with fewer letters in common with these. */
-  var SPELLBOUND_SOLO_LAST_LETTERS = 'spellbound_solo_last_letters';
-  var SOLO_RECENT_PUZZLES_MAX = 10;
+  /** Last 2 game boards (any mode) for variety — see js/recent-boards.js */
+  var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
   /** Prevents double-submit while dictionary/profanity check is in flight. */
@@ -145,6 +144,7 @@
   var roundEndWinner = $('round-end-winner');
   var roundEndScores = $('round-end-scores');
   var btnRoundKeepPlaying = $('btn-round-keep-playing');
+  var btnRoundClose = $('btn-round-close');
   var btnRoundLeave = $('btn-round-leave');
   var opponentLeftNotifOverlay = $('opponent-left-notif-overlay');
   var btnOpponentLeftBack = $('btn-opponent-left-back');
@@ -159,6 +159,14 @@
       if (timerEl) {
         timerEl.textContent = '—';
         timerEl.classList.add('bitter-end');
+      }
+    });
+  }
+  if (btnRoundClose) {
+    btnRoundClose.addEventListener('click', function () {
+      if (roundEndOverlay) {
+        roundEndOverlay.classList.remove('open');
+        roundEndOverlay.setAttribute('aria-hidden', 'true');
       }
     });
   }
@@ -572,7 +580,8 @@
     }
     if (timerEl) timerEl.textContent = '0:00';
     if (gameId && window.db && window.db.setGameFinished) {
-      window.db.setGameFinished(gameId).catch(function () {});
+      var endReason = (message === 'All words found!') ? 'all_words_found' : 'time_up';
+      window.db.setGameFinished(gameId, endReason).catch(function () {});
     }
     function showOverlay() {
       var overlay = $('round-end-overlay');
@@ -737,33 +746,10 @@
     return count;
   }
 
-  /** Get recent letter sets from localStorage (last 10 puzzles). Returns array of 7-letter strings, may be empty. */
-  function getSoloRecentLetterSets() {
-    try {
-      if (typeof localStorage === 'undefined') return [];
-      var raw = localStorage.getItem(SPELLBOUND_SOLO_LAST_LETTERS);
-      if (!raw) return [];
-      var arr = JSON.parse(raw);
-      if (!Array.isArray(arr)) return [];
-      return arr.filter(function (s) { return typeof s === 'string' && s.length === 7; });
-    } catch (e) { return []; }
-  }
-
-  /** Save recent letter sets to localStorage (prepend new set, keep at most SOLO_RECENT_PUZZLES_MAX). */
-  function saveSoloRecentLetterSet(letterSet) {
-    try {
-      if (typeof localStorage === 'undefined') return;
-      var recent = getSoloRecentLetterSets();
-      recent.unshift(letterSet);
-      if (recent.length > SOLO_RECENT_PUZZLES_MAX) recent = recent.slice(0, SOLO_RECENT_PUZZLES_MAX);
-      localStorage.setItem(SPELLBOUND_SOLO_LAST_LETTERS, JSON.stringify(recent));
-    } catch (e) { /* ignore */ }
-  }
-
-  /** Pick a solo puzzle: prefer ones that share fewer letters with the last 10 played boards (sum overlap with recent). */
+  /** Pick a puzzle: prefer ones that share fewer letters with the last 2 played boards; fallback to random. */
   function pickSoloPuzzle() {
     if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return null;
-    var recent = getSoloRecentLetterSets();
+    var recent = RB ? RB.getRecentLetterSets() : [];
     if (!recent.length) {
       var idx = Math.floor(Math.random() * LOCAL_PUZZLES.length);
       return LOCAL_PUZZLES[idx];
@@ -797,6 +783,13 @@
     return best.length ? best[Math.floor(Math.random() * best.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
   }
 
+  function saveRecentBoard(puzzle) {
+    if (RB && puzzle) {
+      var set = RB.getPuzzleLetterSet ? RB.getPuzzleLetterSet(puzzle) : getPuzzleLetterSet(puzzle);
+      if (set) RB.saveRecentLetterSet(set);
+    }
+  }
+
   /* ========================================================================
      Init: versus (gameId + db) or solo
      ======================================================================== */
@@ -816,7 +809,7 @@
       var chosen = pickSoloPuzzle();
       if (chosen) {
         setPuzzleFromData(chosen);
-        saveSoloRecentLetterSet(getPuzzleLetterSet(chosen));
+        saveRecentBoard(chosen);
       }
     }
     renderHoneycomb();
@@ -852,6 +845,7 @@
         return;
       }
       setPuzzleFromData(puzzle);
+      saveRecentBoard(puzzle);
       renderHoneycomb();
       var startedAt = data.game.started_at;
       var duration = data.game.duration_seconds || 300;
@@ -886,6 +880,23 @@
           db.getGamePlayers(gameId).then(function (updated) {
             applyOpponentPlayers(updated, state.myUserId);
           }).catch(function () {});
+          if (db.getGameStatus) {
+            db.getGameStatus(gameId).then(function (st) {
+              if (!st || state.gameOver) return;
+              if (st.status === 'finished') {
+                clearInterval(pollId);
+                if (state.timerId) {
+                  clearInterval(state.timerId);
+                  state.timerId = null;
+                }
+                state.gameOver = true;
+                state.roundOver = true;
+                if (timerEl) timerEl.textContent = '0:00';
+                var endMessage = (st.end_reason === 'all_words_found') ? 'All words found!' : 'Time\'s up!';
+                endGame(endMessage);
+              }
+            }).catch(function () {});
+          }
         }, 2500);
 
         function showInGameChallengePopup(challenge) {
