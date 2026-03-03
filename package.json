@@ -1,0 +1,14 @@
+{
+  "name": "spellbound",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spellbound Spelling Bee game (Netlify-ready with functions)",
+  "scripts": {
+    "build": "echo \"No build step configured\"",
+    "dev": "echo \"Open index.html in a dev server\""
+  },
+  "dependencies": {
+    "wink-pos-tagger": "^6.1.2"
+  }
+}
+

@@ -53,7 +53,8 @@ function loadWords(source) {
   if (source.file) {
     return Promise.resolve(fs.readFileSync(source.file, 'utf8'));
   }
-  const url = source.url || 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt';
+  // Default: Google 10,000 most common English words (no-swears variant)
+  const url = source.url || 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt';
   return fetchUrl(url);
 }
 

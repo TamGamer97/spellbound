@@ -8,7 +8,7 @@ Generates 7-letter Spelling Bee–style game boards from a word list. Each puzzl
 - **Valid words**: 4+ letters, use only those 7 letters, and must include the center letter
 - **At least two pangrams** by default (configurable via `--min-pangrams`)
 
-Words are loaded from a text file (one word per line) or from a URL. The default is the **Google 20,000 most common English words** (`20k.txt`). You can supply a **blocklist** of words to exclude (e.g. inappropriate terms) via `--blocklist-url` or `--blocklist-file`; the source can be one word per line or a JSON array of strings.
+Words are loaded from a text file (one word per line) or from a URL. The default is the **Google 10,000 most common English words (no-swears)** (`google-10000-english-usa-no-swears.txt`). You can supply a **blocklist** of words to exclude (e.g. inappropriate terms) via `--blocklist-url` or `--blocklist-file`; the source can be one word per line or a JSON array of strings.
 
 ### Usage
 

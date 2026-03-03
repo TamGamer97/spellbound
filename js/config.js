@@ -23,3 +23,10 @@ window.__SPELLBOUND_PROFANITY_API__ = 'https://www.purgomalum.com/service/contai
  * Optional: static blocklist URL (one word per line or JSON array). Loaded at startup; words in this set are also rejected.
  */
 window.__SPELLBOUND_BLOCKLIST_URL__ = '';
+
+/**
+ * Proper-noun detection via POS tagging. This should point to a Netlify Function
+ * that wraps wink-pos-tagger, e.g.:
+ *   https://spellbound.netlify.app/.netlify/functions/pos-proper-noun
+ */
+window.__SPELLBOUND_POS_API__ = 'https://spellbound.netlify.app/.netlify/functions/pos-proper-noun';

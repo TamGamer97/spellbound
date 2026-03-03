@@ -19,7 +19,7 @@
   var LOCAL_PUZZLES = [];
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
-  /** Prevents double-submit while dictionary/profanity check is in flight. */
+  /** Prevents double-submit while dictionary/profanity/POS check is in flight. */
   var dictionaryCheckInFlight = false;
 
   /** Returns a Promise<boolean>: true if the word contains profanity (Purgomalum API). */
@@ -31,6 +31,22 @@
     return fetch(url)
       .then(function (r) { return r.text(); })
       .then(function (text) { return (String(text).trim().toLowerCase() === 'true'); })
+      .catch(function () { return false; });
+  }
+
+  /** Returns a Promise<boolean>: true if POS tagger thinks this is a proper noun. */
+  function checkProperNoun(originalWord) {
+    var base = (typeof window.__SPELLBOUND_POS_API__ !== 'undefined' && window.__SPELLBOUND_POS_API__)
+      ? window.__SPELLBOUND_POS_API__
+      : '';
+    if (!base) return Promise.resolve(false);
+    var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'word=' + encodeURIComponent(originalWord);
+    return fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data) return false;
+        return !!data.isProperNoun;
+      })
       .catch(function () { return false; });
   }
 
@@ -378,7 +394,8 @@
      ======================================================================== */
 
   function submitWord() {
-    const raw = wordInput.value.trim().toUpperCase();
+    const original = wordInput.value.trim();
+    const raw = original.toUpperCase();
     if (validationClearTimeoutId) {
       clearTimeout(validationClearTimeoutId);
       validationClearTimeoutId = null;
@@ -429,8 +446,17 @@
     if (inPuzzleList) {
       if (dictionaryCheckInFlight) return;
       dictionaryCheckInFlight = true;
-      checkProfanity(raw)
+      checkProperNoun(original || raw)
+        .then(function (isProper) {
+          if (isProper) {
+            showValidation('Proper nouns are not allowed', 'invalid');
+            wordInput.value = '';
+            return null;
+          }
+          return checkProfanity(raw);
+        })
         .then(function (hasProfanity) {
+          if (hasProfanity === null) return;
           if (hasProfanity) {
             showValidation("That word isn't allowed", 'invalid');
             wordInput.value = '';
@@ -459,6 +485,15 @@
       .then(function (res) {
         if (!res.ok) {
           showValidation('Not a word', 'invalid');
+          wordInput.value = '';
+          return null;
+        }
+        return checkProperNoun(original || raw);
+      })
+      .then(function (isProper) {
+        if (isProper === null) return null;
+        if (isProper) {
+          showValidation('Proper nouns are not allowed', 'invalid');
           wordInput.value = '';
           return null;
         }
