@@ -572,6 +572,7 @@
 
   /** Stops timer and shows game-over overlay with winner, scores, and Keep finding words / Leave. */
   function endGame(message) {
+    if (state.gameOver) return;
     state.gameOver = true;
     state.roundOver = true;
     if (state.timerId) {
