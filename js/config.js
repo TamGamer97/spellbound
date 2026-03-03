@@ -27,6 +27,6 @@ window.__SPELLBOUND_BLOCKLIST_URL__ = '';
 /**
  * Proper-noun detection via POS tagging. This should point to a Netlify Function
  * that wraps wink-pos-tagger, e.g.:
- *   https://spellbound.netlify.app/.netlify/functions/pos-proper-noun
+ *   https://spellbound-game.netlify.app/.netlify/functions/pos-proper-noun
  */
-window.__SPELLBOUND_POS_API__ = 'https://spellbound.netlify.app/.netlify/functions/pos-proper-noun';
+window.__SPELLBOUND_POS_API__ = 'https://spellbound-game.netlify.app/.netlify/functions/pos-proper-noun';

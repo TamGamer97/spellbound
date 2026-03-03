@@ -8,7 +8,7 @@
     "dev": "echo \"Open index.html in a dev server\""
   },
   "dependencies": {
-    "wink-pos-tagger": "^6.1.2"
+    "wink-pos-tagger": "^2.2.2"
   }
 }
 
