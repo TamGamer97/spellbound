@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "wordnet-db": "^3.1.14"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "spellbound-puzzle-gen-v2",
+  "version": "1.0.0",
+  "description": "Wiki-100k puzzle generator (v2)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "generate": "node index.js"
+  }
+}

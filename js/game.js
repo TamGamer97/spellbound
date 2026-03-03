@@ -15,7 +15,7 @@
     return params && params.get('gameId') ? params.get('gameId') : null;
   })();
 
-  /** Local puzzle set (data/puzzles.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
+  /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
   /** localStorage key for solo: last 10 puzzles' letter sets (JSON array of 7-letter strings); prioritize next puzzle with fewer letters in common with these. */
   var SPELLBOUND_SOLO_LAST_LETTERS = 'spellbound_solo_last_letters';
@@ -266,14 +266,15 @@
     return total;
   }
 
-  /** Set puzzle from DB (versus mode). Pangrams derived by definition (word uses all 7 letters). */
+  /** Set puzzle from DB (versus mode). Pangrams derived by definition (word uses all 7 letters). Normalize to uppercase so validation matches. */
   function setPuzzleFromData(puzzle) {
     if (!puzzle) return;
-    LETTER_SET = {
-      center: puzzle.center_letter,
-      outer: typeof puzzle.outer_letters === 'string' ? puzzle.outer_letters.split('') : (puzzle.outer_letters || []),
-    };
-    VALID_WORDS = new Set(Array.isArray(puzzle.valid_words) ? puzzle.valid_words : []);
+    var center = String(puzzle.center_letter || '').toUpperCase();
+    var outerRaw = typeof puzzle.outer_letters === 'string' ? puzzle.outer_letters.split('') : (puzzle.outer_letters || []);
+    var outer = outerRaw.map(function (c) { return String(c).toUpperCase(); });
+    LETTER_SET = { center: center, outer: outer };
+    var words = Array.isArray(puzzle.valid_words) ? puzzle.valid_words : [];
+    VALID_WORDS = new Set(words.map(function (w) { return String(w).toUpperCase(); }));
     PANGRAMS = new Set(Array.from(VALID_WORDS).filter(isPangram));
     state.totalBoardPoints = (puzzle.total_points != null && puzzle.total_points > 0)
       ? puzzle.total_points
@@ -350,8 +351,9 @@
     hexIds.forEach((id, i) => {
       const el = $(id);
       if (!el) return;
-      el.textContent = state.letters[i];
-      el.dataset.letter = state.letters[i];
+      const letter = state.letters[i];
+      el.textContent = letter ? letter.toUpperCase() : letter;
+      el.dataset.letter = letter ? letter.toUpperCase() : letter;
     });
   }
 
@@ -401,6 +403,12 @@
     }
 
     if (!raw) return;
+
+    if (VALID_WORDS.size > 0 && state.found.size >= VALID_WORDS.size) {
+      showValidation('Found all words!', 'great');
+      wordInput.value = '';
+      return;
+    }
 
     if (raw.length < MIN_LENGTH) {
       showValidation('Too short', 'invalid');
@@ -576,6 +584,10 @@
         return;
       }
       if (messageEl) messageEl.textContent = message;
+      var btnKeepPlaying = $('btn-round-keep-playing');
+      if (btnKeepPlaying) {
+        btnKeepPlaying.style.display = (message === 'All words found!') ? 'none' : '';
+      }
       var myName = state.myUsername || 'You';
       var oppName = state.opponentUsername || 'Opponent';
       var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
@@ -984,7 +996,7 @@
   }
 
   Promise.all([
-    fetch('data/puzzles.json').then(function (r) { return r.json(); }).then(function (arr) {
+    fetch('data/puzzles-2.json').then(function (r) { return r.json(); }).then(function (arr) {
       LOCAL_PUZZLES = Array.isArray(arr) ? arr : [];
     }).catch(function () { LOCAL_PUZZLES = []; }),
     loadBlocklist(),
