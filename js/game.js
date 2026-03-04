@@ -764,6 +764,7 @@
       if (score < minScore) minScore = score;
     }
     var best = [];
+    var bestLetterSets = new Set();
     var recentSet = new Set(recent);
     for (i = 0; i < LOCAL_PUZZLES.length; i++) {
       var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
@@ -771,6 +772,8 @@
       for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
       if (score !== minScore) continue;
       if (recentSet.has(set)) continue;
+      if (bestLetterSets.has(set)) continue;
+      bestLetterSets.add(set);
       best.push(LOCAL_PUZZLES[i]);
     }
     if (best.length === 0) {
@@ -778,7 +781,11 @@
         var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
         var score = 0;
         for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
-        if (score === minScore) best.push(LOCAL_PUZZLES[i]);
+        if (score !== minScore) continue;
+        if (recentSet.has(set)) continue;
+        if (bestLetterSets.has(set)) continue;
+        bestLetterSets.add(set);
+        best.push(LOCAL_PUZZLES[i]);
       }
     }
     return best.length ? best[Math.floor(Math.random() * best.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];

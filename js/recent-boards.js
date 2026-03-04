@@ -53,7 +53,13 @@
     var indices = [];
     var i;
     if (recent.length === 0) {
-      for (i = 0; i < puzzles.length; i++) indices.push(i);
+      var seen = {};
+      for (i = 0; i < puzzles.length; i++) {
+        var set = getPuzzleLetterSet(puzzles[i]);
+        if (seen[set]) continue;
+        seen[set] = true;
+        indices.push(i);
+      }
       return indices;
     }
     var minScore = 1e9;
@@ -63,13 +69,26 @@
       for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
       if (score < minScore) minScore = score;
     }
+    var seenSets = {};
     for (i = 0; i < puzzles.length; i++) {
       var s = getPuzzleLetterSet(puzzles[i]);
+      if (seenSets[s]) continue;
       var sc = 0;
       for (var k = 0; k < recent.length; k++) sc += letterOverlap(recent[k], s);
-      if (sc === minScore) indices.push(i);
+      if (sc === minScore) {
+        indices.push(i);
+        seenSets[s] = true;
+      }
     }
-    return indices.length ? indices : (function () { for (var n = 0; n < puzzles.length; n++) indices.push(n); return indices; })();
+    if (indices.length) return indices;
+    seenSets = {};
+    for (var n = 0; n < puzzles.length; n++) {
+      var set = getPuzzleLetterSet(puzzles[n]);
+      if (seenSets[set]) continue;
+      indices.push(n);
+      seenSets[set] = true;
+    }
+    return indices;
   }
 
   if (typeof module !== 'undefined' && module.exports) {
