@@ -1,12 +1,12 @@
 /**
- * Spellbound — Last 2 game boards (letter sets) for variety.
+ * Spellbound — Last 100 game boards (letter sets) for variety.
  * Used by game (solo pick priority, save on load) and lobby (preferred indices for match/challenge).
  */
 (function (global) {
   'use strict';
 
   var KEY = 'spellbound_recent_boards';
-  var MAX = 2;
+  var MAX = 100;
 
   function getRecentLetterSets() {
     try {

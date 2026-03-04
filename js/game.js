@@ -17,7 +17,7 @@
 
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
-  /** Last 2 game boards (any mode) for variety — see js/recent-boards.js */
+  /** Last 100 game boards (any mode) for variety — see js/recent-boards.js */
   var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
@@ -747,7 +747,7 @@
     return count;
   }
 
-  /** Pick a puzzle: prefer ones that share fewer letters with the last 2 played boards; fallback to random. */
+  /** Pick a puzzle: prefer ones that share fewer letters with the last 100 played boards; fallback to random. */
   function pickSoloPuzzle() {
     if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return null;
     var recent = RB ? RB.getRecentLetterSets() : [];
