@@ -36,13 +36,13 @@
 }
 .challenge-notif-modal {
   pointer-events: auto;
-  background: #252525;
-  border: 1px solid #444;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 10px;
   padding: 1rem 1.25rem;
   min-width: 260px;
   max-width: 320px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 197, 24, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(13, 148, 136, 0.15);
 }
 .challenge-notif-title {
   font-size: 0.75rem;
@@ -50,11 +50,11 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.35rem;
-  color: #f5c518;
+  color: #2dd4bf;
 }
 .challenge-notif-msg {
   font-size: 0.9rem;
-  color: #e8e8e8;
+  color: #e2e8f0;
   margin-bottom: 1rem;
   line-height: 1.35;
 }
@@ -70,16 +70,16 @@
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  border: 1px solid #444;
+  border: 1px solid #475569;
   transition: background 0.2s, color 0.2s;
 }
 .btn-challenge-join {
-  background: #f5c518;
-  color: #1a1a1a;
-  border-color: #e0b015;
+  background: #0d9488;
+  color: #fff;
+  border-color: #0f766e;
 }
 .btn-challenge-join:hover {
-  background: #e0b015;
+  background: #0f766e;
 }
 .btn-challenge-leave-join {
   white-space: normal;
@@ -88,18 +88,18 @@
 }
 .btn-challenge-reject {
   background: transparent;
-  color: #b0b0b0;
+  color: #94a3b8;
 }
 .btn-challenge-reject:hover {
-  background: #333;
-  color: #e8e8e8;
+  background: #475569;
+  color: #e2e8f0;
 }
 .btn-challenge-dismiss {
-  background: #333;
-  color: #e8e8e8;
+  background: #475569;
+  color: #e2e8f0;
 }
 .btn-challenge-dismiss:hover {
-  background: #444;
+  background: #64748b;
 }
 
 /* Challenge notification — mobile */
