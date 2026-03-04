@@ -788,7 +788,18 @@
         best.push(LOCAL_PUZZLES[i]);
       }
     }
-    return best.length ? best[Math.floor(Math.random() * best.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
+    if (best.length > 0) return best[Math.floor(Math.random() * best.length)];
+    // Fallback: pick from any puzzle not in recent (avoid repeating a board)
+    var notRecent = [];
+    var notRecentSets = new Set();
+    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
+      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
+      if (recentSet.has(set)) continue;
+      if (notRecentSets.has(set)) continue;
+      notRecentSets.add(set);
+      notRecent.push(LOCAL_PUZZLES[i]);
+    }
+    return notRecent.length ? notRecent[Math.floor(Math.random() * notRecent.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
   }
 
   function saveRecentBoard(puzzle) {
