@@ -106,7 +106,7 @@ function shuffle(array) {
  * - Exactly 7 unique letters, one center letter
  * - Words must include center and use only those 7 letters, ≥ 4 letters
  * - At least one pangram (word using all 7 letters)
- * - validWords and pangramWords are restricted to allowedSet (e.g. 100k most frequent English)
+ * - validWords and pangramWords are restricted to allowedSet (e.g. 10k list) for selection
  * Returns { letters, center, outer, validWords (sorted), pangramWords }.
  */
 function generatePuzzle(wordList, allowedSet) {
@@ -159,18 +159,40 @@ function generatePuzzle(wordList, allowedSet) {
   }
 }
 
+/**
+ * Enrich valid_words for a puzzle using the full wiki-100k word list (like scripts/enrich-puzzles-2.js):
+ * - Includes all words that fit the 7 letters + center rule
+ * - Removes proper nouns via PROPER_NOUN_BLOCKLIST
+ * - Returns sorted, de-duplicated list
+ */
+function enrichValidWords(center, outer, wordList) {
+  const letters = [center, ...outer];
+  const lettersSet = new Set(letters);
+  const valid = wordList.filter(w => isValidWord(w, lettersSet, center));
+  const withoutBlocklist = valid.filter(
+    w => !PROPER_NOUN_BLOCKLIST.has(String(w).trim().toUpperCase())
+  );
+  const deduped = Array.from(new Set(withoutBlocklist));
+  deduped.sort();
+  return deduped;
+}
+
 // ---------------- RUN ----------------
 
 const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
 const POINTS_PER_LETTER = 1;
 const PANGRAM_BONUS = 5;
-/** Run generation for this many milliseconds (e.g. 5 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
-const GENERATE_DURATION_MS = 30 * 60 * 1000;
+/** Run generation for this many milliseconds (e.g. 20 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
+const GENERATE_DURATION_MS = 20 * 60 * 1000;
 /** When GENERATE_DURATION_MS is 0, generate exactly this many puzzles. */
 const TARGET_PUZZLE_COUNT = 50;
 
 function letterSetKey(puzzle) {
-  return puzzle.letters.slice().sort().join("");
+  if (puzzle.letters && Array.isArray(puzzle.letters) && puzzle.letters.length === 7) {
+    return puzzle.letters.slice().sort().join("");
+  }
+  const raw = String(puzzle.center_letter || "") + String(puzzle.outer_letters || "");
+  return raw.toUpperCase().replace(/[^A-Z]/g, "").split("").sort().join("");
 }
 
 async function main() {
@@ -182,14 +204,30 @@ async function main() {
   const allowedSet = await loadAllowedWords();
   console.log("Allowed words:", allowedSet.size);
 
+  // Load existing puzzles so we append instead of replacing, and avoid duplicate boards.
+  let existing = [];
+  if (fs.existsSync(OUTPUT_PATH)) {
+    try {
+      const rawExisting = fs.readFileSync(OUTPUT_PATH, "utf8");
+      const arr = JSON.parse(rawExisting);
+      if (Array.isArray(arr)) existing = arr;
+    } catch (e) {
+      existing = [];
+    }
+  }
+  console.log("Existing puzzles in", OUTPUT_PATH + ":", existing.length);
+
   const useTimeLimit = GENERATE_DURATION_MS > 0;
   if (useTimeLimit) {
-    console.log("Generating puzzles for " + (GENERATE_DURATION_MS / 60000) + " minute(s)...");
+    console.log("Generating puzzles for " + (GENERATE_DURATION_MS / 60000) + " minute(s) and appending to existing set...");
   } else {
-    console.log("Generating " + TARGET_PUZZLE_COUNT + " puzzles...");
+    console.log("Generating " + TARGET_PUZZLE_COUNT + " new puzzles and appending to existing set...");
   }
-  const output = [];
+  const output = existing.slice();
   const seenLetterSets = new Set();
+  for (const p of existing) {
+    seenLetterSets.add(letterSetKey(p));
+  }
   const startTime = Date.now();
   let count = 0;
   let lastLogAtPuzzle = -1;
@@ -210,29 +248,34 @@ async function main() {
     if (!useTimeLimit && count >= TARGET_PUZZLE_COUNT) break;
     seenLetterSets.add(key);
 
+    const enrichedValid = enrichValidWords(puzzle.center, puzzle.outer, wordList);
     const totalPoints =
-      puzzle.validWords.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
+      enrichedValid.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
       puzzle.pangramWords.length * PANGRAM_BONUS;
 
     output.push({
       center_letter: puzzle.center,
       outer_letters: puzzle.outer.join(""),
-      valid_words: puzzle.validWords,
+      valid_words: enrichedValid,
       pangrams: puzzle.pangramWords,
       total_points: totalPoints,
     });
     count++;
     const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+    const totalSoFar = existing.length + count;
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const timeStr = mins + "m " + String(secs).padStart(2, "0") + "s";
     const shouldLogEvery10 = count === 1 || count % 10 === 0;
     const shouldLogEvery30s = useTimeLimit && elapsedSec >= 30 && Math.floor(elapsedSec / 30) > lastLogAtSec;
     if (shouldLogEvery10 || shouldLogEvery30s) {
       if (shouldLogEvery10) lastLogAtPuzzle = count;
       if (shouldLogEvery30s) lastLogAtSec = Math.floor(elapsedSec / 30);
-      console.log("  " + count + " puzzles (" + elapsedSec + "s elapsed)");
+      console.log("  " + count + " new puzzles (" + totalSoFar + " total, " + timeStr + ")");
     }
   }
 
-  console.log("  Done. Generated " + output.length + " puzzles.");
+  console.log("  Done. Generated " + count + " new puzzles. Total (before filters): " + output.length + ".");
 
   // Remove any valid_words or pangrams that are in the proper-noun blocklist; log and recompute points
   let removedCount = 0;
