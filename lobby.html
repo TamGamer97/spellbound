@@ -128,11 +128,11 @@
       fetch('data/puzzles-2.json').then(function (r) { return r.json(); }).then(function (arr) {
         lobbyPuzzles = Array.isArray(arr) ? arr : [];
       }).catch(function () {});
-      function getPreferredPuzzleIndices() {
-        if (window.SpellboundRecentBoards && lobbyPuzzles.length) {
-          return window.SpellboundRecentBoards.getPreferredPuzzleIndices(lobbyPuzzles);
-        }
-        return [];
+      /** Recent board indices to send so the server can exclude them when picking a puzzle. */
+      function getRecentBoardIndices() {
+        return (window.SpellboundRecentBoards && window.SpellboundRecentBoards.getRecentBoardIndices)
+          ? window.SpellboundRecentBoards.getRecentBoardIndices()
+          : [];
       }
       window.db.getCurrentUserAsync().then(function (u) {
         if (!u) {
@@ -285,8 +285,8 @@
           btn.type = 'button';
           btn.textContent = u.username;
           btn.addEventListener('click', function () {
-            var preferred = getPreferredPuzzleIndices();
-            window.db.sendChallenge(u.id, u.username, preferred).then(function () {
+            var recentIndices = getRecentBoardIndices();
+            window.db.sendChallenge(u.id, u.username, recentIndices).then(function () {
               challengeSearchRow.style.display = 'none';
               searchResults.innerHTML = '';
               searchInput.value = '';
@@ -342,8 +342,8 @@
       }
 
       btnMatchMe.addEventListener('click', function () {
-        var preferred = getPreferredPuzzleIndices();
-        window.db.findMatch(preferred).then(function () {
+        var recentIndices = getRecentBoardIndices();
+        window.db.findMatch(recentIndices).then(function () {
           matchStartRow.style.display = 'none';
           matchWaiting.style.display = 'block';
           expandCard(matchCard);
@@ -428,7 +428,8 @@
           if (!currentChallenge) return;
           var id = currentChallenge.id;
           closeChallengePopup();
-          window.db.acceptChallenge(id).then(function (gameId) {
+          var accepterRecent = getRecentBoardIndices();
+          window.db.acceptChallenge(id, accepterRecent).then(function (gameId) {
             window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
           }).catch(function () {
             checkAndShowPendingChallenges();

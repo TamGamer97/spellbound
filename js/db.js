@@ -150,15 +150,15 @@
    * Send a challenge to a user. Returns challenge or throws.
    * @param {string} toUserId
    * @param {string} toUsername
-   * @param {number[]} [preferredPuzzleIndices] - Challenger's preferred indices (low overlap with recent boards).
+   * @param {number[]} [recentBoardIndices] - Challenger's recent puzzle indices (excluded when picking board on accept).
    */
-  function sendChallenge(toUserId, toUsername, preferredPuzzleIndices) {
+  function sendChallenge(toUserId, toUsername, recentBoardIndices) {
     if (!supabase) return noClient();
     return getCurrentUserAsync().then(function (me) {
       if (!me) return Promise.reject(new Error('Not logged in'));
       var row = { from_user_id: me.id, to_user_id: toUserId, status: 'pending' };
-      if (preferredPuzzleIndices && Array.isArray(preferredPuzzleIndices) && preferredPuzzleIndices.length > 0) {
-        row.preferred_puzzle_indices = preferredPuzzleIndices;
+      if (recentBoardIndices && Array.isArray(recentBoardIndices)) {
+        row.preferred_puzzle_indices = recentBoardIndices;
       }
       return supabase.from('challenges').insert(row).select('id, created_at').single().then(function (r) {
         if (r.error) return Promise.reject(r.error);
@@ -242,10 +242,16 @@
 
   /**
    * Accept a challenge (as recipient). Creates game and returns gameId; redirect to game.html?gameId=...
+   * @param {string} challengeId
+   * @param {number[]} [accepterRecentBoardIndices] - Accepter's recent puzzle indices (excluded when picking board).
    */
-  function acceptChallenge(challengeId) {
+  function acceptChallenge(challengeId, accepterRecentBoardIndices) {
     if (!supabase) return noClient();
-    return supabase.rpc('accept_challenge', { p_challenge_id: challengeId }).then(function (r) {
+    var params = { p_challenge_id: challengeId };
+    if (accepterRecentBoardIndices && Array.isArray(accepterRecentBoardIndices)) {
+      params.p_accepter_exclude_indices = accepterRecentBoardIndices;
+    }
+    return supabase.rpc('accept_challenge', params).then(function (r) {
       if (r.error || r.data == null) return Promise.reject(r.error || new Error('Accept failed'));
       return r.data;
     });
@@ -306,15 +312,15 @@
 
   /**
    * Join matchmaking queue and try to match. Returns promise.
-   * @param {number[]} [preferredPuzzleIndices] - Indices with low overlap to recent boards (first player's preference).
+   * @param {number[]} [recentBoardIndices] - Puzzle indices to exclude for this user (recent boards).
    */
-  function findMatch(preferredPuzzleIndices) {
+  function findMatch(recentBoardIndices) {
     if (!supabase) return noClient();
     return getCurrentUserAsync().then(function (me) {
       if (!me) return Promise.reject(new Error('Not logged in'));
       var row = { user_id: me.id, joined_at: new Date().toISOString(), matched_game_id: null };
-      if (preferredPuzzleIndices && Array.isArray(preferredPuzzleIndices) && preferredPuzzleIndices.length > 0) {
-        row.preferred_puzzle_indices = preferredPuzzleIndices;
+      if (recentBoardIndices && Array.isArray(recentBoardIndices)) {
+        row.preferred_puzzle_indices = recentBoardIndices;
       }
       return supabase.from('matchmaking_queue').upsert(row, { onConflict: 'user_id' })
         .then(function () {

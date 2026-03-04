@@ -733,74 +733,27 @@
     if (!gameId) { startTimer(); honeycomb.removeEventListener('click', startOnce); }
   });
 
-  /** Return 7-letter string (sorted) for a puzzle. */
-  function getPuzzleLetterSet(puzzle) {
-    var s = (puzzle.center_letter + (puzzle.outer_letters || '')).toUpperCase().replace(/[^A-Z]/g, '');
-    return s.split('').sort().join('');
-  }
-
-  /** Number of letters in common between two 7-letter strings (e.g. from getPuzzleLetterSet). */
-  function letterOverlap(lettersA, lettersB) {
-    var setA = new Set((lettersA || '').split(''));
-    var count = 0;
-    for (var i = 0; i < (lettersB || '').length; i++) { if (setA.has(lettersB[i])) count++; }
-    return count;
-  }
-
-  /** Pick a puzzle: prefer ones that share fewer letters with the last 100 played boards; never repeat a recent board. */
-  function pickSoloPuzzle() {
-    if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return null;
-    var recent = RB ? RB.getRecentLetterSets() : [];
+  /**
+   * Pick a puzzle index at random; if it's in the user's recent list, retry. Max 200 tries then allow any.
+   * @returns {number} Puzzle index, or -1 if no puzzles.
+   */
+  function pickSoloPuzzleIndex() {
+    if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return -1;
+    var recent = RB && RB.getRecentBoardIndices ? RB.getRecentBoardIndices() : [];
     var recentSet = new Set(recent);
-    // Build pool of boards we haven't played recently (never repeat within last 100)
-    var notRecent = [];
-    var notRecentSets = new Set();
-    var i;
-    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
-      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
-      if (recentSet.has(set)) continue;
-      if (notRecentSets.has(set)) continue;
-      notRecentSets.add(set);
-      notRecent.push(LOCAL_PUZZLES[i]);
+    var maxTries = 200;
+    var n = LOCAL_PUZZLES.length;
+    for (var t = 0; t < maxTries; t++) {
+      var idx = Math.floor(Math.random() * n);
+      if (!recentSet.has(idx)) return idx;
     }
-    // If no recent history or everything is in recent, pick random from full list
-    if (notRecent.length === 0) {
-      return LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
-    }
-    if (!recent.length) {
-      return notRecent[Math.floor(Math.random() * notRecent.length)];
-    }
-    // Prefer low-overlap boards only when we have enough options (avoid always returning the same one)
-    var minScore = 1e9;
-    for (i = 0; i < notRecent.length; i++) {
-      var set = getPuzzleLetterSet(notRecent[i]);
-      var score = 0;
-      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
-      if (score < minScore) minScore = score;
-    }
-    var best = [];
-    var bestLetterSets = new Set();
-    for (i = 0; i < notRecent.length; i++) {
-      var s = getPuzzleLetterSet(notRecent[i]);
-      var sc = 0;
-      for (var k = 0; k < recent.length; k++) sc += letterOverlap(recent[k], s);
-      if (sc !== minScore) continue;
-      if (bestLetterSets.has(s)) continue;
-      bestLetterSets.add(s);
-      best.push(notRecent[i]);
-    }
-    // Use low-overlap set only if there are several options; otherwise pick from full notRecent for variety
-    var minBestSize = 5;
-    if (best.length >= minBestSize) {
-      return best[Math.floor(Math.random() * best.length)];
-    }
-    return notRecent[Math.floor(Math.random() * notRecent.length)];
+    return Math.floor(Math.random() * n);
   }
 
-  function saveRecentBoard(puzzle) {
-    if (RB && puzzle) {
-      var set = RB.getPuzzleLetterSet ? RB.getPuzzleLetterSet(puzzle) : getPuzzleLetterSet(puzzle);
-      if (set) RB.saveRecentLetterSet(set);
+  /** Save the current game's puzzle index to recent boards (called when starting a game). */
+  function saveRecentBoardIndex(index) {
+    if (RB && RB.saveRecentBoardIndex && typeof index === 'number' && index >= 0) {
+      RB.saveRecentBoardIndex(index);
     }
   }
 
@@ -820,10 +773,10 @@
       timerEl.classList.remove('warning', 'danger', 'bitter-end');
     }
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-      var chosen = pickSoloPuzzle();
-      if (chosen) {
-        setPuzzleFromData(chosen);
-        saveRecentBoard(chosen);
+      var idx = pickSoloPuzzleIndex();
+      if (idx >= 0 && LOCAL_PUZZLES[idx]) {
+        setPuzzleFromData(LOCAL_PUZZLES[idx]);
+        saveRecentBoardIndex(idx);
       }
     }
     renderHoneycomb();
@@ -859,7 +812,7 @@
         return;
       }
       setPuzzleFromData(puzzle);
-      saveRecentBoard(puzzle);
+      if (data.puzzle_index != null) saveRecentBoardIndex(data.puzzle_index);
       renderHoneycomb();
       var startedAt = data.game.started_at;
       var duration = data.game.duration_seconds || 300;
@@ -935,7 +888,8 @@
             if (!state.pendingChallenge || !db.acceptChallenge) return;
             var id = state.pendingChallenge.id;
             closeInGameChallengePopup();
-            db.acceptChallenge(id).then(function (gameId) {
+            var accepterRecent = RB && RB.getRecentBoardIndices ? RB.getRecentBoardIndices() : [];
+            db.acceptChallenge(id, accepterRecent).then(function (gameId) {
               window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
             }).catch(closeInGameChallengePopup);
           });

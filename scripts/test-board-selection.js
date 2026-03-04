@@ -1,9 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-// Use the same helpers as the app for letter sets
-const RB = require(path.join(__dirname, "../js/recent-boards.js"));
-
 const PUZZLES_PATH = path.join(__dirname, "../data/puzzles-2.json");
 
 function loadPuzzles() {
@@ -13,110 +10,51 @@ function loadPuzzles() {
   return arr;
 }
 
-function letterOverlap(a, b) {
-  const setA = new Set((a || "").split(""));
-  let count = 0;
-  for (let i = 0; i < (b || "").length; i++) {
-    if (setA.has(b[i])) count++;
+/** Mirror game.js: pick random index, retry if in recent (max 200), then allow any. */
+function pickSoloPuzzleIndex(puzzles, recentIndices) {
+  if (!puzzles || puzzles.length === 0) return -1;
+  const recentSet = new Set(recentIndices || []);
+  const n = puzzles.length;
+  const maxTries = 200;
+  for (let t = 0; t < maxTries; t++) {
+    const idx = Math.floor(Math.random() * n);
+    if (!recentSet.has(idx)) return idx;
   }
-  return count;
-}
-
-/** Pick one puzzle using the same logic as pickSoloPuzzle, but with an explicit recent list of letter sets. */
-function pickPuzzle(puzzles, recentSets) {
-  if (!puzzles || puzzles.length === 0) return null;
-  if (!recentSets || recentSets.length === 0) {
-    return puzzles[Math.floor(Math.random() * puzzles.length)];
-  }
-  let minScore = Infinity;
-  for (let i = 0; i < puzzles.length; i++) {
-    const set = RB.getPuzzleLetterSet(puzzles[i]);
-    let score = 0;
-    for (let j = 0; j < recentSets.length; j++) {
-      score += letterOverlap(recentSets[j], set);
-    }
-    if (score < minScore) minScore = score;
-  }
-
-  const recentSet = new Set(recentSets);
-  const best = [];
-  const bestLetterSets = new Set();
-
-  for (let i = 0; i < puzzles.length; i++) {
-    const set = RB.getPuzzleLetterSet(puzzles[i]);
-    let score = 0;
-    for (let j = 0; j < recentSets.length; j++) {
-      score += letterOverlap(recentSets[j], set);
-    }
-    if (score !== minScore) continue;
-    if (recentSet.has(set)) continue;
-    if (bestLetterSets.has(set)) continue;
-    bestLetterSets.add(set);
-    best.push(puzzles[i]);
-  }
-
-  if (best.length === 0) {
-    for (let i = 0; i < puzzles.length; i++) {
-      const set = RB.getPuzzleLetterSet(puzzles[i]);
-      let score = 0;
-      for (let j = 0; j < recentSets.length; j++) {
-        score += letterOverlap(recentSets[j], set);
-      }
-      if (score !== minScore) continue;
-      if (recentSet.has(set)) continue;
-      if (bestLetterSets.has(set)) continue;
-      bestLetterSets.add(set);
-      best.push(puzzles[i]);
-    }
-  }
-
-  if (best.length > 0) return best[Math.floor(Math.random() * best.length)];
-  // Fallback: pick from any puzzle not in recent (same as game.js)
-  const notRecent = [];
-  const notRecentSets = new Set();
-  for (let i = 0; i < puzzles.length; i++) {
-    const set = RB.getPuzzleLetterSet(puzzles[i]);
-    if (recentSet.has(set)) continue;
-    if (notRecentSets.has(set)) continue;
-    notRecentSets.add(set);
-    notRecent.push(puzzles[i]);
-  }
-  return notRecent.length
-    ? notRecent[Math.floor(Math.random() * notRecent.length)]
-    : puzzles[Math.floor(Math.random() * puzzles.length)];
+  return Math.floor(Math.random() * n);
 }
 
 function main() {
   const puzzles = loadPuzzles();
   console.log("Total puzzles:", puzzles.length);
 
-  const recentSets = [];
-  const chosenSets = new Set();
+  const recentIndices = [];
+  const chosenIndices = new Set();
 
   const NUM_PICKS = 50;
   for (let i = 0; i < NUM_PICKS; i++) {
-    const puzzle = pickPuzzle(puzzles, recentSets);
-    if (!puzzle) break;
-    const set = RB.getPuzzleLetterSet(puzzle);
+    const idx = pickSoloPuzzleIndex(puzzles, recentIndices);
+    if (idx < 0) break;
+    const puzzle = puzzles[idx];
+    const center = String(puzzle.center_letter || "").toUpperCase();
+    const outer = String(puzzle.outer_letters || "").toUpperCase();
     console.log(
       (i + 1) + ":",
-      "center=" + String(puzzle.center_letter).toUpperCase(),
-      "outer=" + String(puzzle.outer_letters).toUpperCase(),
-      "set=" + set
+      "index=" + idx,
+      "center=" + center,
+      "outer=" + outer
     );
-    if (chosenSets.has(set)) {
-      console.log("  -> DUPLICATE SET DETECTED");
+    if (chosenIndices.has(idx)) {
+      console.log("  -> DUPLICATE INDEX DETECTED");
     }
-    chosenSets.add(set);
+    chosenIndices.add(idx);
 
-    recentSets.unshift(set);
-    if (recentSets.length > 100) recentSets.length = 100;
+    recentIndices.unshift(idx);
+    if (recentIndices.length > 100) recentIndices.length = 100;
   }
 
   console.log("\nTotal picks:", NUM_PICKS);
-  console.log("Unique sets picked:", chosenSets.size);
-  console.log(chosenSets.size === NUM_PICKS ? "All unique." : "Duplicates: " + (NUM_PICKS - chosenSets.size));
+  console.log("Unique indices picked:", chosenIndices.size);
+  console.log(chosenIndices.size === NUM_PICKS ? "All unique." : "Duplicates: " + (NUM_PICKS - chosenIndices.size));
 }
 
 main();
-
