@@ -11,7 +11,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background: #1a1a1a;
+  background: #1e293b;
   font-family: 'DM Sans', sans-serif;
   overflow-x: hidden;
 }
@@ -44,9 +44,9 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #888;
+  color: #64748b;
   background: transparent;
-  border: 1px solid #444;
+  border: 1px solid #475569;
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
@@ -54,8 +54,8 @@ body {
 }
 
 .btn-leave:hover {
-  color: #e8e8e8;
-  border-color: #666;
+  color: #e2e8f0;
+  border-color: #64748b;
 }
 
 .game-title {
@@ -63,13 +63,13 @@ body {
   font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: 0.2em;
-  color: #e8e8e8;
+  color: #e2e8f0;
   text-transform: uppercase;
   margin: 0;
   text-align: center;
   margin-right: -0.2em;
   text-shadow:
-    0 0 40px rgba(245, 197, 24, 0.15),
+    0 0 40px rgba(13, 148, 136, 0.2),
     0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -85,21 +85,21 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #e8e8e8;
+  color: #e2e8f0;
 }
 
 .timer-value.warning {
-  color: #e6b400;
+  color: #f59e0b;
 }
 
 .timer-value.danger {
-  color: #e55;
+  color: #ef4444;
 }
 
 .timer-legend {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  color: #666;
+  color: #64748b;
 }
 
 /* --------------------------------------------------------------------------
@@ -149,8 +149,8 @@ body.solo-mode .side-panel-right {
   width: 100%;
   max-width: 220px;
   max-height: 520px;
-  background: #222;
-  border: 1px solid #333;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -164,14 +164,14 @@ body.solo-mode .side-panel-right {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #e8e8e8;
+  color: #e2e8f0;
   margin-bottom: 0.25rem;
   text-align: center;
 }
 
 .player-panel-username {
   font-size: 0.8rem;
-  color: #888;
+  color: #94a3b8;
   text-align: center;
   margin: 0 0 0.5rem;
   min-height: 1.2em;
@@ -184,20 +184,20 @@ body.solo-mode .side-panel-right {
   gap: 0.1rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #475569;
 }
 
 .player-score-value {
   font-family: 'DM Sans', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f5c518;
+  color: #2dd4bf;
 }
 
 .player-score-legend {
   font-size: 0.65rem;
   letter-spacing: 0.06em;
-  color: #666;
+  color: #64748b;
 }
 
 .words-panel-title {
@@ -206,10 +206,10 @@ body.solo-mode .side-panel-right {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #888;
+  color: #94a3b8;
   margin-bottom: 0.5rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #475569;
 }
 
 /* Words panel dropdown: desktop shows as static title + list */
@@ -232,10 +232,10 @@ body.solo-mode .side-panel-right {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #888;
+  color: #94a3b8;
   background: none;
   border: none;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #475569;
   cursor: default;
   text-align: left;
 }
@@ -254,7 +254,7 @@ body.solo-mode .side-panel-right {
 
 .words-list-placeholder {
   font-size: 0.8rem;
-  color: #555;
+  color: #64748b;
   font-style: italic;
   text-align: center;
   padding: 1rem 0.5rem;
@@ -263,12 +263,12 @@ body.solo-mode .side-panel-right {
 
 .opponent-left-msg {
   font-size: 0.85rem;
-  color: #e55;
+  color: #ef4444;
   font-weight: 600;
   text-align: center;
   padding: 0.5rem;
   margin: 0 0 0.5rem;
-  background: rgba(229, 85, 85, 0.1);
+  background: rgba(239, 68, 68, 0.1);
   border-radius: 6px;
 }
 
@@ -289,7 +289,7 @@ body.solo-mode .side-panel-right {
   padding: 0;
   overflow-y: auto;
   font-size: 0.9rem;
-  color: #b0b0b0;
+  color: #94a3b8;
   line-height: 1.5;
   flex: 1;
   min-height: 0;
@@ -297,7 +297,7 @@ body.solo-mode .side-panel-right {
 
 .words-list li {
   padding: 0.25rem 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #475569;
 }
 
 .words-list li:last-child {
@@ -305,12 +305,12 @@ body.solo-mode .side-panel-right {
 }
 
 .words-list li.pangram {
-  color: #f5c518;
+  color: #2dd4bf;
   font-weight: 700;
 }
 
 /* --------------------------------------------------------------------------
-   Honeycomb & hexagons
+   Honeycomb & letter cells (circles)
    -------------------------------------------------------------------------- */
 .honeycomb {
   position: relative;
@@ -321,12 +321,12 @@ body.solo-mode .side-panel-right {
 
 .hex {
   position: absolute;
-  width: 115px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
   font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
@@ -344,28 +344,28 @@ body.solo-mode .side-panel-right {
 }
 
 .hex.outer {
-  background: #e8e8e8;
-  color: #333;
+  background: #94a3b8;
+  color: #1e293b;
 }
 
 .hex.center {
-  background: #f5c518;
-  color: #1a1a1a;
-  filter: drop-shadow(0 0 12px rgba(245, 197, 24, 0.5));
+  background: #0d9488;
+  color: #fff;
+  filter: drop-shadow(0 0 12px rgba(13, 148, 136, 0.5));
 }
 
 .hex.center:hover {
   transform: scale(1.08);
-  filter: drop-shadow(0 0 20px rgba(245, 197, 24, 0.8)) brightness(1.1);
+  filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.8)) brightness(1.1);
 }
 
-.hex-center { left: 143px; top: 140px; }
-.hex-top    { left: 143px; top: 30px; }
-.hex-tr     { left: 243px; top: 85px; }
-.hex-br     { left: 243px; top: 195px; }
-.hex-bot    { left: 143px; top: 250px; }
-.hex-bl     { left: 43px; top: 195px; }
-.hex-tl     { left: 43px; top: 85px; }
+.hex-center { left: 140px; top: 135px; }
+.hex-top    { left: 140px; top: 25px; }
+.hex-tr     { left: 235px; top: 80px; }
+.hex-br     { left: 235px; top: 190px; }
+.hex-bot    { left: 140px; top: 245px; }
+.hex-bl     { left: 45px; top: 190px; }
+.hex-tl     { left: 45px; top: 80px; }
 
 @keyframes popIn {
   0%   { opacity: 0; transform: scale(0.5); }
@@ -401,21 +401,21 @@ body.solo-mode .side-panel-right {
   padding: 0.75rem 1rem;
   font-family: 'DM Sans', sans-serif;
   font-size: 1.15rem;
-  color: #e8e8e8;
-  caret-color: #f5c518;
-  background: #2a2a2a;
-  border: 2px solid #444;
+  color: #e2e8f0;
+  caret-color: #0d9488;
+  background: #334155;
+  border: 2px solid #475569;
   border-radius: 8px;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .word-input:focus {
-  border-color: #f5c518;
+  border-color: #0d9488;
 }
 
 .word-input::placeholder {
-  color: #666;
+  color: #64748b;
 }
 
 .buttons-row {
@@ -430,9 +430,9 @@ body.solo-mode .side-panel-right {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #e8e8e8;
-  background: #2a2a2a;
-  border: 2px solid #444;
+  color: #e2e8f0;
+  background: #334155;
+  border: 2px solid #475569;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
@@ -441,9 +441,9 @@ body.solo-mode .side-panel-right {
 }
 
 .btn:hover {
-  background: #333;
-  border-color: #f5c518;
-  color: #f5c518;
+  background: #475569;
+  border-color: #0d9488;
+  color: #2dd4bf;
 }
 
 .btn-shuffle {
@@ -464,13 +464,13 @@ body.solo-mode .side-panel-right {
   font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
-  color: #888;
+  color: #94a3b8;
 }
 
-.validation-message.great   { color: #6bcf7f; }
-.validation-message.taken   { color: #888; }
-.validation-message.pangram { color: #f5c518; }
-.validation-message.invalid { color: #e55; }
+.validation-message.great   { color: #34d399; }
+.validation-message.taken   { color: #94a3b8; }
+.validation-message.pangram { color: #2dd4bf; }
+.validation-message.invalid { color: #ef4444; }
 
 /* --------------------------------------------------------------------------
    Leave game confirmation
@@ -497,8 +497,8 @@ body.solo-mode .side-panel-right {
 .leave-modal {
   width: 100%;
   max-width: 340px;
-  background: #222;
-  border: 1px solid #333;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 1.5rem;
@@ -507,13 +507,13 @@ body.solo-mode .side-panel-right {
 .leave-modal h2 {
   font-size: 1.15rem;
   font-weight: 600;
-  color: #e8e8e8;
+  color: #e2e8f0;
   margin: 0 0 0.5rem;
 }
 
 .leave-modal-text {
   font-size: 0.9rem;
-  color: #888;
+  color: #94a3b8;
   margin: 0 0 1.25rem;
 }
 
@@ -526,28 +526,28 @@ body.solo-mode .side-panel-right {
 .btn-leave-cancel {
   padding: 0.5rem 1rem;
   font-weight: 500;
-  color: #e8e8e8;
-  background: #333;
-  border: 1px solid #444;
+  color: #e2e8f0;
+  background: #475569;
+  border: 1px solid #64748b;
 }
 
 .btn-leave-cancel:hover {
-  background: #444;
-  border-color: #555;
+  background: #64748b;
+  border-color: #94a3b8;
 }
 
 .btn-leave-confirm {
   padding: 0.5rem 1rem;
   font-weight: 500;
-  color: #e55;
+  color: #ef4444;
   background: transparent;
-  border: 1px solid #555;
+  border: 1px solid #64748b;
 }
 
 .btn-leave-confirm:hover {
   color: #fff;
-  border-color: #e55;
-  background: rgba(229, 85, 85, 0.15);
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* --------------------------------------------------------------------------
@@ -575,8 +575,8 @@ body.solo-mode .side-panel-right {
 .round-end-modal {
   width: 100%;
   max-width: 380px;
-  background: #252525;
-  border: 1px solid #444;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 1.75rem;
@@ -585,26 +585,26 @@ body.solo-mode .side-panel-right {
 .round-end-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #f5c518;
+  color: #2dd4bf;
   margin: 0 0 0.5rem;
 }
 
 .round-end-message {
   font-size: 0.95rem;
-  color: #b0b0b0;
+  color: #94a3b8;
   margin: 0 0 0.25rem;
 }
 
 .round-end-winner {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e8e8e8;
+  color: #e2e8f0;
   margin: 0 0 0.5rem;
 }
 
 .round-end-scores {
   font-size: 0.95rem;
-  color: #b0b0b0;
+  color: #94a3b8;
   margin: 0 0 1.25rem;
   line-height: 1.4;
 }
@@ -626,38 +626,38 @@ body.solo-mode .side-panel-right {
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  border: 1px solid #444;
+  border: 1px solid #475569;
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-round-keep-playing {
-  background: #2a4a2a;
-  color: #b8e0b8;
-  border-color: #3a5a3a;
+  background: #0f766e;
+  color: #99f6e4;
+  border-color: #0d9488;
 }
 
 .btn-round-keep-playing:hover {
-  background: #3a5a3a;
+  background: #0d9488;
 }
 
 .btn-round-close {
-  background: #333;
-  color: #e8e8e8;
-  border-color: #555;
+  background: #475569;
+  color: #e2e8f0;
+  border-color: #64748b;
 }
 
 .btn-round-close:hover {
-  background: #444;
+  background: #64748b;
 }
 
 .btn-round-leave {
-  background: #333;
-  color: #e8e8e8;
-  border-color: #555;
+  background: #475569;
+  color: #e2e8f0;
+  border-color: #64748b;
 }
 
 .btn-round-leave:hover {
-  background: #444;
+  background: #64748b;
 }
 
 /* Opponent went back to lobby (round-end notification) */
@@ -683,8 +683,8 @@ body.solo-mode .side-panel-right {
 .opponent-left-notif-modal {
   width: 100%;
   max-width: 340px;
-  background: #252525;
-  border: 1px solid #444;
+  background: #334155;
+  border: 1px solid #475569;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -693,13 +693,13 @@ body.solo-mode .side-panel-right {
 .opponent-left-notif-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #f5c518;
+  color: #2dd4bf;
   margin: 0 0 0.5rem;
 }
 
 .opponent-left-notif-msg {
   font-size: 0.9rem;
-  color: #b0b0b0;
+  color: #94a3b8;
   margin: 0 0 1rem;
   line-height: 1.4;
 }
@@ -714,20 +714,20 @@ body.solo-mode .side-panel-right {
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
-  background: #f5c518;
-  color: #1a1a1a;
-  border: 1px solid #e0b015;
+  background: #0d9488;
+  color: #fff;
+  border: 1px solid #0f766e;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .btn-opponent-left-back:hover {
-  background: #e0b015;
+  background: #0f766e;
 }
 
 /* Timer in "keep finding words" mode shows no limit */
 .timer-display .timer-value.bitter-end {
-  color: #888;
+  color: #94a3b8;
   font-variant-numeric: tabular-nums;
 }
 
@@ -826,7 +826,7 @@ body.solo-mode .side-panel-right {
     margin-left: 0.25rem;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
-    border-top: 5px solid #888;
+    border-top: 5px solid #94a3b8;
     transition: transform 0.2s ease;
   }
 
@@ -944,18 +944,18 @@ body.solo-mode .side-panel-right {
   }
 
   .hex {
-    width: 107px;
-    height: 93px;
+    width: 82px;
+    height: 82px;
     font-size: 1.65rem;
   }
 
-  .hex-center { left: 133px; top: 130px; }
-  .hex-top    { left: 133px; top: 28px; }
-  .hex-tr     { left: 227px; top: 79px; }
-  .hex-br     { left: 227px; top: 181px; }
-  .hex-bot    { left: 133px; top: 232px; }
-  .hex-bl     { left: 40px; top: 181px; }
-  .hex-tl     { left: 40px; top: 79px; }
+  .hex-center { left: 132px; top: 125px; }
+  .hex-top    { left: 132px; top: 22px; }
+  .hex-tr     { left: 224px; top: 73px; }
+  .hex-br     { left: 224px; top: 178px; }
+  .hex-bot    { left: 132px; top: 230px; }
+  .hex-bl     { left: 40px; top: 178px; }
+  .hex-tl     { left: 40px; top: 73px; }
 
   .input-wrapper {
     max-width: 100%;
@@ -1050,18 +1050,18 @@ body.solo-mode .side-panel-right {
   }
 
   .hex {
-    width: 93px;
-    height: 81px;
+    width: 70px;
+    height: 70px;
     font-size: 1.45rem;
   }
 
-  .hex-center { left: 115px; top: 113px; }
-  .hex-top    { left: 115px; top: 24px; }
-  .hex-tr     { left: 197px; top: 69px; }
-  .hex-br     { left: 197px; top: 157px; }
-  .hex-bot    { left: 115px; top: 202px; }
-  .hex-bl     { left: 33px; top: 157px; }
-  .hex-tl     { left: 33px; top: 69px; }
+  .hex-center { left: 115px; top: 108px; }
+  .hex-top    { left: 115px; top: 20px; }
+  .hex-tr     { left: 192px; top: 62px; }
+  .hex-br     { left: 192px; top: 146px; }
+  .hex-bot    { left: 115px; top: 188px; }
+  .hex-bl     { left: 38px; top: 146px; }
+  .hex-tl     { left: 38px; top: 62px; }
 
   .game-wrapper {
     padding: 0.5rem;
