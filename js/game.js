@@ -747,51 +747,15 @@
     return count;
   }
 
-  /** Pick a puzzle: prefer ones that share fewer letters with the last 100 played boards; fallback to random. */
+  /** Pick a puzzle: prefer ones that share fewer letters with the last 100 played boards; never repeat a recent board. */
   function pickSoloPuzzle() {
     if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return null;
     var recent = RB ? RB.getRecentLetterSets() : [];
-    if (!recent.length) {
-      var idx = Math.floor(Math.random() * LOCAL_PUZZLES.length);
-      return LOCAL_PUZZLES[idx];
-    }
-    var minScore = 1e9;
-    var i;
-    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
-      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
-      var score = 0;
-      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
-      if (score < minScore) minScore = score;
-    }
-    var best = [];
-    var bestLetterSets = new Set();
     var recentSet = new Set(recent);
-    for (i = 0; i < LOCAL_PUZZLES.length; i++) {
-      var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
-      var score = 0;
-      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
-      if (score !== minScore) continue;
-      if (recentSet.has(set)) continue;
-      if (bestLetterSets.has(set)) continue;
-      bestLetterSets.add(set);
-      best.push(LOCAL_PUZZLES[i]);
-    }
-    if (best.length === 0) {
-      for (i = 0; i < LOCAL_PUZZLES.length; i++) {
-        var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
-        var score = 0;
-        for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
-        if (score !== minScore) continue;
-        if (recentSet.has(set)) continue;
-        if (bestLetterSets.has(set)) continue;
-        bestLetterSets.add(set);
-        best.push(LOCAL_PUZZLES[i]);
-      }
-    }
-    if (best.length > 0) return best[Math.floor(Math.random() * best.length)];
-    // Fallback: pick from any puzzle not in recent (avoid repeating a board)
+    // Build pool of boards we haven't played recently (never repeat within last 100)
     var notRecent = [];
     var notRecentSets = new Set();
+    var i;
     for (i = 0; i < LOCAL_PUZZLES.length; i++) {
       var set = getPuzzleLetterSet(LOCAL_PUZZLES[i]);
       if (recentSet.has(set)) continue;
@@ -799,7 +763,38 @@
       notRecentSets.add(set);
       notRecent.push(LOCAL_PUZZLES[i]);
     }
-    return notRecent.length ? notRecent[Math.floor(Math.random() * notRecent.length)] : LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
+    // If no recent history or everything is in recent, pick random from full list
+    if (notRecent.length === 0) {
+      return LOCAL_PUZZLES[Math.floor(Math.random() * LOCAL_PUZZLES.length)];
+    }
+    if (!recent.length) {
+      return notRecent[Math.floor(Math.random() * notRecent.length)];
+    }
+    // Prefer low-overlap boards only when we have enough options (avoid always returning the same one)
+    var minScore = 1e9;
+    for (i = 0; i < notRecent.length; i++) {
+      var set = getPuzzleLetterSet(notRecent[i]);
+      var score = 0;
+      for (var j = 0; j < recent.length; j++) score += letterOverlap(recent[j], set);
+      if (score < minScore) minScore = score;
+    }
+    var best = [];
+    var bestLetterSets = new Set();
+    for (i = 0; i < notRecent.length; i++) {
+      var s = getPuzzleLetterSet(notRecent[i]);
+      var sc = 0;
+      for (var k = 0; k < recent.length; k++) sc += letterOverlap(recent[k], s);
+      if (sc !== minScore) continue;
+      if (bestLetterSets.has(s)) continue;
+      bestLetterSets.add(s);
+      best.push(notRecent[i]);
+    }
+    // Use low-overlap set only if there are several options; otherwise pick from full notRecent for variety
+    var minBestSize = 5;
+    if (best.length >= minBestSize) {
+      return best[Math.floor(Math.random() * best.length)];
+    }
+    return notRecent[Math.floor(Math.random() * notRecent.length)];
   }
 
   function saveRecentBoard(puzzle) {
