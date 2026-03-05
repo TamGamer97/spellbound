@@ -304,22 +304,31 @@
       : computeTotalBoardPoints();
   }
 
+  function getUsernameFromRow(row) {
+    if (!row || !row.users) return null;
+    var u = row.users;
+    if (typeof u === 'object' && u !== null && typeof u.username === 'string') return u.username;
+    if (Array.isArray(u) && u[0] && typeof u[0].username === 'string') return u[0].username;
+    return null;
+  }
+
   /** Update opponent panel: score, username, and "opponent left". Opponent words are not shown; we only store them for validation (no reusing except pangrams). */
   function applyOpponentPlayers(players, myUserId) {
     if (!players || !players.length || !myUserId) return;
     var myRow = players.filter(function (p) { return p.user_id === myUserId; })[0];
     var opponent = players.filter(function (p) { return p.user_id !== myUserId; })[0];
-    if (myRow && myRow.users && myRow.users.username) {
-      state.myUsername = myRow.users.username;
-      if (playerUsernameEl) playerUsernameEl.textContent = state.myUsername;
+    if (myRow) {
+      var myName = getUsernameFromRow(myRow);
+      if (myName) {
+        state.myUsername = myName;
+        if (playerUsernameEl) playerUsernameEl.textContent = myName;
+      }
     }
     if (!opponent) return;
     state.opponentScore = opponent.score || 0;
     if (opponentScoreEl) opponentScoreEl.textContent = state.opponentScore;
-    if (opponent.users && opponent.users.username) {
-      state.opponentUsername = opponent.users.username;
-      if (opponentUsernameEl) opponentUsernameEl.textContent = state.opponentUsername;
-    }
+    state.opponentUsername = getUsernameFromRow(opponent) || 'Opponent';
+    if (opponentUsernameEl) opponentUsernameEl.textContent = state.opponentUsername;
     if (opponent.words_found && Array.isArray(opponent.words_found)) {
       state.opponentWords = new Set(opponent.words_found.map(function (w) { return String(w).toUpperCase(); }));
     }
@@ -819,9 +828,15 @@
         return;
       }
       var puzzle = null;
-      if (data.puzzle_index != null && LOCAL_PUZZLES && LOCAL_PUZZLES[data.puzzle_index]) {
-        puzzle = LOCAL_PUZZLES[data.puzzle_index];
-      } else if (data.puzzle) {
+      var puzzleIndex = data.puzzle_index != null ? data.puzzle_index : (data.game && data.game.puzzle_index);
+      if (puzzleIndex != null && LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
+        var idx = Math.max(0, Math.min(puzzleIndex, LOCAL_PUZZLES.length - 1));
+        puzzle = LOCAL_PUZZLES[idx];
+        if (idx !== puzzleIndex && typeof console !== 'undefined' && console.warn) {
+          console.warn('Spellbound: puzzle_index', puzzleIndex, 'clamped to', idx, '(local set has', LOCAL_PUZZLES.length, 'puzzles)');
+        }
+      }
+      if (!puzzle && data.puzzle) {
         puzzle = data.puzzle;
       }
       if (!puzzle) {
@@ -829,7 +844,7 @@
         return;
       }
       setPuzzleFromData(puzzle);
-      if (data.puzzle_index != null) saveRecentBoardIndex(data.puzzle_index);
+      if (puzzleIndex != null) saveRecentBoardIndex(puzzleIndex);
       renderHoneycomb();
       var startedAt = data.game.started_at;
       var duration = data.game.duration_seconds || 300;
@@ -993,7 +1008,7 @@
   }
 
   Promise.all([
-    fetch('data/puzzles-2.json').then(function (r) { return r.json(); }).then(function (arr) {
+    fetch('data/puzzles-2.json?v=2').then(function (r) { return r.json(); }).then(function (arr) {
       LOCAL_PUZZLES = Array.isArray(arr) ? arr : [];
     }).catch(function () { LOCAL_PUZZLES = []; }),
     loadBlocklist(),

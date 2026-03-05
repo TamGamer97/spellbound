@@ -377,10 +377,11 @@
         }
         var data = r.data;
         if (!data || !data.game) return null;
+        var puzzleIndex = data.puzzle_index != null ? data.puzzle_index : (data.game && data.game.puzzle_index);
         return {
           game: data.game,
           puzzle: data.puzzle || null,
-          puzzle_index: data.puzzle_index != null ? data.puzzle_index : null
+          puzzle_index: puzzleIndex != null ? puzzleIndex : null
         };
       });
   }
