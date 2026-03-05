@@ -829,11 +829,16 @@
       }
       var puzzle = null;
       var puzzleIndex = data.puzzle_index != null ? data.puzzle_index : (data.game && data.game.puzzle_index);
+      var usedIndex = null;
       if (puzzleIndex != null && LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-        var idx = Math.max(0, Math.min(puzzleIndex, LOCAL_PUZZLES.length - 1));
+        var n = LOCAL_PUZZLES.length;
+        var idx = puzzleIndex >= 0 && puzzleIndex < n
+          ? puzzleIndex
+          : Math.abs(puzzleIndex % n) % n;
         puzzle = LOCAL_PUZZLES[idx];
+        usedIndex = idx;
         if (idx !== puzzleIndex && typeof console !== 'undefined' && console.warn) {
-          console.warn('Spellbound: puzzle_index', puzzleIndex, 'clamped to', idx, '(local set has', LOCAL_PUZZLES.length, 'puzzles)');
+          console.warn('Spellbound: puzzle_index', puzzleIndex, 'mapped to local index', idx, '(local set has', n, 'puzzles)');
         }
       }
       if (!puzzle && data.puzzle) {
@@ -844,7 +849,8 @@
         return;
       }
       setPuzzleFromData(puzzle);
-      if (puzzleIndex != null) saveRecentBoardIndex(puzzleIndex);
+      if (usedIndex != null) saveRecentBoardIndex(usedIndex);
+      else if (puzzleIndex != null) saveRecentBoardIndex(puzzleIndex);
       renderHoneycomb();
       var startedAt = data.game.started_at;
       var duration = data.game.duration_seconds || 300;
