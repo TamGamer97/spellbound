@@ -10,17 +10,8 @@ const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 12;
 const MIN_WORD_COUNT = 20;
 const MIN_PANGRAMS = 2;
-/** When RARE_LETTER_MODE is true, use these lower thresholds (W/K/J boards are harder to fill). */
-const MIN_WORD_COUNT_RARE = 15;
-const MIN_PANGRAMS_RARE = 1;
 /** Letters that must not appear in any puzzle (no S, Q, X, or Z boards). */
 const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
-/**
- * When true, only generate puzzles whose 7-letter set includes at least one
- * of these rare letters (e.g. W, K, J). When false, use the normal v2 rules.
- */
-const RARE_LETTER_MODE = true;
-const RARE_LETTERS = new Set(["w", "k", "j"]);
 const WIKI_WORD_LIST_PATH = path.join(__dirname, "../../data/wiki-100k.txt");
 
 /** Only words in the 10k list are allowed in valid_words and pangrams. No local file or 20k—only this 10k source. */
@@ -149,7 +140,6 @@ function generatePuzzle(wordList, allowedSet) {
   if (!loggedPangramDebug) {
     const totalRaw = rawPangrams.length;
     let afterBanned = 0;
-    let withRare = 0;
     for (const w of rawPangrams) {
       const letters = getUniqueLetters(w);
       let bannedHit = false;
@@ -159,47 +149,25 @@ function generatePuzzle(wordList, allowedSet) {
           break;
         }
       }
-      if (!bannedHit) {
-        afterBanned++;
-        for (const R of RARE_LETTERS) {
-          if (letters.includes(R)) {
-            withRare++;
-            break;
-          }
-        }
-      }
+      if (!bannedHit) afterBanned++;
     }
     console.log("DEBUG pangrams (7-letter words in allowedSet):", totalRaw);
     console.log("DEBUG pangrams after excluding banned letters", Array.from(BANNED_LETTERS).join(","), ":", afterBanned);
-    if (RARE_LETTER_MODE) {
-      console.log("DEBUG pangrams after requiring at least one rare letter", Array.from(RARE_LETTERS).join(","), ":", withRare);
-    }
     const sample = rawPangrams.slice(0, 30).map(w => {
       const letters = getUniqueLetters(w);
-      const hasRare = Array.from(RARE_LETTERS).some(r => letters.includes(r));
       const hasBanned = Array.from(BANNED_LETTERS).some(b => letters.includes(b));
-      return `${w} [${letters}] rare=${hasRare ? "Y" : "N"} banned=${hasBanned ? "Y" : "N"}`;
+      return `${w} [${letters}] banned=${hasBanned ? "Y" : "N"}`;
     });
     console.log("DEBUG sample pangrams (first 30):");
     sample.forEach(line => console.log("  ", line));
     loggedPangramDebug = true;
   }
 
-  // Step 2: apply banned/rare filters to pangrams actually used for boards.
+  // Step 2: apply banned-letter filter to pangrams used for boards.
   let pangrams = rawPangrams.filter(w => {
     const letters = getUniqueLetters(w);
     for (const L of BANNED_LETTERS) {
       if (letters.includes(L)) return false;
-    }
-    if (RARE_LETTER_MODE) {
-      let hasRare = false;
-      for (const R of RARE_LETTERS) {
-        if (letters.includes(R)) {
-          hasRare = true;
-          break;
-        }
-      }
-      if (!hasRare) return false;
     }
     return true;
   });
@@ -235,11 +203,9 @@ function generatePuzzle(wordList, allowedSet) {
         (w) => getUniqueLetters(w).length === 7
       );
 
-      const minWords = RARE_LETTER_MODE ? MIN_WORD_COUNT_RARE : MIN_WORD_COUNT;
-      const minPangrams = RARE_LETTER_MODE ? MIN_PANGRAMS_RARE : MIN_PANGRAMS;
       if (
-        validWords.length >= minWords &&
-        pangramWords.length >= minPangrams
+        validWords.length >= MIN_WORD_COUNT &&
+        pangramWords.length >= MIN_PANGRAMS
       ) {
         return {
           letters,
@@ -281,7 +247,7 @@ const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
 const POINTS_PER_LETTER = 1;
 const PANGRAM_BONUS = 5;
 /** Run generation for this many milliseconds (e.g. 20 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
-const GENERATE_DURATION_MS = 2 * 60 * 1000;
+const GENERATE_DURATION_MS = 5 * 60 * 1000;
 /** When GENERATE_DURATION_MS is 0, generate exactly this many puzzles. */
 const TARGET_PUZZLE_COUNT = 50;
 
@@ -416,11 +382,10 @@ async function main() {
 
   // Remove any puzzle that has fewer than min pangrams (e.g. after blocklist removal)
   const beforeCount = output.length;
-  const minPangramsFilter = RARE_LETTER_MODE ? MIN_PANGRAMS_RARE : MIN_PANGRAMS;
-  const filtered = output.filter(p => (p.pangrams || []).length >= minPangramsFilter);
+  const filtered = output.filter(p => (p.pangrams || []).length >= MIN_PANGRAMS);
   const removedPuzzles = beforeCount - filtered.length;
   if (removedPuzzles > 0) {
-    console.log("\nRemoved", removedPuzzles, "puzzle(s) with fewer than", minPangramsFilter, "pangram(s). Writing", filtered.length, "puzzles.");
+    console.log("\nRemoved", removedPuzzles, "puzzle(s) with fewer than", MIN_PANGRAMS, "pangram(s). Writing", filtered.length, "puzzles.");
   }
   output.length = 0;
   output.push(...filtered);

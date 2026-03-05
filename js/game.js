@@ -23,17 +23,20 @@
   var DICTIONARY_BLOCKLIST = new Set();
   /** Prevents double-submit while dictionary/profanity check is in flight. */
   var dictionaryCheckInFlight = false;
+  /** Words we've confirmed as valid via dictionary this session (skip re-fetch on retry). */
+  var dictionaryValidCache = new Set();
 
-  /** Returns a Promise<boolean>: true if the word contains profanity (Purgomalum API). */
+  /** Local profanity blocklist (lowercase). Add words here; no external API. */
+  var LOCAL_PROFANITY = new Set([
+    'damn', 'hell', 'crap', 'bastard', 'bitch', 'bloody', 'bugger', 'bullshit',
+    'cunt', 'dick', 'fuck', 'fucked', 'fucking', 'piss', 'pissed', 'shit', 'shitty',
+    'slut', 'whore', 'wanker', 'bollocks', 'darn', 'dang', 'freaking', 'effing'
+  ]);
+
+  /** Returns a Promise<boolean>: true if the word is in the local profanity blocklist. No network. */
   function checkProfanity(word) {
-    var base = (typeof window.__SPELLBOUND_PROFANITY_API__ !== 'undefined' && window.__SPELLBOUND_PROFANITY_API__)
-      ? window.__SPELLBOUND_PROFANITY_API__
-      : 'https://www.purgomalum.com/service/containsprofanity';
-    var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'text=' + encodeURIComponent(word);
-    return fetch(url)
-      .then(function (r) { return r.text(); })
-      .then(function (text) { return (String(text).trim().toLowerCase() === 'true'); })
-      .catch(function () { return false; });
+    var key = String(word).trim().toLowerCase();
+    return Promise.resolve(LOCAL_PROFANITY.has(key));
   }
 
   /** Returns true if the word (case-insensitive) is in the shared blocklist (countries, months, names). See js/proper-noun-blocklist.js */
@@ -513,23 +516,32 @@
 
     if (dictionaryCheckInFlight) return;
     dictionaryCheckInFlight = true;
-    fetch(apiUrl)
-      .then(function (res) {
-        if (!res.ok) {
-          showValidation('Not a word', 'invalid');
-          wordInput.value = '';
-          return null;
-        }
-        return checkProfanity(raw);
-      })
-      .then(function (hasProfanity) {
-        if (hasProfanity === null) return;
+
+    function doProfanityThenAccept() {
+      dictionaryValidCache.add(raw);
+      return checkProfanity(raw).then(function (hasProfanity) {
         if (hasProfanity) {
           showValidation("That word isn't allowed", 'invalid');
           wordInput.value = '';
         } else {
           acceptAndRecordWord(raw);
         }
+      });
+    }
+
+    if (dictionaryValidCache.has(raw)) {
+      doProfanityThenAccept().finally(function () { dictionaryCheckInFlight = false; });
+      return;
+    }
+
+    fetch(apiUrl)
+      .then(function (res) {
+        if (!res.ok) {
+          showValidation('Not a word', 'invalid');
+          wordInput.value = '';
+          return;
+        }
+        return doProfanityThenAccept();
       })
       .catch(function () {
         showValidation('Not a word', 'invalid');
