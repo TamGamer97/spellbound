@@ -651,9 +651,17 @@
             winnerText = 'It\'s a tie!';
           }
         } else if (myHasPangram && !opponentHasPangram) {
-          winnerText = (myName === 'You' ? 'You win (pangram)!' : myName + ' wins (pangram)!');
+          if (state.opponentScore > state.score) {
+            winnerText = (myName === 'You' ? 'You win! ' + oppName + ' had more points but failed to find a pangram.' : myName + ' wins! ' + oppName + ' had more points but failed to find a pangram.');
+          } else {
+            winnerText = (myName === 'You' ? 'You win (pangram)!' : myName + ' wins (pangram)!');
+          }
         } else if (!myHasPangram && opponentHasPangram) {
-          winnerText = oppName + ' wins (pangram)!';
+          if (state.score > state.opponentScore) {
+            winnerText = oppName + ' wins! ' + (myName === 'You' ? 'You' : myName) + ' had more points but failed to find a pangram.';
+          } else {
+            winnerText = oppName + ' wins (pangram)!';
+          }
         }
       } else {
         winnerText = 'Final score: ' + state.score;

@@ -449,10 +449,28 @@ async function main() {
   output.length = 0;
   output.push(...uniquePuzzles);
 
-  // Letter occurrence: how many puzzles contain each letter (in the 7 letters: center + outer)
+  const dataDir = path.dirname(OUTPUT_PATH);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf8");
+
+  console.log("\nWrote", output.length, "puzzles to", OUTPUT_PATH);
+
+  // Letter occurrence: analyse ALL puzzles in the file (not just this run's output)
+  let allPuzzles = output;
+  if (fs.existsSync(OUTPUT_PATH)) {
+    try {
+      const raw = fs.readFileSync(OUTPUT_PATH, "utf8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) allPuzzles = parsed;
+    } catch (e) {
+      // fallback to output if read fails
+    }
+  }
   const counts = {};
   for (let c = 65; c <= 90; c++) counts[String.fromCharCode(c)] = 0;
-  for (const p of output) {
+  for (const p of allPuzzles) {
     const letters = (p.center_letter + (p.outer_letters || "")).toUpperCase();
     const seen = new Set();
     for (let i = 0; i < letters.length; i++) {
@@ -463,24 +481,16 @@ async function main() {
       }
     }
   }
-  const numPuzzles = output.length;
+  const numPuzzles = allPuzzles.length;
   const totalSlots = numPuzzles * 7;
   const fairShare = totalSlots / 26;
-  console.log("\nLetter occurrence (in outer 7 letters; fair share ≈ " + fairShare.toFixed(1) + " per letter):");
+  console.log("\nLetter occurrence (all " + numPuzzles + " puzzles in file; fair share ≈ " + fairShare.toFixed(1) + " per letter):");
   for (const L of Object.keys(counts).sort()) {
     const n = counts[L];
     const pct = ((n / numPuzzles) * 100).toFixed(1);
     const bar = "#".repeat(Math.round((n / numPuzzles) * 20)) + "-".repeat(20 - Math.round((n / numPuzzles) * 20));
     console.log("  " + L + ": " + String(n).padStart(2) + " puzzles (" + String(pct).padStart(5) + "%) " + bar);
   }
-
-  const dataDir = path.dirname(OUTPUT_PATH);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf8");
-
-  console.log("\nWrote", output.length, "puzzles to", OUTPUT_PATH);
 }
 
 main().catch(err => {

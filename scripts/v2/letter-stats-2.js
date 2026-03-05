@@ -41,13 +41,15 @@ function main() {
     process.exit(1);
   }
 
-  const counts = getLetterCounts(puzzles);
-  const totalSlots = puzzles.length * 7;
+  // Analyse all puzzles (no limit).
+  const puzzlesToAnalyse = puzzles;
+  const counts = getLetterCounts(puzzlesToAnalyse);
+  const totalSlots = puzzlesToAnalyse.length * 7;
   const fairShare = totalSlots / 26;
   const letters = Object.keys(counts).sort();
-  const numPuzzles = puzzles.length;
+  const numPuzzles = puzzlesToAnalyse.length;
 
-  console.error(`Analysing ${numPuzzles} puzzles from puzzles-2.json.`);
+  console.error(`Analysing all ${numPuzzles} puzzles from puzzles-2.json.`);
   console.error(`Letter occurrence (fair share ≈ ${fairShare.toFixed(1)} puzzles per letter):`);
   for (const L of letters) {
     const n = counts[L];
