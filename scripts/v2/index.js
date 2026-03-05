@@ -244,7 +244,10 @@ function enrichValidWords(center, outer, wordList) {
 // ---------------- RUN ----------------
 
 const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
-const POINTS_PER_LETTER = 1;
+/** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
+function pointsForWordLength(len) {
+  return len >= 4 ? 2 * len - 4 : 0;
+}
 const PANGRAM_BONUS = 5;
 /** Run generation for this many milliseconds (e.g. 20 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
 const GENERATE_DURATION_MS = 5 * 60 * 1000;
@@ -330,7 +333,7 @@ async function main() {
 
     const enrichedValid = enrichValidWords(puzzle.center, puzzle.outer, wordList);
     const totalPoints =
-      enrichedValid.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
+      enrichedValid.reduce((sum, w) => sum + pointsForWordLength(w.length), 0) +
       puzzle.pangramWords.length * PANGRAM_BONUS;
 
     output.push({
@@ -372,7 +375,7 @@ async function main() {
       p.valid_words = (p.valid_words || []).filter(w => !check(w));
       p.pangrams = (p.pangrams || []).filter(w => !check(w));
       p.total_points =
-        p.valid_words.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
+        p.valid_words.reduce((sum, w) => sum + pointsForWordLength(w.length), 0) +
         p.pangrams.length * PANGRAM_BONUS;
     }
   }

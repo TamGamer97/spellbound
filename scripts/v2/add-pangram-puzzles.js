@@ -23,7 +23,10 @@ const MAX_WORD_LENGTH = 12;
 const MIN_WORD_COUNT = 20;
 const MIN_PANGRAMS = 2;
 const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
-const POINTS_PER_LETTER = 1;
+/** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
+function pointsForWordLength(len) {
+  return len >= 4 ? 2 * len - 4 : 0;
+}
 const PANGRAM_BONUS = 5;
 
 const WIKI_WORD_LIST_PATH = path.join(__dirname, "../../data/wiki-100k.txt");
@@ -241,7 +244,7 @@ async function main() {
       (w) => getUniqueLetters(w).length === 7
     );
     const totalPoints =
-      enrichedValid.reduce((s, w) => s + w.length * POINTS_PER_LETTER, 0) +
+      enrichedValid.reduce((s, w) => s + pointsForWordLength(w.length), 0) +
       pangramsFromEnriched.length * PANGRAM_BONUS;
 
     added.push({

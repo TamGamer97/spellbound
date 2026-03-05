@@ -15,7 +15,10 @@ const PUZZLES_PATH = path.join(__dirname, "../data/puzzles-2.json");
 
 const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 15;
-const POINTS_PER_LETTER = 1;
+/** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
+function pointsForWordLength(len) {
+  return len >= 4 ? 2 * len - 4 : 0;
+}
 const PANGRAM_BONUS = 5;
 
 const OBSCURE_SUFFIXES = [
@@ -63,7 +66,7 @@ function enrichPuzzle(puzzle, wordList) {
 
   const originalPangrams = Array.isArray(puzzle.pangrams) ? puzzle.pangrams : [];
   const totalPoints =
-    validWordsSorted.reduce((sum, w) => sum + w.length * POINTS_PER_LETTER, 0) +
+    validWordsSorted.reduce((sum, w) => sum + pointsForWordLength(w.length), 0) +
     originalPangrams.length * PANGRAM_BONUS;
 
   return {

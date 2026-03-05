@@ -3,7 +3,7 @@
  *
  * Round 1 rules:
  * - 10-minute timer (from DB started_at in versus, or first interaction in solo)
- * - 4-letter minimum, 1 pt/letter, +5 pangram
+ * - 4-letter minimum; scoring 4→4, 5→6, 6→8, 7→10… pts, +5 pangram
  */
 
 (function () {
@@ -69,7 +69,10 @@
   );
 
   const MIN_LENGTH = 4;
-  const POINTS_PER_LETTER = 1;
+  /** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
+  function pointsForWordLength(len) {
+    return len >= MIN_LENGTH ? 2 * len - 4 : 0;
+  }
   const PANGRAM_BONUS = 5;
   const TOTAL_SECONDS = 5 * 60;
 
@@ -286,7 +289,7 @@
   function computeTotalBoardPoints() {
     var total = 0;
     VALID_WORDS.forEach(function (w) {
-      total += w.length * POINTS_PER_LETTER;
+      total += pointsForWordLength(w.length);
       if (isPangram(w)) total += PANGRAM_BONUS;
     });
     return total;
@@ -302,9 +305,7 @@
     var words = Array.isArray(puzzle.valid_words) ? puzzle.valid_words : [];
     VALID_WORDS = new Set(words.map(function (w) { return String(w).toUpperCase(); }));
     PANGRAMS = new Set(Array.from(VALID_WORDS).filter(isPangram));
-    state.totalBoardPoints = (puzzle.total_points != null && puzzle.total_points > 0)
-      ? puzzle.total_points
-      : computeTotalBoardPoints();
+    state.totalBoardPoints = computeTotalBoardPoints();
   }
 
   function getUsernameFromRow(row) {
@@ -354,8 +355,13 @@
       var s = state.secondsLeft % 60;
       if (timerEl) {
         timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-        timerEl.classList.remove('warning', 'danger');
-        if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+        timerEl.classList.remove('warning', 'danger', 'timer-countdown', 'timer-pulse');
+        if (state.secondsLeft <= 10 && state.secondsLeft > 0) {
+          timerEl.classList.add('timer-countdown');
+          timerEl.classList.remove('timer-pulse');
+          void timerEl.offsetWidth;
+          timerEl.classList.add('timer-pulse');
+        } else if (state.secondsLeft <= 60) timerEl.classList.add('danger');
         else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
       }
       if (state.secondsLeft <= 0) endGame('Time\'s up!');
@@ -554,7 +560,7 @@
 
   function acceptAndRecordWord(raw) {
     state.found.add(raw);
-    var basePoints = raw.length * POINTS_PER_LETTER;
+    var basePoints = pointsForWordLength(raw.length);
     var bonus = isPangram(raw) ? PANGRAM_BONUS : 0;
     state.score += basePoints + bonus;
 
@@ -615,7 +621,10 @@
       clearInterval(state.timerId);
       state.timerId = null;
     }
-    if (timerEl) timerEl.textContent = '0:00';
+    if (timerEl) {
+      timerEl.textContent = '0:00';
+      timerEl.classList.remove('timer-countdown', 'timer-pulse');
+    }
     if (gameId && window.db && window.db.setGameFinished) {
       var endReason = (message === 'All words found!') ? 'all_words_found' : 'time_up';
       window.db.setGameFinished(gameId, endReason).catch(function () {});
@@ -712,7 +721,13 @@
     const s = state.secondsLeft % 60;
     if (timerEl) {
       timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-      if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+      timerEl.classList.remove('warning', 'danger', 'timer-countdown', 'timer-pulse');
+      if (state.secondsLeft <= 10 && state.secondsLeft > 0) {
+        timerEl.classList.add('timer-countdown');
+        timerEl.classList.remove('timer-pulse');
+        void timerEl.offsetWidth;
+        timerEl.classList.add('timer-pulse');
+      } else if (state.secondsLeft <= 60) timerEl.classList.add('danger');
       else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
     }
     if (state.secondsLeft <= 0) endGame('Time\'s up!');
@@ -725,8 +740,11 @@
       var m = Math.floor(state.secondsLeft / 60);
       var s = state.secondsLeft % 60;
       timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-      timerEl.classList.remove('warning', 'danger', 'bitter-end');
-      if (state.secondsLeft <= 60) timerEl.classList.add('danger');
+      timerEl.classList.remove('warning', 'danger', 'bitter-end', 'timer-countdown', 'timer-pulse');
+      if (state.secondsLeft <= 10 && state.secondsLeft > 0) {
+        timerEl.classList.add('timer-countdown');
+        timerEl.classList.add('timer-pulse');
+      } else if (state.secondsLeft <= 60) timerEl.classList.add('danger');
       else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
     }
     state.timerId = setInterval(tick, 1000);
@@ -814,7 +832,7 @@
       var m = Math.floor(state.secondsLeft / 60);
       var s = state.secondsLeft % 60;
       timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-      timerEl.classList.remove('warning', 'danger', 'bitter-end');
+      timerEl.classList.remove('warning', 'danger', 'bitter-end', 'timer-countdown', 'timer-pulse');
     }
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
       var idx = pickSoloPuzzleIndex();
@@ -917,7 +935,10 @@
                 }
                 state.gameOver = true;
                 state.roundOver = true;
-                if (timerEl) timerEl.textContent = '0:00';
+                if (timerEl) {
+                  timerEl.textContent = '0:00';
+                  timerEl.classList.remove('timer-countdown', 'timer-pulse');
+                }
                 var endMessage = (st.end_reason === 'all_words_found') ? 'All words found!' : 'Time\'s up!';
                 endGame(endMessage);
               }

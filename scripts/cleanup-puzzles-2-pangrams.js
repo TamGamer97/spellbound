@@ -7,7 +7,10 @@
 const fs = require("fs");
 const path = require("path");
 
-const POINTS_PER_LETTER = 1;
+/** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
+function pointsForWordLength(len) {
+  return len >= 4 ? 2 * len - 4 : 0;
+}
 const PANGRAM_BONUS = 5;
 
 const BAD_PANGRAMS = new Set([
@@ -36,7 +39,7 @@ function normalize(w) {
 }
 
 function totalPoints(validWords, pangrams) {
-  const wordPt = (validWords || []).reduce((s, w) => s + w.length * POINTS_PER_LETTER, 0);
+  const wordPt = (validWords || []).reduce((s, w) => s + pointsForWordLength(w.length), 0);
   const pangramBonus = (pangrams || []).length * PANGRAM_BONUS;
   return wordPt + pangramBonus;
 }
