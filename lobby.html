@@ -41,7 +41,7 @@
         <div class="mode-content" id="match-content">
           <div class="waiting-state" id="match-waiting" style="display: none;">
             <div class="spinner"></div>
-            <p>Looking for another player…</p>
+            <p id="match-waiting-msg">Looking for another player…</p>
             <p class="hint">Someone else must press "Match me" to pair with you.</p>
             <button type="button" class="cancel-btn" id="btn-cancel-match">Cancel</button>
           </div>
@@ -254,6 +254,7 @@
       var matchContent = document.getElementById('match-content');
       var matchStartRow = document.getElementById('match-start-row');
       var matchWaiting = document.getElementById('match-waiting');
+      var matchWaitingMsg = document.getElementById('match-waiting-msg');
       var btnMatchMe = document.getElementById('btn-match-me');
       var btnCancelMatch = document.getElementById('btn-cancel-match');
 
@@ -278,6 +279,7 @@
         }
       });
 
+      var challengeWaitingMsg = document.getElementById('challenge-waiting-msg');
       function renderSearchResults(users) {
         searchResults.innerHTML = '';
         users.forEach(function (u) {
@@ -285,14 +287,23 @@
           btn.type = 'button';
           btn.textContent = u.username;
           btn.addEventListener('click', function () {
+            challengeSearchRow.style.display = 'none';
+            challengeWaiting.style.display = 'block';
+            if (challengeWaitingMsg) challengeWaitingMsg.textContent = 'Sending challenge…';
             var recentIndices = getRecentBoardIndices();
             window.db.sendChallenge(u.id, u.username, recentIndices).then(function () {
-              challengeSearchRow.style.display = 'none';
               searchResults.innerHTML = '';
               searchInput.value = '';
-              challengeUsernameEl.textContent = u.username;
-              challengeWaiting.style.display = 'block';
+              if (challengeWaitingMsg) challengeWaitingMsg.innerHTML = 'Waiting for <strong id="challenge-username">' + (u.username || '') + '</strong> to accept…';
               startChallengeStatusPoll();
+            }).catch(function () {
+              challengeWaiting.style.display = 'none';
+              challengeSearchRow.style.display = 'flex';
+              if (challengeDeclinedEl) {
+                challengeDeclinedEl.textContent = 'Failed to send challenge. Try again.';
+                challengeDeclinedEl.style.display = 'block';
+                setTimeout(function () { challengeDeclinedEl.style.display = 'none'; }, 3000);
+              }
             });
           });
           searchResults.appendChild(btn);
@@ -342,15 +353,22 @@
       }
 
       btnMatchMe.addEventListener('click', function () {
+        var btn = btnMatchMe;
+        if (btn) { btn.disabled = true; btn.textContent = 'Finding match…'; }
+        matchStartRow.style.display = 'none';
+        if (matchWaiting) matchWaiting.style.display = 'block';
+        if (matchWaitingMsg) matchWaitingMsg.textContent = 'Finding match…';
+        expandCard(matchCard);
         var recentIndices = getRecentBoardIndices();
         window.db.findMatch(recentIndices).then(function () {
-          matchStartRow.style.display = 'none';
-          matchWaiting.style.display = 'block';
-          expandCard(matchCard);
+          if (matchWaitingMsg) matchWaitingMsg.textContent = 'Looking for another player…';
+          if (btn) btn.textContent = 'Find match';
           pollMatchStatus();
           startMatchPoll();
         }).catch(function () {
+          if (matchWaiting) matchWaiting.style.display = 'none';
           matchStartRow.style.display = 'flex';
+          if (btn) { btn.disabled = false; btn.textContent = 'Find match'; }
         });
       });
 
@@ -359,6 +377,7 @@
         window.db.cancelMatch().then(function () {
           matchWaiting.style.display = 'none';
           matchStartRow.style.display = 'flex';
+          if (btnMatchMe) { btnMatchMe.disabled = false; btnMatchMe.textContent = 'Find match'; }
         });
       });
 
@@ -427,11 +446,17 @@
         challengeNotifJoin.addEventListener('click', function () {
           if (!currentChallenge) return;
           var id = currentChallenge.id;
+          var joinBtn = challengeNotifJoin;
+          var originalText = joinBtn.textContent;
+          joinBtn.textContent = 'Joining…';
+          joinBtn.disabled = true;
           closeChallengePopup();
           var accepterRecent = getRecentBoardIndices();
           window.db.acceptChallenge(id, accepterRecent).then(function (gameId) {
             window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
           }).catch(function () {
+            joinBtn.textContent = originalText;
+            joinBtn.disabled = false;
             checkAndShowPendingChallenges();
           });
         });

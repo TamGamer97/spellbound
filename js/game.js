@@ -97,8 +97,23 @@
   const challengeNotifMsg = $('challenge-notif-msg');
   const challengeNotifJoinGame = $('challenge-notif-join-game');
   const challengeNotifRejectGame = $('challenge-notif-reject-game');
+  const loadingEl = $('game-loading');
+  const gameMainEl = $('game-main');
   var unsubscribeGamePlayers = null;
   var unsubscribeChallenges = null;
+
+  function setLoadingText(text) {
+    var t = loadingEl && loadingEl.querySelector('.game-loading-text');
+    if (t) t.textContent = text || 'Loading…';
+  }
+
+  function hideGameLoading() {
+    if (loadingEl) {
+      loadingEl.classList.add('game-loading-hidden');
+      loadingEl.setAttribute('aria-busy', 'false');
+    }
+    if (gameMainEl) gameMainEl.setAttribute('aria-hidden', 'false');
+  }
 
   function openLeaveModal() {
     if (leaveOverlay) { leaveOverlay.classList.add('open'); leaveOverlay.setAttribute('aria-hidden', 'false'); }
@@ -783,12 +798,14 @@
     state.totalBoardPoints = state.totalBoardPoints || computeTotalBoardPoints();
     if (scoreEl) scoreEl.textContent = '0';
     if (opponentScoreEl) opponentScoreEl.textContent = '0';
+    hideGameLoading();
   }
 
   function initVersus() {
     document.body.classList.remove('solo-mode');
     var db = window.db;
     if (!gameId || !db || !db.getGameWithPuzzle) { initSolo(); return; }
+    setLoadingText('Loading game…');
     db.getCurrentUserAsync().then(function (me) {
       state.myUserId = me ? me.id : null;
       if (me && me.username) {
@@ -822,6 +839,7 @@
         state.secondsLeft = duration;
         startTimerFromDB(new Date().toISOString(), duration);
       }
+      hideGameLoading();
       return db.getGamePlayers(gameId).then(function (players) {
         if (!players || !players.length) return;
         var myRow = players.filter(function (p) { return p.user_id === state.myUserId; })[0];

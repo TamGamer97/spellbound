@@ -8,14 +8,25 @@ const PROPER_NOUN_BLOCKLIST = SPELLBOUND_BLOCKLIST.all;
 // ---------------- SETTINGS ----------------
 const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 12;
-const MIN_WORD_COUNT = 25;
+const MIN_WORD_COUNT = 20;
 const MIN_PANGRAMS = 2;
-/** Letters that must not appear in any puzzle (no S or Q boards). */
-const BANNED_LETTERS = new Set(["s", "q"]);
+/** When RARE_LETTER_MODE is true, use these lower thresholds (W/K/J boards are harder to fill). */
+const MIN_WORD_COUNT_RARE = 15;
+const MIN_PANGRAMS_RARE = 1;
+/** Letters that must not appear in any puzzle (no S, Q, X, or Z boards). */
+const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
+/**
+ * When true, only generate puzzles whose 7-letter set includes at least one
+ * of these rare letters (e.g. W, K, J). When false, use the normal v2 rules.
+ */
+const RARE_LETTER_MODE = true;
+const RARE_LETTERS = new Set(["w", "k", "j"]);
 const WIKI_WORD_LIST_PATH = path.join(__dirname, "../../data/wiki-100k.txt");
 
 /** Only words in the 10k list are allowed in valid_words and pangrams. No local file or 20k—only this 10k source. */
 const ALLOWED_WORDS_10K_URL = "https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english.txt";
+/** Extra pangram source: common 7-letter words (TWL2006 & CSW2007 intersection from poslarchive.com). */
+const COMMON_7_PATH = path.join(__dirname, "../../data/common-7-letter-words.txt");
 
 /** Optional: remove words ending in these obscure suffixes (e.g. scientific/technical). */
 const OBSCURE_SUFFIXES = [
@@ -82,6 +93,18 @@ function loadAllowedWords() {
   });
 }
 
+/** Load common-7-letter-words.txt (poslarchive) as an array of lowercase words. */
+function loadCommon7Words() {
+  return fs.promises.readFile(COMMON_7_PATH, "utf8").then((raw) => {
+    const out = [];
+    raw.split(/\r?\n/).forEach((line) => {
+      const w = line.trim().toLowerCase();
+      if (w && /^[a-z]+$/.test(w)) out.push(w);
+    });
+    return out;
+  });
+}
+
 function getUniqueLetters(word) {
   return [...new Set(word)].sort().join("");
 }
@@ -109,14 +132,74 @@ function shuffle(array) {
  * - validWords and pangramWords are restricted to allowedSet (e.g. 10k list) for selection
  * Returns { letters, center, outer, validWords (sorted), pangramWords }.
  */
+let loggedPangramDebug = false;
+let COMMON7_ALLOWED = null;
 function generatePuzzle(wordList, allowedSet) {
-  let pangrams = wordList.filter(
+  // Step 1: pangrams that are in the 10k allowed list (7 unique letters)
+  let rawPangrams = wordList.filter(
     w => getUniqueLetters(w).length === 7 && allowedSet.has(w)
   );
-  pangrams = pangrams.filter(w => {
+
+  // Mix in extra 7-letter candidates from common-7-letter-words.
+  if (COMMON7_ALLOWED && COMMON7_ALLOWED.length) {
+    rawPangrams = Array.from(new Set([...rawPangrams, ...COMMON7_ALLOWED]));
+  }
+
+  // One-time debug dump so we can see what the filters are doing.
+  if (!loggedPangramDebug) {
+    const totalRaw = rawPangrams.length;
+    let afterBanned = 0;
+    let withRare = 0;
+    for (const w of rawPangrams) {
+      const letters = getUniqueLetters(w);
+      let bannedHit = false;
+      for (const L of BANNED_LETTERS) {
+        if (letters.includes(L)) {
+          bannedHit = true;
+          break;
+        }
+      }
+      if (!bannedHit) {
+        afterBanned++;
+        for (const R of RARE_LETTERS) {
+          if (letters.includes(R)) {
+            withRare++;
+            break;
+          }
+        }
+      }
+    }
+    console.log("DEBUG pangrams (7-letter words in allowedSet):", totalRaw);
+    console.log("DEBUG pangrams after excluding banned letters", Array.from(BANNED_LETTERS).join(","), ":", afterBanned);
+    if (RARE_LETTER_MODE) {
+      console.log("DEBUG pangrams after requiring at least one rare letter", Array.from(RARE_LETTERS).join(","), ":", withRare);
+    }
+    const sample = rawPangrams.slice(0, 30).map(w => {
+      const letters = getUniqueLetters(w);
+      const hasRare = Array.from(RARE_LETTERS).some(r => letters.includes(r));
+      const hasBanned = Array.from(BANNED_LETTERS).some(b => letters.includes(b));
+      return `${w} [${letters}] rare=${hasRare ? "Y" : "N"} banned=${hasBanned ? "Y" : "N"}`;
+    });
+    console.log("DEBUG sample pangrams (first 30):");
+    sample.forEach(line => console.log("  ", line));
+    loggedPangramDebug = true;
+  }
+
+  // Step 2: apply banned/rare filters to pangrams actually used for boards.
+  let pangrams = rawPangrams.filter(w => {
     const letters = getUniqueLetters(w);
     for (const L of BANNED_LETTERS) {
       if (letters.includes(L)) return false;
+    }
+    if (RARE_LETTER_MODE) {
+      let hasRare = false;
+      for (const R of RARE_LETTERS) {
+        if (letters.includes(R)) {
+          hasRare = true;
+          break;
+        }
+      }
+      if (!hasRare) return false;
     }
     return true;
   });
@@ -125,38 +208,53 @@ function generatePuzzle(wordList, allowedSet) {
     throw new Error("No pangrams found (in allowed list and without S/Q).");
   }
 
-  while (true) {
-    const randomPangram =
-      pangrams[Math.floor(Math.random() * pangrams.length)];
-
+  // Try every pangram (in random order) and, for each, try all 7 possible center letters.
+  // Pre-filtering baseCandidates per pangram keeps this fast.
+  const shuffledPangrams = shuffle([...pangrams]);
+  for (const randomPangram of shuffledPangrams) {
     const letters = getUniqueLetters(randomPangram).split("");
-    const shuffled = shuffle([...letters]);
-
-    const center = shuffled[0];
-    const outer = shuffled.slice(1);
     const lettersSet = new Set(letters);
 
-    const candidateWords = wordList.filter(w =>
-      isValidWord(w, lettersSet, center)
-    );
-    const validWords = candidateWords.filter(w => allowedSet.has(w));
-    const pangramWords = validWords.filter(
-      w => getUniqueLetters(w).length === 7
-    );
+    // Pre-filter all words that can possibly fit these 7 letters (ignoring center for now).
+    const baseCandidates = wordList.filter((w) => {
+      if (w.length < MIN_WORD_LENGTH) return false;
+      for (const ch of w) {
+        if (!lettersSet.has(ch)) return false;
+      }
+      return true;
+    });
 
-    if (
-      validWords.length >= MIN_WORD_COUNT &&
-      pangramWords.length >= MIN_PANGRAMS
-    ) {
-      return {
-        letters,
-        center,
-        outer,
-        validWords: validWords.sort(),
-        pangramWords: pangramWords.sort(),
-      };
+    const centers = shuffle([...letters]);
+
+    for (const center of centers) {
+      const outer = letters.filter((ch) => ch !== center);
+
+      const candidateWords = baseCandidates.filter((w) => w.includes(center));
+      const validWords = candidateWords.filter((w) => allowedSet.has(w));
+      const pangramWords = validWords.filter(
+        (w) => getUniqueLetters(w).length === 7
+      );
+
+      const minWords = RARE_LETTER_MODE ? MIN_WORD_COUNT_RARE : MIN_WORD_COUNT;
+      const minPangrams = RARE_LETTER_MODE ? MIN_PANGRAMS_RARE : MIN_PANGRAMS;
+      if (
+        validWords.length >= minWords &&
+        pangramWords.length >= minPangrams
+      ) {
+        return {
+          letters,
+          center,
+          outer,
+          validWords: validWords.sort(),
+          pangramWords: pangramWords.sort(),
+        };
+      }
     }
   }
+
+  throw new Error(
+    "No suitable puzzle found for current pangram pool (try relaxing MIN_WORD_COUNT/MIN_PANGRAMS or filters)."
+  );
 }
 
 /**
@@ -183,7 +281,7 @@ const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
 const POINTS_PER_LETTER = 1;
 const PANGRAM_BONUS = 5;
 /** Run generation for this many milliseconds (e.g. 20 minutes). Set to 0 to use TARGET_PUZZLE_COUNT. */
-const GENERATE_DURATION_MS = 20 * 60 * 1000;
+const GENERATE_DURATION_MS = 2 * 60 * 1000;
 /** When GENERATE_DURATION_MS is 0, generate exactly this many puzzles. */
 const TARGET_PUZZLE_COUNT = 50;
 
@@ -196,13 +294,18 @@ function letterSetKey(puzzle) {
 }
 
 async function main() {
-  console.log("Loading word list from wiki-100k.txt...");
-  const wordList = loadWordList();
-  console.log("Loaded words:", wordList.length);
+  console.log("Loading word list from wiki-100k.txt, allowed 10k list, and common-7-letter-words...");
+  const [wordList, allowedSet, common7] = await Promise.all([
+    Promise.resolve(loadWordList()),
+    loadAllowedWords(),
+    loadCommon7Words(),
+  ]);
+  console.log("Loaded wiki words:", wordList.length);
+  console.log("Allowed words (10k list):", allowedSet.size);
+  console.log("Loaded common-7-letter-words:", common7.length);
 
-  console.log("Loading allowed words (10k list only)...");
-  const allowedSet = await loadAllowedWords();
-  console.log("Allowed words:", allowedSet.size);
+  COMMON7_ALLOWED = common7.filter((w) => getUniqueLetters(w).length === 7);
+  console.log("Common-7 pangrams (7 unique letters) from common-7 list:", COMMON7_ALLOWED.length);
 
   // Load existing puzzles so we append instead of replacing, and avoid duplicate boards.
   let existing = [];
@@ -234,7 +337,18 @@ async function main() {
   let lastLogAtSec = -1;
 
   while ((useTimeLimit && Date.now() - startTime < GENERATE_DURATION_MS) || (!useTimeLimit && count < TARGET_PUZZLE_COUNT)) {
-    let puzzle = generatePuzzle(wordList, allowedSet);
+    let puzzle;
+    try {
+      puzzle = generatePuzzle(wordList, allowedSet);
+    } catch (e) {
+      console.log("WARN generatePuzzle failed:", e && e.message ? e.message : e);
+      if (!useTimeLimit) {
+        // If we're in fixed-count mode and can't find more puzzles, stop cleanly.
+        break;
+      }
+      // In time-limited mode, just try again with remaining time.
+      continue;
+    }
     let key = letterSetKey(puzzle);
     let attempts = 0;
     while (seenLetterSets.has(key) && attempts < 50) {
@@ -300,15 +414,40 @@ async function main() {
     console.log("\nRemoved", removedCount, "blocklisted word(s) from puzzles.");
   }
 
-  // Remove any puzzle that has fewer than 2 pangrams (e.g. after blocklist removal)
+  // Remove any puzzle that has fewer than min pangrams (e.g. after blocklist removal)
   const beforeCount = output.length;
-  const filtered = output.filter(p => (p.pangrams || []).length >= MIN_PANGRAMS);
+  const minPangramsFilter = RARE_LETTER_MODE ? MIN_PANGRAMS_RARE : MIN_PANGRAMS;
+  const filtered = output.filter(p => (p.pangrams || []).length >= minPangramsFilter);
   const removedPuzzles = beforeCount - filtered.length;
   if (removedPuzzles > 0) {
-    console.log("\nRemoved", removedPuzzles, "puzzle(s) with fewer than", MIN_PANGRAMS, "pangrams. Writing", filtered.length, "puzzles.");
+    console.log("\nRemoved", removedPuzzles, "puzzle(s) with fewer than", minPangramsFilter, "pangram(s). Writing", filtered.length, "puzzles.");
   }
   output.length = 0;
   output.push(...filtered);
+
+  // Remove duplicate puzzles (same 7-letter set); keep first occurrence, log the rest.
+  const byKey = new Map();
+  for (const p of output) {
+    const key = letterSetKey(p);
+    if (byKey.has(key)) {
+      byKey.get(key).dupes++;
+    } else {
+      byKey.set(key, { puzzle: p, dupes: 1 });
+    }
+  }
+  const uniquePuzzles = Array.from(byKey.values()).map((v) => v.puzzle);
+  const removedDupes = output.length - uniquePuzzles.length;
+  if (removedDupes > 0) {
+    console.log("\nRemoved", removedDupes, "duplicate puzzle(s) (same 7-letter set).");
+    const dupList = Array.from(byKey.entries())
+      .filter(([, v]) => v.dupes > 1)
+      .sort((a, b) => b[1].dupes - a[1].dupes);
+    dupList.forEach(([key, v]) => {
+      console.log("  ", key.toLowerCase() + ":", v.dupes, "copy/copies (kept 1, removed", v.dupes - 1 + ")");
+    });
+  }
+  output.length = 0;
+  output.push(...uniquePuzzles);
 
   // Letter occurrence: how many puzzles contain each letter (in the 7 letters: center + outer)
   const counts = {};

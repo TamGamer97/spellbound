@@ -3,6 +3,48 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
+   Loading overlay (puzzles / game data)
+   -------------------------------------------------------------------------- */
+.game-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #1e293b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.game-loading.game-loading-hidden {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.game-loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #64748b;
+  border-top-color: #2dd4bf;
+  border-radius: 50%;
+  animation: gameLoadingSpin 0.8s linear infinite;
+}
+
+@keyframes gameLoadingSpin {
+  to { transform: rotate(360deg); }
+}
+
+.game-loading-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
    Layout: body & header
    -------------------------------------------------------------------------- */
 body {
@@ -44,9 +86,9 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #64748b;
+  color: #94a3b8;
   background: transparent;
-  border: 1px solid #475569;
+  border: 1px solid #64748b;
   border-radius: 6px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
@@ -99,7 +141,7 @@ body {
 .timer-legend {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* --------------------------------------------------------------------------
@@ -149,8 +191,8 @@ body.solo-mode .side-panel-right {
   width: 100%;
   max-width: 220px;
   max-height: 520px;
-  background: #334155;
-  border: 1px solid #475569;
+  background: #3b4a61;
+  border: 1px solid #64748b;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -184,7 +226,7 @@ body.solo-mode .side-panel-right {
   gap: 0.1rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #64748b;
 }
 
 .player-score-value {
@@ -197,7 +239,7 @@ body.solo-mode .side-panel-right {
 .player-score-legend {
   font-size: 0.65rem;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .words-panel-title {
@@ -209,7 +251,7 @@ body.solo-mode .side-panel-right {
   color: #94a3b8;
   margin-bottom: 0.5rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #64748b;
 }
 
 /* Words panel dropdown: desktop shows as static title + list */
@@ -235,7 +277,7 @@ body.solo-mode .side-panel-right {
   color: #94a3b8;
   background: none;
   border: none;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #64748b;
   cursor: default;
   text-align: left;
 }
@@ -254,7 +296,7 @@ body.solo-mode .side-panel-right {
 
 .words-list-placeholder {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #94a3b8;
   font-style: italic;
   text-align: center;
   padding: 1rem 0.5rem;
@@ -297,7 +339,7 @@ body.solo-mode .side-panel-right {
 
 .words-list li {
   padding: 0.25rem 0;
-  border-bottom: 1px solid #475569;
+  border-bottom: 1px solid #64748b;
 }
 
 .words-list li:last-child {
@@ -314,15 +356,15 @@ body.solo-mode .side-panel-right {
    -------------------------------------------------------------------------- */
 .honeycomb {
   position: relative;
-  width: 370px;
-  height: 360px;
+  width: 400px;
+  height: 390px;
   flex-shrink: 0;
 }
 
 .hex {
   position: absolute;
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -344,7 +386,7 @@ body.solo-mode .side-panel-right {
 }
 
 .hex.outer {
-  background: #94a3b8;
+  background: #cbd5f5;
   color: #1e293b;
 }
 
@@ -403,8 +445,8 @@ body.solo-mode .side-panel-right {
   font-size: 1.15rem;
   color: #e2e8f0;
   caret-color: #0d9488;
-  background: #334155;
-  border: 2px solid #475569;
+  background: #3b4a61;
+  border: 2px solid #64748b;
   border-radius: 8px;
   outline: none;
   transition: border-color 0.2s;
@@ -415,7 +457,7 @@ body.solo-mode .side-panel-right {
 }
 
 .word-input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .buttons-row {
@@ -431,8 +473,8 @@ body.solo-mode .side-panel-right {
   font-size: 0.95rem;
   font-weight: 700;
   color: #e2e8f0;
-  background: #334155;
-  border: 2px solid #475569;
+  background: #3b4a61;
+  border: 2px solid #64748b;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
@@ -497,8 +539,8 @@ body.solo-mode .side-panel-right {
 .leave-modal {
   width: 100%;
   max-width: 340px;
-  background: #334155;
-  border: 1px solid #475569;
+  background: #3b4a61;
+  border: 1px solid #64748b;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 1.5rem;
@@ -513,7 +555,7 @@ body.solo-mode .side-panel-right {
 
 .leave-modal-text {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #cbd5f5;
   margin: 0 0 1.25rem;
 }
 
@@ -527,13 +569,13 @@ body.solo-mode .side-panel-right {
   padding: 0.5rem 1rem;
   font-weight: 500;
   color: #e2e8f0;
-  background: #475569;
-  border: 1px solid #64748b;
+  background: #64748b;
+  border: 1px solid #94a3b8;
 }
 
 .btn-leave-cancel:hover {
-  background: #64748b;
-  border-color: #94a3b8;
+  background: #94a3b8;
+  border-color: #cbd5f5;
 }
 
 .btn-leave-confirm {
@@ -541,7 +583,7 @@ body.solo-mode .side-panel-right {
   font-weight: 500;
   color: #ef4444;
   background: transparent;
-  border: 1px solid #64748b;
+  border: 1px solid #94a3b8;
 }
 
 .btn-leave-confirm:hover {
@@ -575,8 +617,8 @@ body.solo-mode .side-panel-right {
 .round-end-modal {
   width: 100%;
   max-width: 380px;
-  background: #334155;
-  border: 1px solid #475569;
+  background: #3b4a61;
+  border: 1px solid #64748b;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   padding: 1.75rem;
@@ -591,7 +633,7 @@ body.solo-mode .side-panel-right {
 
 .round-end-message {
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: #cbd5f5;
   margin: 0 0 0.25rem;
 }
 
@@ -604,7 +646,7 @@ body.solo-mode .side-panel-right {
 
 .round-end-scores {
   font-size: 0.95rem;
-  color: #94a3b8;
+  color: #cbd5f5;
   margin: 0 0 1.25rem;
   line-height: 1.4;
 }
@@ -641,23 +683,23 @@ body.solo-mode .side-panel-right {
 }
 
 .btn-round-close {
-  background: #475569;
+  background: #64748b;
   color: #e2e8f0;
-  border-color: #64748b;
+  border-color: #94a3b8;
 }
 
 .btn-round-close:hover {
-  background: #64748b;
+  background: #94a3b8;
 }
 
 .btn-round-leave {
-  background: #475569;
+  background: #64748b;
   color: #e2e8f0;
-  border-color: #64748b;
+  border-color: #94a3b8;
 }
 
 .btn-round-leave:hover {
-  background: #64748b;
+  background: #94a3b8;
 }
 
 /* Opponent went back to lobby (round-end notification) */
@@ -683,8 +725,8 @@ body.solo-mode .side-panel-right {
 .opponent-left-notif-modal {
   width: 100%;
   max-width: 340px;
-  background: #334155;
-  border: 1px solid #475569;
+  background: #3b4a61;
+  border: 1px solid #64748b;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -699,7 +741,7 @@ body.solo-mode .side-panel-right {
 
 .opponent-left-notif-msg {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #cbd5f5;
   margin: 0 0 1rem;
   line-height: 1.4;
 }
@@ -727,7 +769,7 @@ body.solo-mode .side-panel-right {
 
 /* Timer in "keep finding words" mode shows no limit */
 .timer-display .timer-value.bitter-end {
-  color: #94a3b8;
+  color: #cbd5f5;
   font-variant-numeric: tabular-nums;
 }
 
@@ -798,7 +840,7 @@ body.solo-mode .side-panel-right {
 
   .player-score-legend,
   .words-panel-title {
-    font-size: 0.6rem;
+    font-size: 0.62rem;
   }
 
   .words-list {
@@ -835,7 +877,7 @@ body.solo-mode .side-panel-right {
   }
 
   .words-panel-body {
-    max-height: 150px;
+    max-height: 160px;
     overflow: hidden;
     transition: max-height 0.25s ease;
   }
@@ -927,7 +969,7 @@ body.solo-mode .side-panel-right {
   }
 
   .words-panel-body {
-    max-height: 120px;
+    max-height: 130px;
   }
 
   .game-wrapper {
@@ -937,16 +979,16 @@ body.solo-mode .side-panel-right {
   }
 
   .honeycomb {
-    width: 345px;
-    height: 336px;
+    width: 375px;
+    height: 366px;
     transform: scale(1);
     transform-origin: center top;
   }
 
   .hex {
-    width: 82px;
-    height: 82px;
-    font-size: 1.65rem;
+    width: 92px;
+    height: 92px;
+    font-size: 1.75rem;
   }
 
   .hex-center { left: 132px; top: 125px; }
@@ -1044,15 +1086,15 @@ body.solo-mode .side-panel-right {
   }
 
   .honeycomb {
-    width: 300px;
-    height: 292px;
+    width: 330px;
+    height: 322px;
     transform: scale(0.98);
   }
 
   .hex {
-    width: 70px;
-    height: 70px;
-    font-size: 1.45rem;
+    width: 80px;
+    height: 80px;
+    font-size: 1.55rem;
   }
 
   .hex-center { left: 115px; top: 108px; }
