@@ -320,10 +320,37 @@ const BAD_PANGRAMS = new Set([
   "wichtige",
   "wilfred",
   "wrangel",
+  // Unusual English (second pass) — obscure, archaic, name-like, or silly-for-game
+  "mechlin", "henriot", "inheritor",
+  "abideth", "burneth", "carrieth", "changeth", "delighteth", "draweth", "endureth", "floweth", "followeth", "regardeth", "reigneth",
+  "haveing", "principall", "carefull", "faithfull", "dreadfull", "burthen", "durance",
+  "aeronaut", "almoner", "attainder", "athenaeum", "carriole", "canticle", "guerdon", "helpmate",
+  "coefficient", "concordat", "demarche", "effluvia", "gloaming", "cerulean", "direful", "maidenhead", "prentice", "baronet",
+  "integument", "irreligion", "licentiate", "lineament", "nutriment", "oblation", "peripatetic", "plebeian", "porringer", "procurator", "redoubt", "redoubted", "retrenchment", "yeomanry",
+  "andromeda", "beatrice", "belinda", "benedict", "bingley", "chaplin", "clementine", "elfrida", "florimel", "goneril", "grantly", "hartley", "lydgate", "morgiana", "perdita", "phaeton", "proudie", "redworth", "telamon", "telford", "truedale", "trueman", "tulliver", "twichell",
+  "chinamen", "lavendar", "moveable", "mahomedan", "mahometan", "mahommedan", "miltonic", "minuter",
+  "throwed", "recevait", "perdait", "perdant", "parlent", "mourait", "noblement", "violente", "trouvai", "trouvait", "trouvant", "trouvent", "trouvera", "trouverent", "tyrannie", "unbekannt", "unbekannten", "tulevan", "reflechir", "regardait", "machten", "maggiore", "mangeait", "maintenir", "matrimonio", "materiel", "maternel", "maternelle", "mechant", "mediaeval",
+  "academical", "altrurian", "filename", "ventura",
+  "antipater", "barkeley", "barkley", "barnwell", "bartley", "bellegarde", "belmont", "beltham", "belward", "bergamo", "bertrand", "bertrande", "bothwell", "boucher", "bragadin", "brainerd", "breckon", "brentano", "bridewell", "bridget", "brudenell", "bruncker",
+  "cadwallader", "callender", "callonby", "campion", "canongate", "cardello", "carlton", "carlyon", "carnegie", "carrollton", "centaur", "certaine", "conkling", "coralie", "corinth", "covington", "crichton", "decatur",
+  "delphin", "delphine", "errington", "fairfield", "fairport", "fillmore", "fleming", "flemming", "florida", "fremont", "gerfaut", "gerhardt", "gilbert", "gilberte", "gilmore", "glanville", "glenarvan", "glengarry", "godefroid", "godefroy", "godfrey", "goldwin", "goodenough", "gordian", "grammont", "gramont", "granvelle", "grecian", "greenville", "greenwood", "grendall", "gridley",
+  "hartwell", "hawthorn", "henchard", "herminia", "hildreth", "hillyard", "hilyard", "mainwaring", "maitland", "malipieri", "manetho", "manfred", "manitoba", "manitou", "marchant", "marigny", "marinelli", "markland", "marrineal", "martine", "mathieu", "matthieu",
+  "andover", "appleton", "atherton", "barkley", "barkley", "belmont", "bittridge", "bowring", "bracken", "brillant", "brocken", "brutale", "cabildo", "caliente", "callonby", "candeur", "capitaine", "capitale", "captaine", "carriole", "centrale", "chaplin", "clameur", "clementine", "concordia", "contraint", "crimean", "delphine", "effluvia", "eglantine", "entrado", "entrando", "facilite", "faculte", "fairfield", "fairport", "florida", "forment", "francie", "francine", "freeland", "gaiement", "garnache", "gautier", "germain", "germaine", "germania", "ginevra", "giordano", "gobierno", "granvelle", "gravite", "graviter", "greenville", "greenwood", "halbert", "hautement", "heerlijk", "heerlijke", "heiraten", "hinueber", "hundert", "ignorait", "importa", "importait", "importe", "inattendu", "inattendue", "incertain", "individuelle", "intriguer", "maintenir",
 ].map((w) => w.toLowerCase()));
 
 const DATA_DIR = path.join(__dirname, "..", "data");
 const INPUT_PATH = path.join(DATA_DIR, "puzzles-2.json");
+const BAD_PANGRAMS_FILE = path.join(DATA_DIR, "bad-pangrams.txt");
+
+// Load additional bad pangrams from file (e.g. from pangram-review.txt ✗ list)
+if (fs.existsSync(BAD_PANGRAMS_FILE)) {
+  const fromFile = fs.readFileSync(BAD_PANGRAMS_FILE, "utf8").split(/\r?\n/);
+  fromFile.forEach((line) => {
+    const w = line.trim().toLowerCase();
+    if (w && /^[a-z]+$/.test(w)) BAD_PANGRAMS.add(w);
+  });
+  console.log("Loaded", fromFile.filter((l) => l.trim() && /^[a-z]+$/.test(l.trim().toLowerCase())).length, "bad pangrams from", BAD_PANGRAMS_FILE);
+}
 
 function normalize(w) {
   return String(w).trim().toLowerCase();
