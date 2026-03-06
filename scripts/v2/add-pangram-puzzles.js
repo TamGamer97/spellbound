@@ -20,7 +20,7 @@ const PROPER_NOUN_BLOCKLIST = require(path.join(__dirname, "../../js/proper-noun
 
 const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 12;
-const MIN_WORD_COUNT = 20;
+const MIN_WORD_COUNT = 15;
 const MIN_PANGRAMS = 2;
 const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
 /** Points by word length: 4→4, 5→6, 6→8, 7→10, 8→12, ... (2*len - 4 for len >= 4). */
@@ -30,8 +30,6 @@ function pointsForWordLength(len) {
 const PANGRAM_BONUS = 5;
 
 const WIKI_WORD_LIST_PATH = path.join(__dirname, "../../data/wiki-100k.txt");
-const ALLOWED_WORDS_10K_URL =
-  "https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english.txt";
 const OUTPUT_PATH = path.join(__dirname, "../../data/puzzles-2.json");
 const OBSCURE_SUFFIXES = [
   "idae", "aceae", "ology", "ologist", "otomy", "itis", "osis",
@@ -59,29 +57,11 @@ function loadWordList() {
   return Array.from(words);
 }
 
+// Legacy: previously we used a remote 10k word list as the allowed set.
+// Now we simply reuse the cleaned wiki-100k word list as allowed words.
 function loadAllowedWords() {
-  return new Promise((resolve, reject) => {
-    https.get(ALLOWED_WORDS_10K_URL, (res) => {
-      if (res.statusCode !== 200) {
-        reject(new Error("Failed to fetch allowed words: " + res.statusCode));
-        return;
-      }
-      const chunks = [];
-      res.on("data", (c) => chunks.push(c));
-      res.on("end", () => {
-        const set = new Set();
-        Buffer.concat(chunks)
-          .toString("utf8")
-          .split(/\r?\n/)
-          .forEach((line) => {
-            const w = line.trim().toLowerCase();
-            if (w && /^[a-z]+$/.test(w)) set.add(w);
-          });
-        resolve(set);
-      });
-      res.on("error", reject);
-    }).on("error", reject);
-  });
+  const words = loadWordList();
+  return Promise.resolve(new Set(words));
 }
 
 function isValidWord(word, lettersSet, centerLetter) {

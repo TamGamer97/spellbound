@@ -8,7 +8,7 @@ const PROPER_NOUN_BLOCKLIST = SPELLBOUND_BLOCKLIST.all;
 // ---------------- SETTINGS ----------------
 const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 12;
-const MIN_WORD_COUNT = 20;
+const MIN_WORD_COUNT = 15;
 const MIN_PANGRAMS = 2;
 /** Letters that must not appear in any puzzle (no S, Q, X, or Z boards). */
 const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
@@ -58,30 +58,13 @@ function loadWordList() {
 }
 
 /**
- * Load the set of allowed words from the 10k list only. Only these words appear in valid_words/pangrams.
- * Uses the Google 10k English list from the repo (no local file, no 20k).
+ * Legacy: previously we loaded a separate 10k \"allowed\" list from GitHub.
+ * Now we simply use the cleaned wiki-100k list (loadWordList) as the allowed set.
+ * This function is kept for backwards compatibility but no longer performs a network request.
  */
 function loadAllowedWords() {
-  return new Promise((resolve, reject) => {
-    https.get(ALLOWED_WORDS_10K_URL, (res) => {
-      if (res.statusCode !== 200) {
-        reject(new Error("Failed to fetch allowed words: " + res.statusCode));
-        return;
-      }
-      const chunks = [];
-      res.on("data", c => chunks.push(c));
-      res.on("end", () => {
-        const raw = Buffer.concat(chunks).toString("utf8");
-        const set = new Set();
-        raw.split(/\r?\n/).forEach(line => {
-          const w = line.trim().toLowerCase();
-          if (w && /^[a-z]+$/.test(w)) set.add(w);
-        });
-        resolve(set);
-      });
-      res.on("error", reject);
-    }).on("error", reject);
-  });
+  const words = loadWordList();
+  return Promise.resolve(new Set(words));
 }
 
 /** Load common-7-letter-words.txt (poslarchive) as an array of lowercase words. */
@@ -125,7 +108,10 @@ function shuffle(array) {
  */
 let loggedPangramDebug = false;
 let COMMON7_ALLOWED = null;
-function generatePuzzle(wordList, allowedSet) {
+/**
+ * @param {Set<string>} [excludeLetterSets] - Optional set of 7-letter keys (uppercase, sorted) to skip; only tries pangrams that could yield new puzzles.
+ */
+function generatePuzzle(wordList, allowedSet, excludeLetterSets) {
   // Step 1: pangrams that are in the 10k allowed list (7 unique letters)
   let rawPangrams = wordList.filter(
     w => getUniqueLetters(w).length === 7 && allowedSet.has(w)
@@ -172,7 +158,21 @@ function generatePuzzle(wordList, allowedSet) {
     return true;
   });
 
+  // Step 2b: skip pangrams whose 7-letter set we already have (so we only try new ones).
+  if (excludeLetterSets && excludeLetterSets.size > 0) {
+    pangrams = pangrams.filter(w => {
+      const key = getUniqueLetters(w);
+      return !excludeLetterSets.has(key);
+    });
+  }
+
   if (pangrams.length === 0) {
+    if (excludeLetterSets && excludeLetterSets.size > 0) {
+      console.log(
+        "DEBUG generatePuzzle: all pangram candidates are already used (excludeLetterSets size =",
+        excludeLetterSets.size + ")."
+      );
+    }
     throw new Error("No pangrams found (in allowed list and without S/Q).");
   }
 
@@ -263,16 +263,17 @@ function letterSetKey(puzzle) {
 }
 
 async function main() {
-  console.log("Loading word list from wiki-100k.txt, allowed 10k list, and common-7-letter-words...");
-  const [wordList, allowedSet, common7] = await Promise.all([
+  console.log("Loading word list from wiki-100k.txt (used for allowed words), and common-7-letter-words...");
+  const [wordList, allowedSetFromWiki, common7] = await Promise.all([
     Promise.resolve(loadWordList()),
     loadAllowedWords(),
     loadCommon7Words(),
   ]);
   console.log("Loaded wiki words:", wordList.length);
-  console.log("Allowed words (10k list):", allowedSet.size);
+  console.log("Allowed words (wiki-100k cleaned):", allowedSetFromWiki.size);
   console.log("Loaded common-7-letter-words:", common7.length);
 
+  const allowedSet = allowedSetFromWiki;
   COMMON7_ALLOWED = common7.filter((w) => getUniqueLetters(w).length === 7);
   console.log("Common-7 pangrams (7 unique letters) from common-7 list:", COMMON7_ALLOWED.length);
 
@@ -298,19 +299,22 @@ async function main() {
   const output = existing.slice();
   const seenLetterSets = new Set();
   for (const p of existing) {
-    seenLetterSets.add(letterSetKey(p));
+    seenLetterSets.add(letterSetKey(p).toLowerCase());
   }
   const startTime = Date.now();
   let count = 0;
   let lastLogAtPuzzle = -1;
   let lastLogAtSec = -1;
+  let duplicateSkips = 0;
+  let generateFailures = 0;
 
   while ((useTimeLimit && Date.now() - startTime < GENERATE_DURATION_MS) || (!useTimeLimit && count < TARGET_PUZZLE_COUNT)) {
     let puzzle;
     try {
-      puzzle = generatePuzzle(wordList, allowedSet);
+      puzzle = generatePuzzle(wordList, allowedSet, seenLetterSets);
     } catch (e) {
       console.log("WARN generatePuzzle failed:", e && e.message ? e.message : e);
+      generateFailures++;
       if (!useTimeLimit) {
         // If we're in fixed-count mode and can't find more puzzles, stop cleanly.
         break;
@@ -318,17 +322,19 @@ async function main() {
       // In time-limited mode, just try again with remaining time.
       continue;
     }
-    let key = letterSetKey(puzzle);
-    let attempts = 0;
-    while (seenLetterSets.has(key) && attempts < 50) {
-      if (useTimeLimit && Date.now() - startTime >= GENERATE_DURATION_MS) break;
-      if (!useTimeLimit && count >= TARGET_PUZZLE_COUNT) break;
-      puzzle = generatePuzzle(wordList, allowedSet);
-      key = letterSetKey(puzzle);
-      attempts++;
+    let key = letterSetKey(puzzle).toLowerCase();
+    if (seenLetterSets.has(key)) {
+      duplicateSkips++;
+      if (duplicateSkips % 50 === 0) {
+        console.log(
+          "DEBUG main loop: skipped",
+          duplicateSkips,
+          "duplicate puzzle(s) so far (seenLetterSets size =",
+          seenLetterSets.size + ")."
+        );
+      }
+      continue;
     }
-    if (useTimeLimit && Date.now() - startTime >= GENERATE_DURATION_MS) break;
-    if (!useTimeLimit && count >= TARGET_PUZZLE_COUNT) break;
     seenLetterSets.add(key);
 
     const enrichedValid = enrichValidWords(puzzle.center, puzzle.outer, wordList);
@@ -358,7 +364,9 @@ async function main() {
     }
   }
 
-  console.log("  Done. Generated " + count + " new puzzles. Total (before filters): " + output.length + ".");
+  console.log("  Done. Generated " + count + " new unique puzzle(s) this run.");
+  console.log("  DEBUG summary: seenLetterSets size =", seenLetterSets.size, ", duplicate skips =", duplicateSkips, ", generatePuzzle failures =", generateFailures, ".");
+  console.log("  Total puzzles before blocklist/min-pangram filters:", output.length + ".");
 
   // Remove any valid_words or pangrams that are in the proper-noun blocklist; log and recompute points
   let removedCount = 0;
