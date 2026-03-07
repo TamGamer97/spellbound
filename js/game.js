@@ -19,9 +19,9 @@
 
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
-  /** Developer mode: 4 boards used in order (solo), then normal. Versus always uses first when demoBoard=1. */
-  var DEMO_BOARD_INDICES = [10, 15, 82, 184];
-  var DEMO_BOARD_INDEX = 10;
+  /** Developer mode: single demo board (solo and versus when demoBoard=1). */
+  var DEMO_BOARD_INDICES = [15];
+  var DEMO_BOARD_INDEX = 15;
   var DEMO_INDEX_KEY = 'spellbound_debug_demo_index';
   /** Last 100 game boards (any mode) for variety — see js/recent-boards.js */
   var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
