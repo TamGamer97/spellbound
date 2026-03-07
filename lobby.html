@@ -107,15 +107,6 @@
         <div class="settings-actions settings-actions-password">
           <button type="button" class="btn btn-change-password" id="btn-change-password">Change password</button>
         </div>
-        <div class="settings-field settings-field-debug">
-          <label class="settings-toggle">
-            <input type="checkbox" id="settings-demo-board" class="settings-toggle-input" />
-            <span class="settings-toggle-track" aria-hidden="true">
-              <span class="settings-toggle-thumb"></span>
-            </span>
-            <span class="settings-toggle-label">Developer mode</span>
-          </label>
-        </div>
         <div class="settings-actions">
           <a href="index.html" class="btn btn-logout" id="btn-logout">Log out</a>
         </div>
@@ -158,43 +149,16 @@
       var btnSettings = document.getElementById('btn-settings');
       var btnCloseSettings = document.getElementById('btn-close-settings');
 
-      var demoBoardKey = 'spellbound_debug_demo_board';
-      function gamePageUrl(gameId) {
-        var url = 'game.html?gameId=' + encodeURIComponent(gameId);
-        try { if (localStorage.getItem(demoBoardKey) === 'true') url += '&demoBoard=1'; } catch (e) {}
-        return url;
-      }
       function openSettings() {
         if (user) {
           document.getElementById('settings-username').textContent = user.username || '—';
           document.getElementById('settings-user-id').textContent = user.id || '—';
-        }
-        var demoCheck = document.getElementById('settings-demo-board');
-        if (demoCheck) {
-          try {
-            demoCheck.checked = localStorage.getItem(demoBoardKey) === 'true';
-          } catch (e) {}
         }
         if (overlay) {
           overlay.classList.add('open');
           overlay.setAttribute('aria-hidden', 'false');
         }
       }
-      var demoBoardEl = document.getElementById('settings-demo-board');
-      if (demoBoardEl) {
-        demoBoardEl.addEventListener('change', function () {
-          try {
-            if (demoBoardEl.checked) {
-              localStorage.setItem(demoBoardKey, 'true');
-              localStorage.setItem('spellbound_debug_demo_index', '0');
-            } else {
-              localStorage.removeItem(demoBoardKey);
-              localStorage.removeItem('spellbound_debug_demo_index');
-            }
-          } catch (e) {}
-        });
-      }
-
       function closeSettings() {
         if (overlay) {
           overlay.classList.remove('open');
@@ -378,7 +342,7 @@
         window.db.getMatchStatus().then(function (s) {
           if (s && s.status === 'matched' && s.gameId) {
             if (matchPollId) clearInterval(matchPollId);
-            window.location.href = gamePageUrl(s.gameId);
+            window.location.href = 'game.html?gameId=' + encodeURIComponent(s.gameId);
           }
         });
       }
@@ -430,7 +394,7 @@
             if (s.status === 'accepted' && s.game_id) {
               if (challengePollId) clearInterval(challengePollId);
               challengePollId = null;
-              window.location.href = gamePageUrl(s.game_id);
+              window.location.href = 'game.html?gameId=' + encodeURIComponent(s.game_id);
             } else if (s.status === 'declined' || s.status === 'expired') {
               if (challengePollId) clearInterval(challengePollId);
               challengePollId = null;
@@ -488,7 +452,7 @@
           closeChallengePopup();
           var accepterRecent = getRecentBoardIndices();
           window.db.acceptChallenge(id, accepterRecent).then(function (gameId) {
-            window.location.href = gamePageUrl(gameId);
+            window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
           }).catch(function () {
             joinBtn.textContent = originalText;
             joinBtn.disabled = false;
