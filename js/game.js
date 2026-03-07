@@ -9,14 +9,18 @@
 (function () {
   'use strict';
 
-  var gameId = (function () {
+  var urlParams = (function () {
     var p = typeof window !== 'undefined' && window.location && window.location.search && window.location.search.slice(1);
-    var params = p ? new URLSearchParams(p) : null;
-    return params && params.get('gameId') ? params.get('gameId') : null;
+    return p ? new URLSearchParams(p) : null;
   })();
+  var gameId = urlParams && urlParams.get('gameId') ? urlParams.get('gameId') : null;
+  /** When set (e.g. &demoBoard=1), versus uses the fixed demo board; both players should have had the toggle on when opening the game. */
+  var useDemoBoard = urlParams && urlParams.get('demoBoard') === '1';
 
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
+  /** Debug: fixed puzzle index when "Use demo board" is on in settings (solo only). Board has 505 words, 13 pangrams (center N, outer ERAGID). */
+  var DEMO_BOARD_INDEX = 10;
   /** Last 100 game boards (any mode) for variety — see js/recent-boards.js */
   var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
@@ -835,7 +839,17 @@
       timerEl.classList.remove('warning', 'danger', 'bitter-end', 'timer-countdown', 'timer-pulse');
     }
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-      var idx = pickSoloPuzzleIndex();
+      var idx;
+      try {
+        if (localStorage.getItem('spellbound_debug_demo_board') === 'true') {
+          idx = DEMO_BOARD_INDEX >= 0 && DEMO_BOARD_INDEX < LOCAL_PUZZLES.length ? DEMO_BOARD_INDEX : pickSoloPuzzleIndex();
+          localStorage.removeItem('spellbound_debug_demo_board');
+        } else {
+          idx = pickSoloPuzzleIndex();
+        }
+      } catch (e) {
+        idx = pickSoloPuzzleIndex();
+      }
       if (idx >= 0 && LOCAL_PUZZLES[idx]) {
         setPuzzleFromData(LOCAL_PUZZLES[idx]);
         saveRecentBoardIndex(idx);
@@ -866,17 +880,23 @@
         return;
       }
       var puzzle = null;
-      var puzzleIndex = data.puzzle_index != null ? data.puzzle_index : (data.game && data.game.puzzle_index);
       var usedIndex = null;
-      if (puzzleIndex != null && LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-        var n = LOCAL_PUZZLES.length;
-        var idx = puzzleIndex >= 0 && puzzleIndex < n
-          ? puzzleIndex
-          : Math.abs(puzzleIndex % n) % n;
-        puzzle = LOCAL_PUZZLES[idx];
-        usedIndex = idx;
-        if (idx !== puzzleIndex && typeof console !== 'undefined' && console.warn) {
-          console.warn('Spellbound: puzzle_index', puzzleIndex, 'mapped to local index', idx, '(local set has', n, 'puzzles)');
+      if (useDemoBoard && LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0 && LOCAL_PUZZLES[DEMO_BOARD_INDEX]) {
+        puzzle = LOCAL_PUZZLES[DEMO_BOARD_INDEX];
+        usedIndex = DEMO_BOARD_INDEX;
+      }
+      if (!puzzle) {
+        var puzzleIndex = data.puzzle_index != null ? data.puzzle_index : (data.game && data.game.puzzle_index);
+        if (puzzleIndex != null && LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
+          var n = LOCAL_PUZZLES.length;
+          var idx = puzzleIndex >= 0 && puzzleIndex < n
+            ? puzzleIndex
+            : Math.abs(puzzleIndex % n) % n;
+          puzzle = LOCAL_PUZZLES[idx];
+          usedIndex = idx;
+          if (idx !== puzzleIndex && typeof console !== 'undefined' && console.warn) {
+            console.warn('Spellbound: puzzle_index', puzzleIndex, 'mapped to local index', idx, '(local set has', n, 'puzzles)');
+          }
         }
       }
       if (!puzzle && data.puzzle) {
