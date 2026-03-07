@@ -67,6 +67,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 5rem;
+  overflow: visible;
 }
 
 .game-header-center {
@@ -121,6 +122,13 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.15rem;
+  position: relative;
+  min-height: 5rem;
+  overflow: visible;
+}
+
+.game-header-center {
+  overflow: visible;
 }
 
 .timer-value {
@@ -138,18 +146,33 @@ body {
   color: #ef4444;
 }
 
+/* Last 10 seconds: huge countdown that overlaps title above and legend below */
 .timer-value.timer-countdown {
   color: #ef4444;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6.5rem;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 10;
+  text-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+  pointer-events: none;
 }
 
 .timer-value.timer-pulse {
   animation: timer-pulse 1s ease-out;
 }
 
+.timer-value.timer-countdown.timer-pulse {
+  animation: timer-pulse 1s ease-out;
+}
+
 @keyframes timer-pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.95; }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
 .timer-legend {
@@ -381,6 +404,7 @@ body.solo-mode .side-panel-right {
   width: 400px;
   height: 390px;
   flex-shrink: 0;
+  transform: translateX(0.75rem); /* nudge letter board right, no layout overflow */
 }
 
 .hex {
@@ -831,6 +855,8 @@ body.solo-mode .side-panel-right {
     grid-column: 1 / -1;
     grid-row: 2;
     padding: 1rem;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .side-panel {
@@ -998,12 +1024,14 @@ body.solo-mode .side-panel-right {
     padding: 0.75rem;
     width: 100%;
     max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
 
   .honeycomb {
     width: 375px;
     height: 366px;
-    transform: scale(1);
+    transform: translateX(0.75rem) scale(1);
     transform-origin: center top;
   }
 
@@ -1016,9 +1044,9 @@ body.solo-mode .side-panel-right {
   .hex-center { left: 132px; top: 125px; }
   .hex-top    { left: 132px; top: 22px; }
   .hex-tr     { left: 224px; top: 73px; }
-  .hex-br     { left: 224px; top: 178px; }
-  .hex-bot    { left: 132px; top: 230px; }
-  .hex-bl     { left: 40px; top: 178px; }
+  .hex-br     { left: 228px; top: 184px; }  /* even spacing from center */
+  .hex-bot    { left: 132px; top: 237px; }
+  .hex-bl     { left: 36px; top: 184px; }
   .hex-tl     { left: 40px; top: 73px; }
 
   .input-wrapper {
@@ -1110,7 +1138,7 @@ body.solo-mode .side-panel-right {
   .honeycomb {
     width: 330px;
     height: 322px;
-    transform: scale(0.98);
+    transform: translateX(0.75rem) scale(0.98);
   }
 
   .hex {
@@ -1122,13 +1150,15 @@ body.solo-mode .side-panel-right {
   .hex-center { left: 115px; top: 108px; }
   .hex-top    { left: 115px; top: 20px; }
   .hex-tr     { left: 192px; top: 62px; }
-  .hex-br     { left: 192px; top: 146px; }
-  .hex-bot    { left: 115px; top: 188px; }
-  .hex-bl     { left: 38px; top: 146px; }
+  .hex-br     { left: 196px; top: 152px; }  /* even spacing from center */
+  .hex-bot    { left: 115px; top: 194px; }
+  .hex-bl     { left: 34px; top: 152px; }
   .hex-tl     { left: 38px; top: 62px; }
 
   .game-wrapper {
     padding: 0.5rem;
+    overflow-x: hidden;
+    box-sizing: border-box;
   }
 
   .player-panel {

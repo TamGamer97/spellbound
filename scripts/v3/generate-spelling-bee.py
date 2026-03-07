@@ -85,7 +85,8 @@ OBSCURE_SUFFIXES = [
 ]
 
 # ── Output ────────────────────────────────────────────────────────────────────
-OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../data/puzzles-3.json")
+# Writes to archive; canonical puzzle set is data/puzzles-2.json (from scripts/v2).
+OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../data/archive/puzzles-v3-experimental.json")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 {
-  "dependencies": {
-    "wordnet-db": "^3.1.14"
-  }
+  "name": "spellbound",
+  "private": true,
+  "description": "Spelling Bee-style word game. Run scripts from repo root (e.g. node scripts/v2/index.js)."
 }

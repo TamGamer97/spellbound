@@ -1,5 +1,7 @@
 # Spellbound — Supabase setup
 
+**Note:** The game client loads the puzzle set from `data/puzzles-2.json` (not `puzzles.json`). Migration 010’s “15 puzzles” / `puzzles.json` reference is historical; the app uses the larger `puzzles-2.json` set and `puzzle_index` into that array.
+
 ## Project
 
 - **Project name:** Spellbound  
