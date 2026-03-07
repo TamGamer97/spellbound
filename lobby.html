@@ -108,12 +108,13 @@
           <button type="button" class="btn btn-change-password" id="btn-change-password">Change password</button>
         </div>
         <div class="settings-field settings-field-debug">
-          <label class="settings-debug-label">Debug</label>
-          <label class="settings-checkbox-label">
-            <input type="checkbox" id="settings-demo-board" aria-describedby="settings-demo-board-desc" />
-            <span>Use demo board for next solo game</span>
+          <label class="settings-toggle">
+            <input type="checkbox" id="settings-demo-board" class="settings-toggle-input" />
+            <span class="settings-toggle-track" aria-hidden="true">
+              <span class="settings-toggle-thumb"></span>
+            </span>
+            <span class="settings-toggle-label">Developer mode</span>
           </label>
-          <p class="settings-hint" id="settings-demo-board-desc">When on, your next solo game and any versus game you create or accept will use a fixed demo board (center N, outer ERAGID) with many words and pangrams. For versus, turn this on for both players before creating or accepting.</p>
         </div>
         <div class="settings-actions">
           <a href="index.html" class="btn btn-logout" id="btn-logout">Log out</a>
@@ -183,8 +184,13 @@
       if (demoBoardEl) {
         demoBoardEl.addEventListener('change', function () {
           try {
-            if (demoBoardEl.checked) localStorage.setItem(demoBoardKey, 'true');
-            else localStorage.removeItem(demoBoardKey);
+            if (demoBoardEl.checked) {
+              localStorage.setItem(demoBoardKey, 'true');
+              localStorage.setItem('spellbound_debug_demo_index', '0');
+            } else {
+              localStorage.removeItem(demoBoardKey);
+              localStorage.removeItem('spellbound_debug_demo_index');
+            }
           } catch (e) {}
         });
       }

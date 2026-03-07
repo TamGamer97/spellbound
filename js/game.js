@@ -19,8 +19,10 @@
 
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
-  /** Debug: fixed puzzle index when "Use demo board" is on in settings (solo only). Board has 505 words, 13 pangrams (center N, outer ERAGID). */
+  /** Developer mode: 4 boards used in order (solo), then normal. Versus always uses first when demoBoard=1. */
+  var DEMO_BOARD_INDICES = [10, 15, 82, 184];
   var DEMO_BOARD_INDEX = 10;
+  var DEMO_INDEX_KEY = 'spellbound_debug_demo_index';
   /** Last 100 game boards (any mode) for variety — see js/recent-boards.js */
   var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
@@ -842,8 +844,13 @@
       var idx;
       try {
         if (localStorage.getItem('spellbound_debug_demo_board') === 'true') {
-          idx = DEMO_BOARD_INDEX >= 0 && DEMO_BOARD_INDEX < LOCAL_PUZZLES.length ? DEMO_BOARD_INDEX : pickSoloPuzzleIndex();
-          localStorage.removeItem('spellbound_debug_demo_board');
+          var demoIdx = parseInt(localStorage.getItem(DEMO_INDEX_KEY) || '0', 10);
+          if (demoIdx < DEMO_BOARD_INDICES.length && LOCAL_PUZZLES[DEMO_BOARD_INDICES[demoIdx]]) {
+            idx = DEMO_BOARD_INDICES[demoIdx];
+            localStorage.setItem(DEMO_INDEX_KEY, String(demoIdx + 1));
+          } else {
+            idx = pickSoloPuzzleIndex();
+          }
         } else {
           idx = pickSoloPuzzleIndex();
         }
