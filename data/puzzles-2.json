@@ -18,7 +18,6 @@
       "cleone",
       "client",
       "clientele",
-      "clin",
       "clint",
       "clinton",
       "clio",
@@ -51,15 +50,9 @@
       "coolie",
       "cotillon",
       "cottle",
-      "eccl",
       "eclectic",
       "ecole",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
-      "elec",
       "elect",
       "election",
       "eletto",
@@ -68,14 +61,12 @@
       "eliot",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellice",
       "ellie",
       "elliot",
       "elliott",
-      "ello",
       "elon",
       "elton",
       "entitle",
@@ -222,7 +213,7 @@
       "collection",
       "election"
     ],
-    "total_points": 1416
+    "total_points": 1374
   },
   {
     "center_letter": "m",
@@ -3085,18 +3076,13 @@
       "earl",
       "earle",
       "earlier",
-      "eccl",
       "eclac",
       "eclair",
       "eclaire",
       "eclat",
       "eclata",
       "eclectic",
-      "eile",
-      "eilt",
-      "eilte",
       "elate",
-      "elec",
       "elect",
       "electra",
       "electric",
@@ -3107,7 +3093,6 @@
       "elite",
       "ella",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellice",
@@ -3259,7 +3244,7 @@
       "electrical",
       "recital"
     ],
-    "total_points": 1811
+    "total_points": 1783
   },
   {
     "center_letter": "r",
@@ -5306,7 +5291,6 @@
       "alicia",
       "alii",
       "alla",
-      "allah",
       "allait",
       "alle",
       "allee",
@@ -5484,7 +5468,7 @@
       "athletic",
       "ethical"
     ],
-    "total_points": 1242
+    "total_points": 1236
   },
   {
     "center_letter": "d",
@@ -6348,7 +6332,6 @@
       "cinna",
       "citation",
       "clan",
-      "clin",
       "clinical",
       "clint",
       "clinton",
@@ -6515,7 +6498,7 @@
       "inclination",
       "location"
     ],
-    "total_points": 1663
+    "total_points": 1659
   },
   {
     "center_letter": "d",
@@ -6767,16 +6750,12 @@
       "earle",
       "earlier",
       "early",
-      "eile",
-      "eilt",
-      "eilte",
       "elate",
       "elia",
       "elie",
       "elite",
       "ella",
       "elle",
-      "ellei",
       "eller",
       "ellerey",
       "ellery",
@@ -6947,7 +6926,7 @@
       "literary",
       "reality"
     ],
-    "total_points": 1508
+    "total_points": 1488
   },
   {
     "center_letter": "d",
@@ -10565,7 +10544,6 @@
       "dune",
       "dunne",
       "ecce",
-      "eccl",
       "eddie",
       "eddied",
       "edel",
@@ -10580,18 +10558,14 @@
       "eend",
       "eene",
       "eenen",
-      "eile",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
       "einen",
-      "elec",
       "elend",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -10719,7 +10693,7 @@
       "include",
       "included"
     ],
-    "total_points": 1444
+    "total_points": 1420
   },
   {
     "center_letter": "g",
@@ -11779,7 +11753,6 @@
       "eerie",
       "effet",
       "effete",
-      "effi",
       "effie",
       "efter",
       "eger",
@@ -11961,7 +11934,7 @@
       "fighter",
       "freight"
     ],
-    "total_points": 1176
+    "total_points": 1172
   },
   {
     "center_letter": "l",
@@ -13342,7 +13315,6 @@
       "dulden",
       "dull",
       "dulled",
-      "eccl",
       "ecole",
       "edel",
       "edele",
@@ -13351,12 +13323,10 @@
       "edle",
       "edlen",
       "eldon",
-      "elec",
       "elend",
       "elle",
       "ellen",
       "ellende",
-      "ello",
       "elon",
       "elude",
       "eluded",
@@ -13414,7 +13384,7 @@
       "conclude",
       "concluded"
     ],
-    "total_points": 828
+    "total_points": 816
   },
   {
     "center_letter": "t",
@@ -13900,7 +13870,7 @@
     "pangrams": [
       "handling"
     ],
-    "total_points": 977
+    "total_points": 971
   },
   {
     "center_letter": "i",
@@ -16625,7 +16595,6 @@
       "edele",
       "edle",
       "edler",
-      "eile",
       "elder",
       "elderly",
       "eldred",
@@ -16633,7 +16602,6 @@
       "elie",
       "ella",
       "elle",
-      "ellei",
       "eller",
       "ellerey",
       "ellery",
@@ -16765,7 +16733,7 @@
       "drearily",
       "readily"
     ],
-    "total_points": 1394
+    "total_points": 1384
   },
   {
     "center_letter": "a",
@@ -17491,7 +17459,6 @@
       "clara",
       "clarion",
       "claro",
-      "clin",
       "clinical",
       "clio",
       "cllia",
@@ -17605,7 +17572,7 @@
       "clarion",
       "ironical"
     ],
-    "total_points": 924
+    "total_points": 920
   },
   {
     "center_letter": "e",
@@ -17631,9 +17598,7 @@
       "eigne",
       "eignen",
       "eigner",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eine",
       "einen",
@@ -17647,13 +17612,11 @@
       "elie",
       "elinor",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "elli",
       "ellie",
       "ellinor",
-      "ello",
       "eloigne",
       "elon",
       "energie",
@@ -17932,7 +17895,7 @@
       "enrolling",
       "religion"
     ],
-    "total_points": 2162
+    "total_points": 2142
   },
   {
     "center_letter": "u",
@@ -18420,12 +18383,8 @@
       "eigne",
       "eignen",
       "eigner",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
-      "eilt",
-      "eilte",
       "eine",
       "einen",
       "einer",
@@ -18441,7 +18400,6 @@
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "elli",
@@ -18830,7 +18788,7 @@
       "lettering",
       "relenting"
     ],
-    "total_points": 3147
+    "total_points": 3121
   },
   {
     "center_letter": "a",
@@ -19425,28 +19383,22 @@
       "coolie",
       "cove",
       "ecce",
-      "eccl",
       "ecco",
       "ecole",
       "eene",
       "eenen",
-      "eile",
       "eileen",
-      "eilen",
       "eine",
       "einen",
-      "elec",
       "eleve",
       "elevee",
       "eleven",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellice",
       "ellie",
-      "ello",
       "elon",
       "ence",
       "enleve",
@@ -19599,7 +19551,7 @@
     "pangrams": [
       "violence"
     ],
-    "total_points": 1369
+    "total_points": 1341
   },
   {
     "center_letter": "l",
@@ -19618,20 +19570,13 @@
       "cleggett",
       "client",
       "clientele",
-      "clin",
       "cling",
       "clinging",
       "clint",
-      "eccl",
       "eclectic",
       "egli",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
-      "eilt",
-      "eilte",
-      "elec",
       "elect",
       "electing",
       "elgin",
@@ -19640,7 +19585,6 @@
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellice",
@@ -19790,7 +19734,7 @@
       "intelligence",
       "neglecting"
     ],
-    "total_points": 1310
+    "total_points": 1272
   },
   {
     "center_letter": "r",
@@ -20177,16 +20121,11 @@
       "edeln",
       "edle",
       "edlen",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "elend",
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -20340,7 +20279,7 @@
       "undiluted",
       "untilled"
     ],
-    "total_points": 1188
+    "total_points": 1162
   },
   {
     "center_letter": "t",
@@ -20589,7 +20528,6 @@
       "eletto",
       "elle",
       "eller",
-      "ello",
       "erle",
       "errol",
       "feel",
@@ -20696,7 +20634,7 @@
     "pangrams": [
       "foretold"
     ],
-    "total_points": 793
+    "total_points": 789
   },
   {
     "center_letter": "e",
@@ -21111,7 +21049,6 @@
       "eerie",
       "effet",
       "effete",
-      "effi",
       "effie",
       "effort",
       "effroi",
@@ -21304,7 +21241,7 @@
       "forfeited",
       "fortified"
     ],
-    "total_points": 1746
+    "total_points": 1742
   },
   {
     "center_letter": "a",
@@ -22014,19 +21951,14 @@
       "blieb",
       "blieben",
       "egli",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
-      "eilt",
-      "eilte",
       "elbe",
       "elgin",
       "elie",
       "eligible",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -22192,7 +22124,7 @@
       "belittling",
       "intelligible"
     ],
-    "total_points": 1493
+    "total_points": 1467
   },
   {
     "center_letter": "a",
@@ -23451,7 +23383,6 @@
       "ella",
       "elle",
       "ellen",
-      "ello",
       "elma",
       "elmo",
       "elon",
@@ -23611,7 +23542,7 @@
     "pangrams": [
       "allotment"
     ],
-    "total_points": 1315
+    "total_points": 1311
   },
   {
     "center_letter": "t",
@@ -25667,7 +25598,6 @@
       "cuello",
       "ecco",
       "ecole",
-      "ello",
       "elon",
       "eocene",
       "felon",
@@ -25723,7 +25653,7 @@
       "confluence",
       "flounce"
     ],
-    "total_points": 514
+    "total_points": 510
   },
   {
     "center_letter": "t",
@@ -26488,7 +26418,6 @@
       "dorfe",
       "dreef",
       "edified",
-      "effi",
       "effie",
       "effroi",
       "eifer",
@@ -26571,7 +26500,7 @@
     "pangrams": [
       "horrified"
     ],
-    "total_points": 601
+    "total_points": 597
   },
   {
     "center_letter": "i",
@@ -26595,7 +26524,6 @@
       "ecrit",
       "ecrite",
       "eerie",
-      "effi",
       "effie",
       "eier",
       "eifer",
@@ -26665,7 +26593,7 @@
       "certify",
       "rectify"
     ],
-    "total_points": 530
+    "total_points": 526
   },
   {
     "center_letter": "e",
@@ -27528,12 +27456,10 @@
       "crie",
       "crier",
       "ecce",
-      "eccl",
       "eclac",
       "eclair",
       "eclaire",
       "ecrire",
-      "elec",
       "ellice",
       "erica",
       "icel",
@@ -27557,7 +27483,7 @@
       "caliber",
       "calibre"
     ],
-    "total_points": 814
+    "total_points": 806
   },
   {
     "center_letter": "r",
@@ -27790,15 +27716,12 @@
       "eddied",
       "edie",
       "edin",
-      "eile",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
       "einen",
       "elie",
-      "ellei",
       "elli",
       "ellie",
       "elodie",
@@ -27972,7 +27895,7 @@
     "pangrams": [
       "involved"
     ],
-    "total_points": 1375
+    "total_points": 1359
   },
   {
     "center_letter": "p",
@@ -30115,7 +30038,6 @@
       "ache",
       "achete",
       "acht",
-      "allah",
       "alpha",
       "althea",
       "apache",
@@ -30240,7 +30162,7 @@
     "pangrams": [
       "chaplet"
     ],
-    "total_points": 777
+    "total_points": 771
   },
   {
     "center_letter": "a",
@@ -31782,7 +31704,6 @@
       "eigne",
       "eignen",
       "eileen",
-      "eilen",
       "eine",
       "einen",
       "einig",
@@ -31962,7 +31883,7 @@
       "ennobling",
       "ignoble"
     ],
-    "total_points": 1645
+    "total_points": 1639
   },
   {
     "center_letter": "a",
@@ -32315,7 +32236,6 @@
     "outer_letters": "efmnor",
     "valid_words": [
       "eerie",
-      "effi",
       "effie",
       "effroi",
       "eier",
@@ -32483,7 +32403,7 @@
     "pangrams": [
       "informer"
     ],
-    "total_points": 1031
+    "total_points": 1027
   },
   {
     "center_letter": "o",
@@ -33731,7 +33651,6 @@
       "eliot",
       "elliot",
       "elliott",
-      "ello",
       "etoile",
       "etoit",
       "evolve",
@@ -33833,7 +33752,7 @@
       "violate",
       "volatile"
     ],
-    "total_points": 660
+    "total_points": 656
   },
   {
     "center_letter": "i",
@@ -33873,10 +33792,8 @@
       "earlier",
       "eerie",
       "eier",
-      "eile",
       "elia",
       "elie",
-      "ellei",
       "elli",
       "ellie",
       "elmira",
@@ -34049,7 +33966,7 @@
     "pangrams": [
       "imperial"
     ],
-    "total_points": 1353
+    "total_points": 1343
   },
   {
     "center_letter": "a",
@@ -35418,11 +35335,9 @@
       "ctre",
       "ecarte",
       "ecce",
-      "eccl",
       "eclac",
       "eclat",
       "eclata",
-      "elec",
       "elect",
       "electra",
       "erect",
@@ -35454,7 +35369,7 @@
       "traceable",
       "tractable"
     ],
-    "total_points": 851
+    "total_points": 843
   },
   {
     "center_letter": "d",
@@ -35702,7 +35617,6 @@
       "ella",
       "elle",
       "eller",
-      "ello",
       "elope",
       "eloped",
       "epee",
@@ -35903,7 +35817,7 @@
       "leopard",
       "paroled"
     ],
-    "total_points": 2100
+    "total_points": 2096
   },
   {
     "center_letter": "u",
@@ -37990,7 +37904,6 @@
       "eleanore",
       "eleonora",
       "eletto",
-      "ello",
       "elnora",
       "elon",
       "elton",
@@ -38171,7 +38084,7 @@
     "pangrams": [
       "tolerant"
     ],
-    "total_points": 1261
+    "total_points": 1257
   },
   {
     "center_letter": "a",
@@ -39186,9 +39099,7 @@
       "eigne",
       "eignen",
       "eigner",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "einar",
       "eine",
@@ -39208,7 +39119,6 @@
       "elie",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "elli",
@@ -39522,7 +39432,7 @@
       "learning",
       "regaling"
     ],
-    "total_points": 2977
+    "total_points": 2961
   },
   {
     "center_letter": "c",
@@ -40618,17 +40528,12 @@
     "outer_letters": "eghint",
     "valid_words": [
       "egli",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
-      "eilt",
-      "eilte",
       "elgin",
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -40810,7 +40715,7 @@
       "lighten",
       "lightening"
     ],
-    "total_points": 1351
+    "total_points": 1325
   },
   {
     "center_letter": "t",
@@ -41833,16 +41738,11 @@
     "center_letter": "l",
     "outer_letters": "einrty",
     "valid_words": [
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "einerlei",
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "ellerey",
@@ -41971,7 +41871,7 @@
     "pangrams": [
       "entirely"
     ],
-    "total_points": 855
+    "total_points": 829
   },
   {
     "center_letter": "a",
@@ -42526,9 +42426,7 @@
       "earlier",
       "eerie",
       "eier",
-      "eile",
       "eileen",
-      "eilen",
       "einar",
       "eine",
       "einem",
@@ -42539,7 +42437,6 @@
       "elaine",
       "elia",
       "elie",
-      "ellei",
       "elli",
       "ellie",
       "elmira",
@@ -42781,7 +42678,7 @@
       "manlier",
       "mineral"
     ],
-    "total_points": 2080
+    "total_points": 2064
   },
   {
     "center_letter": "r",
@@ -43043,7 +42940,6 @@
       "eldred",
       "elle",
       "eller",
-      "ello",
       "elmer",
       "elmo",
       "elude",
@@ -43216,7 +43112,7 @@
       "moulder",
       "mouldered"
     ],
-    "total_points": 1540
+    "total_points": 1536
   },
   {
     "center_letter": "k",
@@ -43503,7 +43399,6 @@
       "eigne",
       "eignen",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -43694,7 +43589,7 @@
       "indulge",
       "indulged"
     ],
-    "total_points": 1663
+    "total_points": 1657
   },
   {
     "center_letter": "a",
@@ -44128,7 +44023,6 @@
       "clan",
       "clang",
       "clanging",
-      "clin",
       "cling",
       "clinging",
       "clinical",
@@ -44232,7 +44126,7 @@
       "calming",
       "claiming"
     ],
-    "total_points": 1008
+    "total_points": 1004
   },
   {
     "center_letter": "o",
@@ -44267,7 +44161,6 @@
       "drogo",
       "drole",
       "droll",
-      "ello",
       "elwood",
       "ergo",
       "errol",
@@ -44381,7 +44274,7 @@
       "glowered",
       "growled"
     ],
-    "total_points": 840
+    "total_points": 836
   },
   {
     "center_letter": "l",
@@ -44434,16 +44327,12 @@
       "earl",
       "earle",
       "earlier",
-      "eile",
-      "eilt",
-      "eilte",
       "elate",
       "elia",
       "elie",
       "elite",
       "ella",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellie",
@@ -44636,7 +44525,7 @@
     "pangrams": [
       "literature"
     ],
-    "total_points": 1639
+    "total_points": 1619
   },
   {
     "center_letter": "r",
@@ -46833,18 +46722,13 @@
       "atteint",
       "atteinte",
       "attila",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "eine",
       "einen",
       "elaine",
       "elia",
       "elie",
       "elite",
-      "ellei",
       "elli",
       "ellie",
       "entail",
@@ -47074,7 +46958,7 @@
     "pangrams": [
       "penitential"
     ],
-    "total_points": 1853
+    "total_points": 1827
   },
   {
     "center_letter": "d",
@@ -49615,12 +49499,9 @@
       "client",
       "clientele",
       "clime",
-      "clin",
       "clint",
       "ecce",
-      "eccl",
       "eclectic",
-      "elec",
       "elect",
       "elicit",
       "ellice",
@@ -49654,7 +49535,7 @@
     "pangrams": [
       "inclement"
     ],
-    "total_points": 441
+    "total_points": 429
   },
   {
     "center_letter": "r",
@@ -50343,7 +50224,6 @@
     "valid_words": [
       "aflame",
       "alfalfa",
-      "effi",
       "effie",
       "einfall",
       "elfin",
@@ -50435,7 +50315,7 @@
     "pangrams": [
       "inflame"
     ],
-    "total_points": 575
+    "total_points": 571
   },
   {
     "center_letter": "d",
@@ -51351,11 +51231,7 @@
       "earlier",
       "eerie",
       "eier",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "einar",
       "eine",
       "einen",
@@ -51367,7 +51243,6 @@
       "elia",
       "elie",
       "elite",
-      "ellei",
       "elli",
       "ellie",
       "entail",
@@ -51686,7 +51561,7 @@
     "pangrams": [
       "internal"
     ],
-    "total_points": 2853
+    "total_points": 2827
   },
   {
     "center_letter": "d",
@@ -51912,7 +51787,6 @@
       "clan",
       "clang",
       "clanging",
-      "clin",
       "cling",
       "clinging",
       "clinical",
@@ -52057,7 +51931,7 @@
       "coaling",
       "logician"
     ],
-    "total_points": 1214
+    "total_points": 1210
   },
   {
     "center_letter": "i",
@@ -53971,8 +53845,6 @@
       "eatable",
       "eate",
       "eater",
-      "eilt",
-      "eilte",
       "elate",
       "elbert",
       "elite",
@@ -54165,7 +54037,7 @@
       "irritable",
       "liberate"
     ],
-    "total_points": 2237
+    "total_points": 2227
   },
   {
     "center_letter": "p",
@@ -55232,11 +55104,7 @@
       "atoll",
       "attila",
       "attilio",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "elaine",
       "elan",
       "elate",
@@ -55249,13 +55117,11 @@
       "elite",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
       "elliot",
       "elliott",
-      "ello",
       "elon",
       "elton",
       "entail",
@@ -55478,7 +55344,7 @@
       "alienation",
       "elation"
     ],
-    "total_points": 1908
+    "total_points": 1878
   },
   {
     "center_letter": "p",
@@ -57162,7 +57028,6 @@
       "contient",
       "continence",
       "continent",
-      "effi",
       "efficient",
       "effie",
       "eine",
@@ -57276,7 +57141,7 @@
       "confection",
       "infection"
     ],
-    "total_points": 1004
+    "total_points": 1000
   },
   {
     "center_letter": "t",
@@ -57617,7 +57482,6 @@
       "alia",
       "alii",
       "alla",
-      "allah",
       "allan",
       "alli",
       "anal",
@@ -57718,22 +57582,19 @@
       "hauling",
       "laughing"
     ],
-    "total_points": 678
+    "total_points": 672
   },
   {
     "center_letter": "l",
     "outer_letters": "eginpr",
     "valid_words": [
       "egli",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "einerlei",
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "elli",
@@ -57854,7 +57715,7 @@
     "pangrams": [
       "repelling"
     ],
-    "total_points": 807
+    "total_points": 791
   },
   {
     "center_letter": "m",
@@ -60064,7 +59925,6 @@
       "ella",
       "elle",
       "ellen",
-      "ello",
       "elon",
       "elope",
       "elton",
@@ -60220,7 +60080,7 @@
     "pangrams": [
       "antelope"
     ],
-    "total_points": 1277
+    "total_points": 1273
   },
   {
     "center_letter": "g",
@@ -61508,12 +61368,10 @@
       "crie",
       "crier",
       "ecce",
-      "eccl",
       "eclac",
       "eclair",
       "eclaire",
       "ecrire",
-      "elec",
       "ellice",
       "erica",
       "icel",
@@ -61539,7 +61397,7 @@
     "pangrams": [
       "cavalier"
     ],
-    "total_points": 835
+    "total_points": 827
   },
   {
     "center_letter": "n",
@@ -61667,7 +61525,6 @@
     "outer_letters": "aeilnt",
     "valid_words": [
       "aileth",
-      "allah",
       "althea",
       "anhalt",
       "annihilate",
@@ -61821,7 +61678,7 @@
     "pangrams": [
       "annihilate"
     ],
-    "total_points": 991
+    "total_points": 985
   },
   {
     "center_letter": "i",
@@ -62423,7 +62280,6 @@
       "cenci",
       "cien",
       "circling",
-      "clin",
       "cling",
       "clinging",
       "cringe",
@@ -62443,7 +62299,6 @@
       "eignen",
       "eigner",
       "eileen",
-      "eilen",
       "eine",
       "einen",
       "einer",
@@ -62618,7 +62473,7 @@
       "encircling",
       "reclining"
     ],
-    "total_points": 1422
+    "total_points": 1412
   },
   {
     "center_letter": "t",
@@ -62645,8 +62500,6 @@
       "effet",
       "effete",
       "efter",
-      "eilt",
-      "eilte",
       "elite",
       "erit",
       "etilde",
@@ -62786,7 +62639,7 @@
       "flirted",
       "trifled"
     ],
-    "total_points": 1077
+    "total_points": 1067
   },
   {
     "center_letter": "o",
@@ -64442,7 +64295,6 @@
     "center_letter": "o",
     "outer_letters": "efgiln",
     "valid_words": [
-      "ello",
       "eloigne",
       "elon",
       "felon",
@@ -64560,7 +64412,7 @@
     "pangrams": [
       "lifelong"
     ],
-    "total_points": 703
+    "total_points": 699
   },
   {
     "center_letter": "a",
@@ -64864,7 +64716,6 @@
       "dingle",
       "dinned",
       "ecce",
-      "eccl",
       "eddie",
       "eddied",
       "edel",
@@ -64894,9 +64745,7 @@
       "eigi",
       "eigne",
       "eignen",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eind",
       "einde",
@@ -64905,12 +64754,10 @@
       "einig",
       "einige",
       "einigen",
-      "elec",
       "elend",
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -65064,7 +64911,7 @@
       "declining",
       "diligence"
     ],
-    "total_points": 1702
+    "total_points": 1678
   },
   {
     "center_letter": "a",
@@ -67935,9 +67782,6 @@
       "autem",
       "auteuil",
       "eate",
-      "eile",
-      "eilt",
-      "eilte",
       "elam",
       "elate",
       "elia",
@@ -67945,7 +67789,6 @@
       "elite",
       "ella",
       "elle",
-      "ellei",
       "elli",
       "ellie",
       "elma",
@@ -68109,7 +67952,7 @@
       "mutilate",
       "ultimate"
     ],
-    "total_points": 1166
+    "total_points": 1146
   },
   {
     "center_letter": "a",
@@ -68866,9 +68709,7 @@
       "coolie",
       "copie",
       "coppice",
-      "eile",
       "elie",
-      "ellei",
       "elli",
       "ellice",
       "ellie",
@@ -68941,7 +68782,7 @@
       "compile",
       "polemic"
     ],
-    "total_points": 518
+    "total_points": 508
   },
   {
     "center_letter": "c",
@@ -68978,7 +68819,6 @@
       "cind",
       "clench",
       "clenched",
-      "clin",
       "clinch",
       "clinched",
       "deci",
@@ -68994,9 +68834,7 @@
       "dici",
       "dieci",
       "ecce",
-      "eccl",
       "eche",
-      "elec",
       "ellice",
       "ence",
       "hellenic",
@@ -69028,7 +68866,7 @@
     "pangrams": [
       "clinched"
     ],
-    "total_points": 497
+    "total_points": 485
   },
   {
     "center_letter": "o",
@@ -69331,9 +69169,7 @@
       "eere",
       "eerie",
       "eier",
-      "eile",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -69348,7 +69184,6 @@
       "elke",
       "elken",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "eller",
@@ -69573,7 +69408,7 @@
       "rekindle",
       "rekindled"
     ],
-    "total_points": 2131
+    "total_points": 2115
   },
   {
     "center_letter": "o",
@@ -72713,7 +72548,6 @@
       "clap",
       "clapp",
       "clapping",
-      "clin",
       "cling",
       "clinging",
       "clinical",
@@ -72800,7 +72634,7 @@
       "clapping",
       "placing"
     ],
-    "total_points": 800
+    "total_points": 796
   },
   {
     "center_letter": "d",
@@ -73254,7 +73088,6 @@
       "alicia",
       "alii",
       "alla",
-      "allah",
       "allan",
       "alli",
       "alpaca",
@@ -73275,7 +73108,6 @@
       "clan",
       "clap",
       "clapp",
-      "clin",
       "clinch",
       "clinical",
       "clip",
@@ -73339,7 +73171,7 @@
     "pangrams": [
       "chaplain"
     ],
-    "total_points": 543
+    "total_points": 533
   },
   {
     "center_letter": "n",
@@ -75459,7 +75291,6 @@
       "ebbo",
       "ebro",
       "eletto",
-      "ello",
       "errol",
       "error",
       "errour",
@@ -75558,7 +75389,7 @@
       "trouble",
       "troubler"
     ],
-    "total_points": 672
+    "total_points": 668
   },
   {
     "center_letter": "e",
@@ -75704,7 +75535,6 @@
       "doodle",
       "doone",
       "ecce",
-      "eccl",
       "ecco",
       "eclac",
       "ecole",
@@ -75723,14 +75553,12 @@
       "eenen",
       "elan",
       "eldon",
-      "elec",
       "elena",
       "elend",
       "ella",
       "elle",
       "ellen",
       "ellende",
-      "ello",
       "elon",
       "ence",
       "enda",
@@ -75822,7 +75650,7 @@
       "colonnade",
       "concealed"
     ],
-    "total_points": 1602
+    "total_points": 1590
   },
   {
     "center_letter": "t",
@@ -79146,7 +78974,6 @@
       "attentif",
       "effet",
       "effete",
-      "effi",
       "effie",
       "einfall",
       "elfin",
@@ -79281,7 +79108,7 @@
       "infantile",
       "inflate"
     ],
-    "total_points": 890
+    "total_points": 886
   },
   {
     "center_letter": "a",
@@ -79465,7 +79292,6 @@
       "eigne",
       "eignen",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -79652,7 +79478,7 @@
       "welding",
       "wielding"
     ],
-    "total_points": 1648
+    "total_points": 1642
   },
   {
     "center_letter": "a",
@@ -79922,10 +79748,8 @@
       "edie",
       "egli",
       "eigi",
-      "eile",
       "eilig",
       "elie",
-      "ellei",
       "elli",
       "ellie",
       "euill",
@@ -80012,7 +79836,7 @@
       "divulge",
       "divulged"
     ],
-    "total_points": 662
+    "total_points": 652
   },
   {
     "center_letter": "l",
@@ -80177,7 +80001,6 @@
       "cincinnati",
       "cinna",
       "citta",
-      "clin",
       "clinical",
       "clint",
       "cllia",
@@ -80279,7 +80102,7 @@
       "lunatic",
       "nautical"
     ],
-    "total_points": 858
+    "total_points": 854
   },
   {
     "center_letter": "e",
@@ -80357,7 +80180,6 @@
       "eenige",
       "eenigen",
       "effendi",
-      "effi",
       "effie",
       "egen",
       "egged",
@@ -80368,9 +80190,7 @@
       "eigi",
       "eigne",
       "eignen",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eind",
       "einde",
@@ -80384,7 +80204,6 @@
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -80586,7 +80405,7 @@
     "pangrams": [
       "defiling"
     ],
-    "total_points": 1953
+    "total_points": 1933
   },
   {
     "center_letter": "d",
@@ -80679,7 +80498,6 @@
       "clapp",
       "clar",
       "clara",
-      "clin",
       "clinical",
       "clip",
       "cllia",
@@ -80747,7 +80565,7 @@
     "pangrams": [
       "principal"
     ],
-    "total_points": 565
+    "total_points": 561
   },
   {
     "center_letter": "a",
@@ -84837,9 +84655,7 @@
       "eenen",
       "eiland",
       "eilanden",
-      "eile",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -84855,7 +84671,6 @@
       "elie",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -85099,7 +84914,7 @@
     "pangrams": [
       "invalided"
     ],
-    "total_points": 2475
+    "total_points": 2459
   },
   {
     "center_letter": "b",
@@ -86698,13 +86513,9 @@
       "edith",
       "eerie",
       "eier",
-      "eile",
-      "eilt",
-      "eilte",
       "either",
       "elie",
       "elite",
-      "ellei",
       "elli",
       "ellie",
       "erhielt",
@@ -86855,7 +86666,7 @@
     "pangrams": [
       "thrilled"
     ],
-    "total_points": 1213
+    "total_points": 1193
   },
   {
     "center_letter": "a",
@@ -87281,7 +87092,6 @@
       "benefiting",
       "effet",
       "effete",
-      "effi",
       "effie",
       "enfin",
       "feeb",
@@ -87330,7 +87140,7 @@
       "befitting",
       "benefiting"
     ],
-    "total_points": 336
+    "total_points": 332
   },
   {
     "center_letter": "t",
@@ -88438,11 +88248,7 @@
       "edited",
       "eiland",
       "eilanden",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "eind",
       "einde",
       "eine",
@@ -88451,7 +88257,6 @@
       "elia",
       "elie",
       "elite",
-      "ellei",
       "elli",
       "ellie",
       "enid",
@@ -88692,7 +88497,7 @@
       "dilettante",
       "entailed"
     ],
-    "total_points": 2505
+    "total_points": 2479
   },
   {
     "center_letter": "l",
@@ -88713,7 +88518,6 @@
       "cleone",
       "clerc",
       "cleric",
-      "clin",
       "clio",
       "coello",
       "coelo",
@@ -88744,24 +88548,18 @@
       "crillon",
       "crinoline",
       "croll",
-      "eccl",
       "ecole",
-      "eile",
       "eileen",
-      "eilen",
       "einerlei",
-      "elec",
       "elie",
       "elinor",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "elli",
       "ellice",
       "ellie",
       "ellinor",
-      "ello",
       "elon",
       "encircle",
       "enrol",
@@ -88879,7 +88677,7 @@
       "crinoline",
       "reconcile"
     ],
-    "total_points": 1162
+    "total_points": 1130
   },
   {
     "center_letter": "c",
@@ -89339,8 +89137,6 @@
       "eclectic",
       "ecrit",
       "ecrite",
-      "eilt",
-      "eilte",
       "elect",
       "electric",
       "electricity",
@@ -89427,7 +89223,7 @@
       "celerity",
       "electricity"
     ],
-    "total_points": 690
+    "total_points": 680
   },
   {
     "center_letter": "f",
@@ -89590,11 +89386,7 @@
       "eenen",
       "eenmaal",
       "eeten",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "eine",
       "einem",
       "einen",
@@ -89613,7 +89405,6 @@
       "elite",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -89957,7 +89748,7 @@
       "ailment",
       "eliminate"
     ],
-    "total_points": 2946
+    "total_points": 2920
   },
   {
     "center_letter": "d",
@@ -94364,7 +94155,6 @@
       "edifice",
       "edified",
       "effendi",
-      "effi",
       "effie",
       "eifer",
       "enfin",
@@ -94463,7 +94253,7 @@
       "difference",
       "indifference"
     ],
-    "total_points": 868
+    "total_points": 864
   },
   {
     "center_letter": "a",
@@ -99582,13 +99372,11 @@
       "doct",
       "dolce",
       "ecce",
-      "eccl",
       "ecco",
       "eclac",
       "eclat",
       "eclata",
       "ecole",
-      "elec",
       "elect",
       "elected",
       "lace",
@@ -99609,7 +99397,7 @@
       "collated",
       "located"
     ],
-    "total_points": 612
+    "total_points": 604
   },
   {
     "center_letter": "a",
@@ -100583,7 +100371,6 @@
       "dreef",
       "edified",
       "effendi",
-      "effi",
       "effie",
       "eifer",
       "enfin",
@@ -100732,7 +100519,7 @@
     "pangrams": [
       "refrained"
     ],
-    "total_points": 1187
+    "total_points": 1183
   },
   {
     "center_letter": "a",
@@ -101286,7 +101073,6 @@
       "eere",
       "eerie",
       "effendi",
-      "effi",
       "effie",
       "egen",
       "eger",
@@ -101584,7 +101370,7 @@
       "fringed",
       "infringed"
     ],
-    "total_points": 2971
+    "total_points": 2967
   },
   {
     "center_letter": "a",
@@ -102333,7 +102119,6 @@
       "dune",
       "dunne",
       "ecce",
-      "eccl",
       "eclac",
       "edad",
       "edda",
@@ -102349,7 +102134,6 @@
       "eene",
       "eenen",
       "elan",
-      "elec",
       "elena",
       "elend",
       "ella",
@@ -102441,7 +102225,7 @@
       "uncalled",
       "unlaced"
     ],
-    "total_points": 1416
+    "total_points": 1408
   },
   {
     "center_letter": "g",
@@ -103458,13 +103242,11 @@
       "eere",
       "eerie",
       "eier",
-      "eile",
       "elbe",
       "elder",
       "eldred",
       "elie",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellie",
@@ -103567,7 +103349,7 @@
       "builder",
       "rebuild"
     ],
-    "total_points": 1617
+    "total_points": 1607
   },
   {
     "center_letter": "t",
@@ -104501,7 +104283,6 @@
     "center_letter": "h",
     "outer_letters": "adilry",
     "valid_words": [
-      "allah",
       "arrah",
       "ayah",
       "dahlia",
@@ -104537,7 +104318,7 @@
     "pangrams": [
       "hardily"
     ],
-    "total_points": 203
+    "total_points": 197
   },
   {
     "center_letter": "d",
@@ -104748,13 +104529,11 @@
       "eere",
       "eerie",
       "eier",
-      "eile",
       "elbe",
       "elder",
       "eldred",
       "elie",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellie",
@@ -104867,7 +104646,7 @@
       "bewilder",
       "bewildered"
     ],
-    "total_points": 1442
+    "total_points": 1432
   },
   {
     "center_letter": "e",
@@ -105556,9 +105335,7 @@
       "eigi",
       "eigne",
       "eignen",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eine",
       "einen",
@@ -105577,7 +105354,6 @@
       "elie",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -105835,7 +105611,7 @@
     "pangrams": [
       "leaving"
     ],
-    "total_points": 2169
+    "total_points": 2153
   },
   {
     "center_letter": "c",
@@ -106334,7 +106110,6 @@
     "outer_letters": "aelrty",
     "valid_words": [
       "aether",
-      "allah",
       "althea",
       "arrah",
       "athlete",
@@ -106481,7 +106256,7 @@
       "earthly",
       "leathery"
     ],
-    "total_points": 896
+    "total_points": 890
   },
   {
     "center_letter": "a",
@@ -108919,7 +108694,6 @@
       "ache",
       "achille",
       "ahem",
-      "allah",
       "cacha",
       "cache",
       "caleche",
@@ -109005,7 +108779,7 @@
     "pangrams": [
       "chemical"
     ],
-    "total_points": 515
+    "total_points": 509
   },
   {
     "center_letter": "e",
@@ -109855,11 +109629,7 @@
       "eene",
       "eenen",
       "eeten",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "eine",
       "einen",
       "eletto",
@@ -109870,13 +109640,11 @@
       "eliot",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
       "elliot",
       "elliott",
-      "ello",
       "elon",
       "elton",
       "enleve",
@@ -110147,7 +109915,7 @@
     "pangrams": [
       "violent"
     ],
-    "total_points": 1893
+    "total_points": 1863
   },
   {
     "center_letter": "a",
@@ -110414,7 +110182,6 @@
     "valid_words": [
       "adelheid",
       "ahead",
-      "allah",
       "dahin",
       "dahlia",
       "deleah",
@@ -110526,7 +110293,7 @@
       "headline",
       "inhaled"
     ],
-    "total_points": 732
+    "total_points": 726
   },
   {
     "center_letter": "u",
@@ -110633,11 +110400,7 @@
       "eene",
       "eenen",
       "eeten",
-      "eile",
       "eileen",
-      "eilen",
-      "eilt",
-      "eilte",
       "eine",
       "einem",
       "einen",
@@ -110646,7 +110409,6 @@
       "elie",
       "elite",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -110894,7 +110656,7 @@
     "pangrams": [
       "implement"
     ],
-    "total_points": 1687
+    "total_points": 1661
   },
   {
     "center_letter": "r",
@@ -111136,12 +110898,10 @@
       "ebbe",
       "eber",
       "ecce",
-      "eccl",
       "eclac",
       "eere",
       "elba",
       "elbe",
-      "elec",
       "ella",
       "elle",
       "eller",
@@ -111211,7 +110971,7 @@
     "pangrams": [
       "curable"
     ],
-    "total_points": 1249
+    "total_points": 1241
   },
   {
     "center_letter": "n",
@@ -112035,10 +111795,8 @@
       "domicile",
       "domiciled",
       "ecce",
-      "eccl",
       "ecco",
       "ecole",
-      "elec",
       "ellice",
       "iced",
       "icel",
@@ -112060,7 +111818,7 @@
       "domiciled",
       "melodic"
     ],
-    "total_points": 485
+    "total_points": 477
   },
   {
     "center_letter": "t",
@@ -112724,9 +112482,7 @@
       "edle",
       "edlen",
       "egli",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "elend",
       "eleve",
@@ -112735,7 +112491,6 @@
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -112895,7 +112650,7 @@
       "delving",
       "inveigled"
     ],
-    "total_points": 1298
+    "total_points": 1282
   },
   {
     "center_letter": "c",
@@ -112914,7 +112669,6 @@
       "ciel",
       "cien",
       "cind",
-      "clin",
       "clip",
       "clipped",
       "deci",
@@ -112930,8 +112684,6 @@
       "dici",
       "dieci",
       "ecce",
-      "eccl",
-      "elec",
       "ellice",
       "ence",
       "epic",
@@ -112965,7 +112717,7 @@
       "penciled",
       "pencilled"
     ],
-    "total_points": 434
+    "total_points": 422
   },
   {
     "center_letter": "f",
@@ -113616,7 +113368,6 @@
       "dweller",
       "earl",
       "earle",
-      "eccl",
       "eclac",
       "edel",
       "edele",
@@ -113624,7 +113375,6 @@
       "edler",
       "elder",
       "eldred",
-      "elec",
       "ella",
       "elle",
       "eller",
@@ -113691,7 +113441,7 @@
     "pangrams": [
       "crawled"
     ],
-    "total_points": 991
+    "total_points": 983
   },
   {
     "center_letter": "r",
@@ -114358,7 +114108,6 @@
     "outer_letters": "efnort",
     "valid_words": [
       "eerie",
-      "effi",
       "effie",
       "effroi",
       "eier",
@@ -114577,7 +114326,7 @@
     "pangrams": [
       "frontier"
     ],
-    "total_points": 1529
+    "total_points": 1525
   },
   {
     "center_letter": "i",
@@ -114667,9 +114416,7 @@
       "eigne",
       "eignen",
       "eigner",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eind",
       "einde",
@@ -114684,7 +114431,6 @@
       "eldridge",
       "elgin",
       "elie",
-      "ellei",
       "elli",
       "ellie",
       "ending",
@@ -114900,7 +114646,7 @@
     "pangrams": [
       "lingered"
     ],
-    "total_points": 2315
+    "total_points": 2299
   },
   {
     "center_letter": "e",
@@ -115006,7 +114752,6 @@
       "eacute",
       "eate",
       "ecce",
-      "eccl",
       "eclac",
       "eclat",
       "eclata",
@@ -115019,7 +114764,6 @@
       "educated",
       "elate",
       "elated",
-      "elec",
       "elect",
       "elected",
       "ella",
@@ -115080,7 +114824,7 @@
     "pangrams": [
       "calculated"
     ],
-    "total_points": 1093
+    "total_points": 1085
   },
   {
     "center_letter": "n",
@@ -115233,15 +114977,12 @@
       "egli",
       "eier",
       "eigi",
-      "eile",
       "eilig",
       "elie",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellie",
-      "ello",
       "elmer",
       "elmo",
       "emerge",
@@ -115401,7 +115142,7 @@
     "pangrams": [
       "gloomier"
     ],
-    "total_points": 1037
+    "total_points": 1023
   },
   {
     "center_letter": "t",
@@ -116014,7 +115755,6 @@
       "alibi",
       "alii",
       "alla",
-      "allah",
       "allait",
       "alli",
       "allt",
@@ -116124,7 +115864,7 @@
       "habitual",
       "halibut"
     ],
-    "total_points": 688
+    "total_points": 682
   },
   {
     "center_letter": "w",
@@ -118691,7 +118431,6 @@
       "armor",
       "armorial",
       "aroma",
-      "ello",
       "elmo",
       "emilio",
       "errol",
@@ -118798,7 +118537,7 @@
       "immemorial",
       "memorial"
     ],
-    "total_points": 716
+    "total_points": 712
   },
   {
     "center_letter": "a",
@@ -119629,7 +119368,6 @@
     "valid_words": [
       "ahem",
       "ahmet",
-      "allah",
       "alpha",
       "althea",
       "athlete",
@@ -119726,7 +119464,7 @@
     "pangrams": [
       "pamphlet"
     ],
-    "total_points": 565
+    "total_points": 559
   },
   {
     "center_letter": "e",
@@ -119797,7 +119535,6 @@
       "eenige",
       "eenigen",
       "effendi",
-      "effi",
       "effie",
       "effigy",
       "egen",
@@ -119907,7 +119644,7 @@
       "defying",
       "edifying"
     ],
-    "total_points": 1110
+    "total_points": 1106
   },
   {
     "center_letter": "n",
@@ -120163,7 +119900,6 @@
       "clan",
       "clancy",
       "clay",
-      "clin",
       "clinical",
       "clint",
       "cllia",
@@ -120239,7 +119975,7 @@
       "analytic",
       "analytical"
     ],
-    "total_points": 708
+    "total_points": 704
   },
   {
     "center_letter": "n",
@@ -121344,18 +121080,14 @@
       "earl",
       "earle",
       "earlier",
-      "eccl",
       "eclac",
       "eclair",
       "eclaire",
-      "eile",
       "elam",
-      "elec",
       "elia",
       "elie",
       "ella",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellice",
@@ -121487,7 +121219,7 @@
       "miracle",
       "reclaim"
     ],
-    "total_points": 1450
+    "total_points": 1432
   },
   {
     "center_letter": "w",
@@ -121924,11 +121656,9 @@
       "doce",
       "dolce",
       "ecce",
-      "eccl",
       "ecco",
       "eclac",
       "ecole",
-      "elec",
       "ercole",
       "lace",
       "laced",
@@ -121957,7 +121687,7 @@
     "pangrams": [
       "collared"
     ],
-    "total_points": 1113
+    "total_points": 1105
   },
   {
     "center_letter": "a",
@@ -122835,7 +122565,6 @@
       "cleane",
       "cleaned",
       "clelia",
-      "clin",
       "clinical",
       "cllia",
       "dale",
@@ -122866,7 +122595,6 @@
       "dial",
       "diddle",
       "dill",
-      "eccl",
       "eclac",
       "edel",
       "edele",
@@ -122876,19 +122604,15 @@
       "edlen",
       "eiland",
       "eilanden",
-      "eile",
       "eileen",
-      "eilen",
       "elaine",
       "elan",
-      "elec",
       "elena",
       "elend",
       "elia",
       "elie",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "ellende",
       "elli",
@@ -123013,7 +122737,7 @@
       "calcined",
       "dalliance"
     ],
-    "total_points": 1590
+    "total_points": 1562
   },
   {
     "center_letter": "a",
@@ -123512,8 +123236,6 @@
       "dulce",
       "dulcet",
       "ecce",
-      "eccl",
-      "elec",
       "elect",
       "elected",
       "erect",
@@ -123549,7 +123271,7 @@
       "cultured",
       "lectured"
     ],
-    "total_points": 723
+    "total_points": 715
   },
   {
     "center_letter": "o",
@@ -126711,7 +126433,6 @@
       "edited",
       "eerie",
       "effendi",
-      "effi",
       "effie",
       "eier",
       "eifer",
@@ -126955,7 +126676,7 @@
       "indifferent",
       "interfered"
     ],
-    "total_points": 2287
+    "total_points": 2283
   },
   {
     "center_letter": "l",
@@ -126994,15 +126715,11 @@
       "brille",
       "briller",
       "brittle",
-      "eile",
-      "eilt",
-      "eilte",
       "elbe",
       "elbert",
       "elie",
       "elite",
       "elle",
-      "ellei",
       "eller",
       "ellerey",
       "ellery",
@@ -127104,7 +126821,7 @@
       "liberty",
       "terribly"
     ],
-    "total_points": 905
+    "total_points": 885
   },
   {
     "center_letter": "t",
@@ -127912,7 +127629,6 @@
       "eiland",
       "eilanden",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -128157,7 +127873,7 @@
     "pangrams": [
       "middleman"
     ],
-    "total_points": 2407
+    "total_points": 2401
   },
   {
     "center_letter": "k",
@@ -129253,7 +128969,6 @@
     "center_letter": "h",
     "outer_letters": "aeltwy",
     "valid_words": [
-      "allah",
       "althea",
       "athlete",
       "ayah",
@@ -129343,7 +129058,7 @@
     "pangrams": [
       "wealthy"
     ],
-    "total_points": 497
+    "total_points": 491
   },
   {
     "center_letter": "d",
@@ -130707,7 +130422,6 @@
     "valid_words": [
       "cimon",
       "cinco",
-      "clin",
       "clint",
       "clinton",
       "cocoon",
@@ -130800,7 +130514,7 @@
     "pangrams": [
       "locomotion"
     ],
-    "total_points": 579
+    "total_points": 575
   },
   {
     "center_letter": "a",
@@ -131244,9 +130958,7 @@
       "eigi",
       "eigne",
       "eignen",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eine",
       "einen",
@@ -131262,7 +130974,6 @@
       "elie",
       "ella",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -131469,7 +131180,7 @@
       "panelling",
       "pealing"
     ],
-    "total_points": 1863
+    "total_points": 1847
   },
   {
     "center_letter": "i",
@@ -131573,9 +131284,7 @@
       "eigi",
       "eigne",
       "eignen",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eine",
       "einen",
@@ -131586,7 +131295,6 @@
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "elli",
       "ellie",
@@ -131756,7 +131464,7 @@
       "wellnigh",
       "wheeling"
     ],
-    "total_points": 1212
+    "total_points": 1196
   },
   {
     "center_letter": "n",
@@ -131806,7 +131514,6 @@
       "eenen",
       "eener",
       "eileen",
-      "eilen",
       "eind",
       "einde",
       "eine",
@@ -131976,7 +131683,7 @@
       "underline",
       "underlined"
     ],
-    "total_points": 1367
+    "total_points": 1361
   },
   {
     "center_letter": "i",
@@ -132324,7 +132031,6 @@
       "ebbo",
       "ebro",
       "eldorado",
-      "ello",
       "errol",
       "error",
       "labor",
@@ -132393,7 +132099,7 @@
       "adorable",
       "labored"
     ],
-    "total_points": 990
+    "total_points": 986
   },
   {
     "center_letter": "i",
@@ -133067,13 +132773,10 @@
       "complot",
       "cool",
       "cottle",
-      "eccl",
       "ecole",
-      "elec",
       "elect",
       "eletto",
       "elle",
-      "ello",
       "elmo",
       "elope",
       "leetle",
@@ -133141,7 +132844,7 @@
     "pangrams": [
       "complete"
     ],
-    "total_points": 559
+    "total_points": 547
   },
   {
     "center_letter": "n",
@@ -134144,10 +133847,8 @@
       "curule",
       "earl",
       "earle",
-      "eccl",
       "eclac",
       "elan",
-      "elec",
       "elena",
       "ella",
       "elle",
@@ -134245,7 +133946,7 @@
     "pangrams": [
       "nuclear"
     ],
-    "total_points": 1005
+    "total_points": 997
   },
   {
     "center_letter": "n",
@@ -134990,7 +134691,6 @@
       "attire",
       "attirer",
       "eerie",
-      "effi",
       "effie",
       "eier",
       "eifer",
@@ -135280,7 +134980,7 @@
     "pangrams": [
       "fainter"
     ],
-    "total_points": 2311
+    "total_points": 2307
   },
   {
     "center_letter": "a",
@@ -136607,7 +136307,6 @@
       "cinch",
       "clench",
       "clenching",
-      "clin",
       "clinch",
       "clinching",
       "cling",
@@ -136624,7 +136323,6 @@
       "eigne",
       "eignen",
       "eileen",
-      "eilen",
       "eine",
       "einen",
       "einig",
@@ -136749,7 +136447,7 @@
     "pangrams": [
       "clenching"
     ],
-    "total_points": 1021
+    "total_points": 1011
   },
   {
     "center_letter": "i",
@@ -136826,9 +136524,7 @@
       "edric",
       "eerie",
       "eier",
-      "eile",
       "elie",
-      "ellei",
       "elli",
       "ellice",
       "ellie",
@@ -136896,7 +136592,7 @@
       "ridicule",
       "ridiculed"
     ],
-    "total_points": 914
+    "total_points": 904
   },
   {
     "center_letter": "n",
@@ -137293,13 +136989,11 @@
       "edele",
       "edle",
       "edler",
-      "eile",
       "elder",
       "eldred",
       "elfride",
       "elie",
       "elle",
-      "ellei",
       "eller",
       "elli",
       "ellie",
@@ -137397,7 +137091,7 @@
     "pangrams": [
       "wildfire"
     ],
-    "total_points": 749
+    "total_points": 739
   },
   {
     "center_letter": "h",
@@ -138178,7 +137872,6 @@
       "ching",
       "cinch",
       "clichy",
-      "clin",
       "clinch",
       "clinching",
       "cling",
@@ -138200,7 +137893,7 @@
       "chillingly",
       "lynching"
     ],
-    "total_points": 206
+    "total_points": 202
   },
   {
     "center_letter": "d",
@@ -140548,9 +140241,7 @@
       "eigne",
       "eignen",
       "eigner",
-      "eile",
       "eileen",
-      "eilen",
       "eilig",
       "eine",
       "einen",
@@ -140564,7 +140255,6 @@
       "elgin",
       "elie",
       "elle",
-      "ellei",
       "ellen",
       "eller",
       "ellerey",
@@ -140773,6 +140463,6 @@
       "lingeringly",
       "relying"
     ],
-    "total_points": 1603
+    "total_points": 1587
   }
 ]

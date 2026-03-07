@@ -1,0 +1,12 @@
+# Words to remove from valid_words (and pangrams) — fragments, nonsense, non-words.
+# One word per line, lowercase. Lines starting with # are ignored.
+effi
+eccl
+elec
+eile
+eilen
+eilt
+eilte
+ellei
+ello
+clin
