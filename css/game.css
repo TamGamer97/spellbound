@@ -1030,25 +1030,29 @@ body.solo-mode .side-panel-right {
   }
 
   .honeycomb {
-    width: 375px;
-    height: 366px;
+    width: 410px;
+    height: 400px;
     transform: translateX(0.75rem) scale(1);
     transform-origin: center top;
   }
 
   .hex {
-    width: 92px;
-    height: 92px;
-    font-size: 1.75rem;
+    width: 108px;
+    height: 108px;
+    font-size: 2rem;
   }
 
-  .hex-center { left: 132px; top: 125px; }
-  .hex-top    { left: 132px; top: 22px; }
-  .hex-tr     { left: 224px; top: 73px; }
-  .hex-br     { left: 228px; top: 184px; }  /* even spacing from center */
-  .hex-bot    { left: 132px; top: 237px; }
-  .hex-bl     { left: 36px; top: 184px; }
-  .hex-tl     { left: 40px; top: 73px; }
+  .hex-center { left: 146px; top: 140px; }
+  .hex-top    { left: 146px; top: 24px; }
+  .hex-tr     { left: 254px; top: 82px; }
+  .hex-br     { left: 254px; top: 206px; }
+  .hex-bot    { left: 146px; top: 266px; }
+  .hex-bl     { left: 38px; top: 206px; }
+  .hex-tl     { left: 38px; top: 82px; }
+
+  .input-row {
+    display: none;
+  }
 
   .input-wrapper {
     max-width: 100%;
@@ -1137,24 +1141,28 @@ body.solo-mode .side-panel-right {
   }
 
   .honeycomb {
-    width: 330px;
-    height: 322px;
+    width: 368px;
+    height: 360px;
     transform: translateX(0.75rem) scale(0.98);
   }
 
   .hex {
-    width: 80px;
-    height: 80px;
-    font-size: 1.55rem;
+    width: 96px;
+    height: 96px;
+    font-size: 1.85rem;
   }
 
-  .hex-center { left: 115px; top: 108px; }
-  .hex-top    { left: 115px; top: 20px; }
-  .hex-tr     { left: 192px; top: 62px; }
-  .hex-br     { left: 196px; top: 152px; }  /* even spacing from center */
-  .hex-bot    { left: 115px; top: 194px; }
-  .hex-bl     { left: 34px; top: 152px; }
-  .hex-tl     { left: 38px; top: 62px; }
+  .hex-center { left: 129px; top: 121px; }
+  .hex-top    { left: 129px; top: 22px; }
+  .hex-tr     { left: 216px; top: 70px; }
+  .hex-br     { left: 216px; top: 172px; }
+  .hex-bot    { left: 129px; top: 220px; }
+  .hex-bl     { left: 42px; top: 172px; }
+  .hex-tl     { left: 42px; top: 70px; }
+
+  .input-row {
+    display: none;
+  }
 
   .game-wrapper {
     padding: 0.2rem 0.5rem 0.35rem;
