@@ -793,6 +793,7 @@
     var mobile = typeof window.matchMedia !== 'undefined' && window.matchMedia('(max-width: 600px)').matches;
     wordInput.readOnly = mobile;
     wordInput.setAttribute('aria-readonly', mobile ? 'true' : 'false');
+    wordInput.placeholder = mobile ? 'Tap letters above' : 'Type or tap letters';
   }
   setMobileInputReadOnly();
   if (typeof window !== 'undefined' && window.addEventListener) {
