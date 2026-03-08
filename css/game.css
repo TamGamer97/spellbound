@@ -1051,7 +1051,7 @@ body.solo-mode .side-panel-right {
   .hex-tl     { left: 38px; top: 82px; }
 
   .input-row {
-    display: none;
+    /* visible so current word shows when tapping circles; input is readonly via JS */
   }
 
   .input-wrapper {
@@ -1062,6 +1062,12 @@ body.solo-mode .side-panel-right {
     padding: 0.85rem 1rem;
     font-size: 1rem;
     min-height: 44px;
+  }
+
+  .word-input[readonly] {
+    text-align: center;
+    cursor: default;
+    color: #e2e8f0;
   }
 
   .buttons-row {
@@ -1159,10 +1165,6 @@ body.solo-mode .side-panel-right {
   .hex-bot    { left: 129px; top: 220px; }
   .hex-bl     { left: 42px; top: 172px; }
   .hex-tl     { left: 42px; top: 70px; }
-
-  .input-row {
-    display: none;
-  }
 
   .game-wrapper {
     padding: 0.2rem 0.5rem 0.35rem;
