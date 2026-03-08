@@ -754,8 +754,26 @@
      Event listeners
      ======================================================================== */
 
-  honeycomb.addEventListener('click', (e) => {
-    const btn = e.target.closest('.hex');
+  function getHexFromEvent(e) {
+    var target = e.target && e.target.closest ? e.target.closest('.hex') : null;
+    return target && target.dataset && target.dataset.letter ? target : null;
+  }
+
+  var hexPointerDown = null;
+  honeycomb.addEventListener('pointerdown', function (e) {
+    hexPointerDown = getHexFromEvent(e);
+  }, { passive: true });
+  honeycomb.addEventListener('pointerup', function (e) {
+    var hex = getHexFromEvent(e);
+    if (hex && hex === hexPointerDown && hex.dataset.letter) addLetter(hex.dataset.letter);
+    hexPointerDown = null;
+  });
+  honeycomb.addEventListener('pointercancel', function () {
+    hexPointerDown = null;
+  });
+  honeycomb.addEventListener('click', function (e) {
+    if (typeof PointerEvent !== 'undefined') return;
+    var btn = getHexFromEvent(e);
     if (btn && btn.dataset.letter) addLetter(btn.dataset.letter);
   });
 

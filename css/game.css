@@ -47,15 +47,39 @@
 /* --------------------------------------------------------------------------
    Layout: body & header
    -------------------------------------------------------------------------- */
+/* Lock viewport height and disable scroll on game page (game.css is game-only) */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   background: #1e293b;
   font-family: 'DM Sans', sans-serif;
-  overflow-x: hidden;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Small viewports (mobile/narrow): allow scroll so Enter button and full content are reachable */
+@media (max-width: 900px), (max-height: 700px) {
+  html {
+    overflow: auto;
+  }
+  body {
+    overflow: auto;
+    min-height: 100vh;
+    height: auto;
+  }
+  .page-main {
+    overflow: visible;
+  }
 }
 
 .game-header {
@@ -191,6 +215,7 @@ body {
   align-items: center;
   width: 100%;
   min-height: 0;
+  overflow: hidden;
 }
 
 .game-row {
@@ -405,6 +430,7 @@ body.solo-mode .side-panel-right {
   height: 390px;
   flex-shrink: 0;
   transform: translateX(0.75rem); /* nudge letter board right, no layout overflow */
+  touch-action: manipulation;
 }
 
 .hex {
@@ -1022,6 +1048,7 @@ body.solo-mode .side-panel-right {
 
   .game-wrapper {
     padding: 0.25rem 0.75rem 0.5rem;
+    padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 0px));
     gap: 0.25rem;
     width: 100%;
     max-width: 100%;
@@ -1186,6 +1213,7 @@ body.solo-mode .side-panel-right {
 
   .game-wrapper {
     padding: 0.2rem 0.5rem 0.35rem;
+    padding-bottom: max(2.5rem, env(safe-area-inset-bottom, 0px));
     gap: 0.2rem;
     overflow-x: hidden;
     box-sizing: border-box;
