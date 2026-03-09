@@ -1094,6 +1094,9 @@ body.solo-mode .side-panel-right {
     padding: 0.25rem 0.5rem;
     margin-top: -1.2rem;
     margin-bottom: 0.25rem;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .input-row {
