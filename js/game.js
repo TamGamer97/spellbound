@@ -119,6 +119,7 @@
       loadingEl.setAttribute('aria-busy', 'false');
     }
     if (gameMainEl) gameMainEl.setAttribute('aria-hidden', 'false');
+    if (typeof updateMobileWordDisplay === 'function') updateMobileWordDisplay();
   }
 
   function openLeaveModal() {
@@ -398,6 +399,13 @@
     });
   }
 
+  /** Syncs the mobile-only word strip with the current input value (no placeholder). */
+  function updateMobileWordDisplay() {
+    var el = document.getElementById('mobile-word-display');
+    if (!el || !wordInput) return;
+    el.textContent = wordInput.value || '';
+  }
+
   /** Appends a letter to the input (e.g. when clicking a hex). Cursor is moved to end. */
   function addLetter(letter) {
     if (state.gameOver) return;
@@ -405,6 +413,7 @@
     if (val.length < 15) {
       wordInput.value = val + letter;
       wordInput.setSelectionRange(wordInput.value.length, wordInput.value.length);
+      updateMobileWordDisplay();
     }
   }
 
@@ -448,12 +457,14 @@
     if (VALID_WORDS.size > 0 && state.found.size >= VALID_WORDS.size) {
       showValidation('Found all words!', 'great');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
     if (raw.length < MIN_LENGTH) {
       showValidation('Too short', 'invalid');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
@@ -463,30 +474,35 @@
       if (!allowed.has(c)) {
         showValidation('Invalid letters', 'invalid');
         wordInput.value = '';
+        updateMobileWordDisplay();
         return;
       }
     }
     if (!raw.includes(center)) {
       showValidation('Must use center letter', 'invalid');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
     if (isProperNoun(raw)) {
       showValidation('Proper nouns are not allowed', 'invalid');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
     if (state.found.has(raw)) {
       showValidation('Taken', 'taken');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
     if (gameId && state.opponentWords && state.opponentWords.has(raw) && !isPangram(raw)) {
       showValidation('Already found by opponent', 'invalid');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
@@ -501,6 +517,7 @@
           if (hasProfanity) {
             showValidation("That word isn't allowed", 'invalid');
             wordInput.value = '';
+            updateMobileWordDisplay();
           } else {
             acceptAndRecordWord(raw);
           }
@@ -512,6 +529,7 @@
     if (DICTIONARY_BLOCKLIST.has(raw)) {
       showValidation('Not a word', 'invalid');
       wordInput.value = '';
+      updateMobileWordDisplay();
       return;
     }
 
@@ -529,6 +547,7 @@
         if (hasProfanity) {
           showValidation("That word isn't allowed", 'invalid');
           wordInput.value = '';
+          updateMobileWordDisplay();
         } else {
           acceptAndRecordWord(raw);
         }
@@ -545,6 +564,7 @@
         if (!res.ok) {
           showValidation('Not a word', 'invalid');
           wordInput.value = '';
+          updateMobileWordDisplay();
           return;
         }
         return doProfanityThenAccept();
@@ -552,6 +572,7 @@
       .catch(function () {
         showValidation('Not a word', 'invalid');
         wordInput.value = '';
+        updateMobileWordDisplay();
       })
       .finally(function () {
         dictionaryCheckInFlight = false;
@@ -565,6 +586,7 @@
     state.score += basePoints + bonus;
 
     wordInput.value = '';
+    updateMobileWordDisplay();
     if (scoreEl) scoreEl.textContent = state.score;
     if (!gameId || !window.db || !window.db.updateMyGamePlayer) {
       if (opponentScoreEl) opponentScoreEl.textContent = state.score;
@@ -579,6 +601,16 @@
     if (wordsListEl) {
       wordsListEl.appendChild(li);
       li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    var isMobile = typeof window.matchMedia !== 'undefined' && window.matchMedia('(max-width: 600px)').matches;
+    if (isMobile) {
+      var wordsDropdown = document.getElementById('words-dropdown-player');
+      var wordsToggle = document.getElementById('words-toggle-player');
+      if (wordsDropdown && wordsToggle && !wordsDropdown.classList.contains('is-open')) {
+        wordsDropdown.classList.add('is-open');
+        wordsToggle.setAttribute('aria-expanded', 'true');
+      }
     }
 
     if (isPangram(raw)) {
@@ -789,6 +821,7 @@
     if (!gameId) startTimer();
     wordInput.value = wordInput.value.slice(0, -1);
     wordInput.setSelectionRange(wordInput.value.length, wordInput.value.length);
+    updateMobileWordDisplay();
   });
 
   btnShuffle.addEventListener('click', () => {
@@ -805,13 +838,14 @@
   wordInput.addEventListener('focus', function () {
     if (!gameId) startTimer();
   });
+  wordInput.addEventListener('input', function () { updateMobileWordDisplay(); });
 
   function setMobileInputReadOnly() {
     if (!wordInput) return;
     var mobile = typeof window.matchMedia !== 'undefined' && window.matchMedia('(max-width: 600px)').matches;
     wordInput.readOnly = mobile;
     wordInput.setAttribute('aria-readonly', mobile ? 'true' : 'false');
-    wordInput.placeholder = mobile ? 'Tap letters above' : 'Type or tap letters';
+    wordInput.placeholder = mobile ? '' : 'Type or tap letters';
   }
   setMobileInputReadOnly();
   if (typeof window !== 'undefined' && window.addEventListener) {

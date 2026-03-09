@@ -532,6 +532,11 @@ body.solo-mode .side-panel-right {
   color: #94a3b8;
 }
 
+/* Mobile-only word strip: no placeholder, no line; shown only on small screens */
+.mobile-word-display {
+  display: none;
+}
+
 .buttons-row {
   display: flex;
   gap: 0.75rem;
@@ -1062,6 +1067,7 @@ body.solo-mode .side-panel-right {
     transform: translateX(0.75rem) scale(1);
     transform-origin: center top;
     margin-top: -0.25rem;
+    margin-bottom: -1.2rem;
   }
 
   .hex {
@@ -1078,9 +1084,20 @@ body.solo-mode .side-panel-right {
   .hex-bl     { left: 38px; top: 206px; }
   .hex-tl     { left: 38px; top: 82px; }
 
+  .mobile-word-display {
+    display: block;
+    text-align: center;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    color: #e2e8f0;
+    min-height: 1.25rem;
+    padding: 0.25rem 0.5rem;
+    margin-top: -1.2rem;
+    margin-bottom: 0.25rem;
+  }
+
   .input-row {
-    margin-top: -0.35rem;
-    margin-bottom: 0.6rem;
+    display: none;
   }
 
   .input-wrapper {
@@ -1091,30 +1108,6 @@ body.solo-mode .side-panel-right {
     padding: 0.85rem 1rem;
     font-size: 1rem;
     min-height: 44px;
-  }
-
-  .word-input[readonly] {
-    text-align: center;
-    cursor: default;
-    color: #e2e8f0;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #475569;
-    border-radius: 0;
-    font-size: 1.25rem;
-    letter-spacing: 0.15em;
-    padding: 0.6rem 0.5rem;
-    min-height: 2.5rem;
-  }
-
-  .word-input[readonly]::placeholder {
-    color: #64748b;
-    letter-spacing: 0.05em;
-  }
-
-  .word-input[readonly]:focus {
-    border-color: #475569;
-    outline: none;
   }
 
   .buttons-row {
@@ -1199,6 +1192,7 @@ body.solo-mode .side-panel-right {
     height: 360px;
     transform: translateX(0.75rem) scale(0.98);
     margin-top: -0.25rem;
+    margin-bottom: -1.2rem;
   }
 
   .hex {
