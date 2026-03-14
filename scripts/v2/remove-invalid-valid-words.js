@@ -1,12 +1,15 @@
 /**
  * Remove nonsense/fragment words from valid_words (and pangrams) in puzzles-2.json.
- * Reads blocklist from data/invalid-valid-words.txt; also removes from pangrams and recomputes total_points.
+ * Reads blocklist from data/invalid-valid-words.txt; also removes from pangrams and
+ * recomputes total_points.
+ *
+ * Run from repo root: node scripts/v2/remove-invalid-valid-words.js
  */
 
 const fs = require("fs");
 const path = require("path");
 
-const DATA_DIR = path.join(__dirname, "..", "data");
+const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const PUZZLES_PATH = path.join(DATA_DIR, "puzzles-2.json");
 const BLOCKLIST_PATH = path.join(DATA_DIR, "invalid-valid-words.txt");
 
@@ -16,7 +19,10 @@ function pointsForWordLength(len) {
 const PANGRAM_BONUS = 5;
 
 function totalPoints(validWords, pangrams) {
-  const wordPt = (validWords || []).reduce((s, w) => s + pointsForWordLength(w.length), 0);
+  const wordPt = (validWords || []).reduce(
+    (s, w) => s + pointsForWordLength(w.length),
+    0
+  );
   const pangramBonus = (pangrams || []).length * PANGRAM_BONUS;
   return wordPt + pangramBonus;
 }
@@ -46,15 +52,29 @@ function main() {
     const validWords = p.valid_words || [];
     const pangrams = p.pangrams || [];
 
-    const goodValid = validWords.filter((w) => !blocklist.has(w.toLowerCase()));
-    const goodPangrams = pangrams.filter((w) => !blocklist.has(w.toLowerCase()));
+    const goodValid = validWords.filter(
+      (w) => !blocklist.has(w.toLowerCase())
+    );
+    const goodPangrams = pangrams.filter(
+      (w) => !blocklist.has(w.toLowerCase())
+    );
 
-    validWords.filter((w) => blocklist.has(w.toLowerCase())).forEach((w) => {
-      removedCount.set(w.toLowerCase(), (removedCount.get(w.toLowerCase()) || 0) + 1);
-    });
-    pangrams.filter((w) => blocklist.has(w.toLowerCase())).forEach((w) => {
-      removedCount.set(w.toLowerCase(), (removedCount.get(w.toLowerCase()) || 0) + 1);
-    });
+    validWords
+      .filter((w) => blocklist.has(w.toLowerCase()))
+      .forEach((w) => {
+        removedCount.set(
+          w.toLowerCase(),
+          (removedCount.get(w.toLowerCase()) || 0) + 1
+        );
+      });
+    pangrams
+      .filter((w) => blocklist.has(w.toLowerCase()))
+      .forEach((w) => {
+        removedCount.set(
+          w.toLowerCase(),
+          (removedCount.get(w.toLowerCase()) || 0) + 1
+        );
+      });
 
     if (goodPangrams.length === 0) {
       removedPuzzles++;
@@ -76,8 +96,11 @@ function main() {
   console.log("Puzzles kept:", kept.length);
   if (removedCount.size > 0) {
     console.log("Words removed (valid_words/pangrams):");
-    [...removedCount.entries()].sort((a, b) => b[1] - a[1]).forEach(([w, n]) => console.log(" ", w, ":", n));
+    [...removedCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([w, n]) => console.log(" ", w, ":", n));
   }
 }
 
 main();
+

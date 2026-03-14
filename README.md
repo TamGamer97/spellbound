@@ -1,37 +1,87 @@
 # Spellbound
 
-Spelling Bee–style word game with versus and solo modes.
+Spelling Bee–style word game with **solo** and **versus** modes, built on Supabase and a custom puzzle generator.
 
-## Project structure
+## Overview
 
-```
+- **Front end**: three static pages (`index.html`, `lobby.html`, `game.html`) with vanilla JS in `js/` and styles in `css/`.
+- **Game data**: precomputed puzzle set in `data/puzzles-2.json`, plus word lists and review files.
+- **Backend**: Supabase (auth, users, games, matchmaking) + optional Netlify Functions (e.g. on‑the‑fly puzzle generation).
+
+## How puzzles are generated
+
+- The main generator lives in `scripts/v2/index.js` (see `scripts/v2/README.md` for full details).
+- Source words come from `data/wiki-100k.txt` (common English words) and a curated list of common 7‑letter words.
+- Each puzzle:
+  - Uses **exactly 7 unique letters**: 1 center + 6 outer.
+  - Requires every word to:
+    - Be at least 4 letters,
+    - Include the center letter,
+    - Use only those 7 letters.
+  - Must have **at least 2 pangrams** (words that use all 7 letters).
+- Output puzzles are cleaned and enriched by v2 maintenance scripts:
+  - Remove bad/foreign pangrams and proper nouns using a shared blocklist and `data/bad-pangrams.txt`.
+  - Rebuild `valid_words` and `total_points` from the full word list.
+  - Optionally strip nonsense / fragment words via `data/invalid-valid-words.txt`.
+
+For the full generation and cleanup pipeline, see `scripts/README.md` and `scripts/v2/README.md`.
+
+### Runtime fallback generation
+
+- When every local board in `data/puzzles-2.json` has been used, the client can call a Netlify Function (`/.netlify/functions/generate-puzzle`).
+- That function imports `generateSinglePuzzle` from `scripts/v2/index.js` and returns a fresh puzzle shaped like the existing ones, so solo games never “run out” of boards.
+
+## Database & backend structure (high level)
+
+- **Supabase** (see `supabase/README.md` and `docs/DATABASE_PLAN.md`):
+  - Tables: `users`, `puzzles`, `games`, `game_players`, `challenges`, `matchmaking_queue`.
+  - RPCs and triggers handle matchmaking, starting games, syncing scores, and marking games finished.
+  - RLS policies restrict each player to only see/update their own games and challenges.
+- **Local puzzles vs DB puzzles**:
+  - The live game uses `data/puzzles-2.json` and a `puzzle_index` stored in the `games` table.
+  - Older migrations that referenced `puzzles.json` are kept for history; the canonical set is `puzzles-2.json`.
+
+More detail (schemas, migrations, and RLS policy descriptions) lives in `supabase/README.md` and `docs/DATABASE_PLAN.md`.
+
+## Project structure & folder hierarchy
+
+```text
 Spellbound/
-├── index.html          # Entry / landing
-├── lobby.html          # Lobby (matchmaking, how to play)
-├── game.html           # Game board
-├── js/                 # Client: game logic, DB, config, blocklist
-├── css/                # Styles (common, game, pages)
-├── data/               # Canonical data (see data/DATA_README.md)
-│   ├── puzzles-2.json  # Main puzzle set (used by game)
-│   ├── bad-pangrams.txt
-│   ├── pangram-review.txt
-│   ├── common-7-letter-words.txt
-│   ├── wiki-100k.txt
-│   └── archive/        # Legacy / experimental data
-├── scripts/            # Generation & maintenance (see scripts/README.md)
-│   ├── v1/             # Legacy generator
-│   ├── v2/             # Main puzzle generator → puzzles-2.json
-│   ├── v3/             # Python generator → data/archive
-│   └── *.js            # Cleanup, enrich, extract-bad-pangrams, test
-├── docs/               # Documentation & planning
-│   ├── DATABASE_PLAN.md
-│   └── archive/        # Old notes, experiments
-└── supabase/           # Migrations, schema
+├── index.html          # Auth (login / signup)
+├── lobby.html          # Mode selection, matchmaking, settings
+├── game.html           # Main game board (solo + versus)
+├── js/
+│   ├── game.js         # Core game logic, timer, scoring, honeycomb UI
+│   ├── lobby.js        # Lobby UI, matchmaking, settings modal
+│   ├── db.js           # Supabase client + RPC helpers
+│   ├── recent-boards.js# Client-side tracking of recently played boards
+│   └── proper-noun-blocklist.js # Shared blocklist used by scripts and game
+├── css/
+│   ├── common.css      # Base styles, typography, layout
+│   ├── pages.css       # Auth + lobby pages
+│   └── game.css        # Game board, honeycomb, mobile layout
+├── data/
+│   ├── puzzles-2.json  # Canonical puzzle set used by the game
+│   ├── wiki-100k.txt   # Main word list for generation / enrichment
+│   ├── common-7-letter-words.txt # Extra pangram candidates
+│   ├── pangram-review.txt        # Manual review of pangrams (✓ / ✗)
+│   ├── bad-pangrams.txt          # Pangrams to exclude
+│   ├── invalid-valid-words.txt   # Fragment / nonsense words to strip
+│   └── archive/        # Legacy / experimental puzzle sets
+├── scripts/            # Generators, maintenance, analysis (see below)
+├── supabase/           # SQL migrations + setup README
+├── docs/               # Design notes, DB plan, archival docs
+└── netlify/
+    └── functions/      # Serverless helpers (e.g. generate-puzzle)
 ```
 
-## Data
+## Scripts layout (quick map)
 
-- **Game puzzle set:** `data/puzzles-2.json` (generated by `scripts/v2/index.js`, cleaned with `scripts/cleanup-puzzles-2-pangrams.js`).
-- **Pangram allowlist:** Only words marked ✓ in `data/pangram-review.txt` are allowed; ✗ words are in `data/bad-pangrams.txt` and removed by cleanup.
+- `scripts/v1/` — original Node generator (legacy).
+- `scripts/v2/` — main generator and v2 maintenance tools:
+  - `index.js` — generates `data/puzzles-2.json`.
+  - `letter-stats-2.js` — letter frequency analysis.
+  - `cleanup-puzzles-2-pangrams.js`, `enrich-puzzles-2.js`, `remove-invalid-valid-words.js`, `extract-bad-pangrams.js`, `find-invalid-words.js`, `test-board-selection.js` — maintenance helpers for `puzzles-2.json` (see `scripts/README.md` for commands).
+- `scripts/v3/` — experimental Python generator (results in `data/archive/`).
 
-See `data/DATA_README.md` and `scripts/README.md` for details.
+More background docs live in `docs/README.md` and the files it links to.

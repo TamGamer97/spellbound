@@ -1,7 +1,14 @@
+/**
+ * Test random board selection from data/puzzles-2.json using the same
+ * algorithm as game.js (pickSoloPuzzleIndex).
+ *
+ * Run from repo root: node scripts/v2/test-board-selection.js
+ */
+
 const fs = require("fs");
 const path = require("path");
 
-const PUZZLES_PATH = path.join(__dirname, "../data/puzzles-2.json");
+const PUZZLES_PATH = path.join(__dirname, "..", "..", "data", "puzzles-2.json");
 
 function loadPuzzles() {
   const raw = fs.readFileSync(PUZZLES_PATH, "utf8");
@@ -38,7 +45,7 @@ function main() {
     const center = String(puzzle.center_letter || "").toUpperCase();
     const outer = String(puzzle.outer_letters || "").toUpperCase();
     console.log(
-      (i + 1) + ":",
+      i + 1 + ":",
       "index=" + idx,
       "center=" + center,
       "outer=" + outer
@@ -54,7 +61,12 @@ function main() {
 
   console.log("\nTotal picks:", NUM_PICKS);
   console.log("Unique indices picked:", chosenIndices.size);
-  console.log(chosenIndices.size === NUM_PICKS ? "All unique." : "Duplicates: " + (NUM_PICKS - chosenIndices.size));
+  console.log(
+    chosenIndices.size === NUM_PICKS
+      ? "All unique."
+      : "Duplicates: " + (NUM_PICKS - chosenIndices.size)
+  );
 }
 
 main();
+

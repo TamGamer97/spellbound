@@ -10,14 +10,22 @@
 
 ## Maintenance (puzzle data)
 
-Run from repo root, e.g. `node scripts/cleanup-puzzles-2-pangrams.js`.
+Run from repo root, e.g.:
 
-| Script | Purpose |
-|--------|---------|
-| `cleanup-puzzles-2-pangrams.js` | Remove bad pangrams from `data/puzzles-2.json` (uses `data/bad-pangrams.txt` + proper-noun blocklist). Drops puzzles that end up with no valid pangram. |
-| `enrich-puzzles-2.js` | Recompute `valid_words` and `total_points` for every puzzle in `data/puzzles-2.json`. |
-| `extract-bad-pangrams.js` | One-time: extract words marked ✗ from `pangram-review.txt` into `data/bad-pangrams.txt`. |
-| `test-board-selection.js` | Test random board selection from `data/puzzles-2.json`. |
+```bash
+node scripts/v2/cleanup-puzzles-2-pangrams.js
+```
+
+The entrypoints now live alongside the v2 generator; the legacy filenames in `scripts/` are kept as thin wrappers for backwards compatibility.
+
+| Script (v2) | Purpose |
+|-------------|---------|
+| `v2/cleanup-puzzles-2-pangrams.js` | Remove bad pangrams from `data/puzzles-2.json` (uses `data/bad-pangrams.txt` + proper-noun blocklist). Drops puzzles that end up with no valid pangram. |
+| `v2/enrich-puzzles-2.js` | Recompute `valid_words` and `total_points` for every puzzle in `data/puzzles-2.json`. |
+| `v2/remove-invalid-valid-words.js` | Remove fragment / nonsense words from `valid_words` / `pangrams` using `data/invalid-valid-words.txt`. |
+| `v2/extract-bad-pangrams.js` | One-time: extract words marked ✗ from `pangram-review.txt` into `data/bad-pangrams.txt`. |
+| `v2/find-invalid-words.js` | Inspect `valid_words` that don’t appear in `wiki-100k.txt` for manual review. |
+| `v2/test-board-selection.js` | Test random board selection from `data/puzzles-2.json`. |
 
 ## Analysis
 

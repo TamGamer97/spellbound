@@ -262,6 +262,35 @@ function letterSetKey(puzzle) {
   return raw.toUpperCase().replace(/[^A-Z]/g, "").split("").sort().join("");
 }
 
+/**
+ * Generate a single puzzle object shaped like data/puzzles-2.json
+ * using the same pipeline as the CLI script, but without writing to disk.
+ */
+async function generateSinglePuzzle() {
+  const [wordList, allowedSetFromWiki, common7] = await Promise.all([
+    Promise.resolve(loadWordList()),
+    loadAllowedWords(),
+    loadCommon7Words(),
+  ]);
+
+  const allowedSet = allowedSetFromWiki;
+  COMMON7_ALLOWED = common7.filter((w) => getUniqueLetters(w).length === 7);
+
+  const puzzle = generatePuzzle(wordList, allowedSet);
+  const enrichedValid = enrichValidWords(puzzle.center, puzzle.outer, wordList);
+  const totalPoints =
+    enrichedValid.reduce((sum, w) => sum + pointsForWordLength(w.length), 0) +
+    puzzle.pangramWords.length * PANGRAM_BONUS;
+
+  return {
+    center_letter: String(puzzle.center || "").toUpperCase(),
+    outer_letters: puzzle.outer.join("").toUpperCase(),
+    valid_words: enrichedValid.map((w) => String(w || "").toUpperCase()),
+    pangrams: puzzle.pangramWords.map((w) => String(w || "").toUpperCase()),
+    total_points: totalPoints,
+  };
+}
+
 async function main() {
   console.log("Loading word list from wiki-100k.txt (used for allowed words), and common-7-letter-words...");
   const [wordList, allowedSetFromWiki, common7] = await Promise.all([
@@ -469,7 +498,13 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  console.error(err.message || err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(err => {
+    console.error(err.message || err);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  generateSinglePuzzle,
+};

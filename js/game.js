@@ -860,7 +860,9 @@
   });
 
   /**
-   * Pick a puzzle index at random; if it's in the user's recent list, retry. Max 200 tries then allow any.
+   * Pick a puzzle index at random; if it's in the user's recent list, retry.
+   * Max 200 tries then allow any. This is the primary path while there are still
+   * unused local boards available.
    * @returns {number} Puzzle index, or -1 if no puzzles.
    */
   function pickSoloPuzzleIndex() {
@@ -869,6 +871,13 @@
     var recentSet = new Set(recent);
     var maxTries = 200;
     var n = LOCAL_PUZZLES.length;
+
+    // If every local board has been played at least once (within our recent history),
+    // we signal exhaustion by returning -1 so the caller can fall back to on-the-fly generation.
+    if (n > 0 && recentSet.size >= n) {
+      return -1;
+    }
+
     for (var t = 0; t < maxTries; t++) {
       var idx = Math.floor(Math.random() * n);
       if (!recentSet.has(idx)) return idx;
@@ -886,7 +895,21 @@
   /* ========================================================================
      Init: versus (gameId + db) or solo
      ======================================================================== */
-  function initSolo() {
+  function fetchGeneratedPuzzle() {
+    if (typeof fetch === 'undefined') return Promise.resolve(null);
+    return fetch('/.netlify/functions/generate-puzzle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .catch(function () { return null; });
+  }
+
+  async function initSolo() {
     document.body.classList.add('solo-mode');
     state.gameOver = false;
     state.roundOver = false;
@@ -898,11 +921,22 @@
       timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
       timerEl.classList.remove('warning', 'danger', 'bitter-end', 'timer-countdown', 'timer-pulse');
     }
+    var puzzleSet = false;
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
       var idx = pickSoloPuzzleIndex();
       if (idx >= 0 && LOCAL_PUZZLES[idx]) {
         setPuzzleFromData(LOCAL_PUZZLES[idx]);
         saveRecentBoardIndex(idx);
+        puzzleSet = true;
+      }
+    }
+    // Fallback: all local boards exhausted or none available; ask Netlify function
+    // to generate a fresh puzzle on the fly.
+    if (!puzzleSet) {
+      var generated = await fetchGeneratedPuzzle();
+      if (generated) {
+        setPuzzleFromData(generated);
+        puzzleSet = true;
       }
     }
     renderHoneycomb();
