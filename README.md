@@ -34,12 +34,35 @@ For the full generation and cleanup pipeline, see `scripts/README.md` and `scrip
 ## Database & backend structure (high level)
 
 - **Supabase** (see `supabase/README.md` and `docs/DATABASE_PLAN.md`):
-  - Tables: `users`, `puzzles`, `games`, `game_players`, `challenges`, `matchmaking_queue`.
   - RPCs and triggers handle matchmaking, starting games, syncing scores, and marking games finished.
   - RLS policies restrict each player to only see/update their own games and challenges.
-- **Local puzzles vs DB puzzles**:
-  - The live game uses `data/puzzles-2.json` and a `puzzle_index` stored in the `games` table.
-  - Older migrations that referenced `puzzles.json` are kept for history; the canonical set is `puzzles-2.json`.
+
+**Core tables**
+
+| Table                 | Purpose                                                                   |
+|-----------------------|---------------------------------------------------------------------------|
+| `users`               | App users (linked to Supabase Auth).                                     |
+| `puzzles`             | Optional DB puzzle rows (historical; most boards are local JSON).        |
+| `games`               | Game sessions (mode, status, puzzle index, timestamps).                  |
+| `game_players`        | Per‑player score, words found, left_at, bitter‑end choices.              |
+| `challenges`          | Direct challenges between users (pending/accepted/rejected).             |
+| `matchmaking_queue`   | Queue rows for “find me a match” style pairing.                          |
+
+**RLS summary**
+
+| Table                 | Who can do what                                                                 |
+|-----------------------|----------------------------------------------------------------------------------|
+| `users`               | Authenticated: read all (for search). Insert/update own row only.              |
+| `puzzles`             | Authenticated: read all. No insert/update/delete from client (use service role).|
+| `games`               | Authenticated: create. Read/update only games they are in (via `game_players`). |
+| `game_players`        | Read/update only rows for games you’re in; insert/update only your own row.     |
+| `challenges`          | Read/insert/update only challenges you sent or received.                        |
+| `matchmaking_queue`   | Read all (for matching). Insert/update/delete only your own row.                |
+
+**Local puzzles vs DB puzzles**
+
+- The live game uses `data/puzzles-2.json` and a `puzzle_index` stored in the `games` table.
+- Older migrations that referenced `puzzles.json` are kept for history; the canonical set is `puzzles-2.json`.
 
 More detail (schemas, migrations, and RLS policy descriptions) lives in `supabase/README.md` and `docs/DATABASE_PLAN.md`.
 
@@ -83,5 +106,32 @@ Spellbound/
   - `letter-stats-2.js` — letter frequency analysis.
   - `cleanup-puzzles-2-pangrams.js`, `enrich-puzzles-2.js`, `remove-invalid-valid-words.js`, `extract-bad-pangrams.js`, `find-invalid-words.js`, `test-board-selection.js` — maintenance helpers for `puzzles-2.json` (see `scripts/README.md` for commands).
 - `scripts/v3/` — experimental Python generator (results in `data/archive/`).
+
+### Puzzle generation (by folder)
+
+| Folder | Purpose                                  | Output                                     |
+|--------|------------------------------------------|--------------------------------------------|
+| `v1`   | Original word‑list puzzle generator.     | `data/puzzles.json` (legacy).              |
+| `v2`   | **Main generator** — wiki‑100k + common‑7, blocklist filtering. | `data/puzzles-2.json` (canonical). |
+| `v3`   | Python generator (SCOWL/ENABLE).         | `data/archive/puzzles-v3-experimental.json`|
+
+### Maintenance & analysis scripts (v2)
+
+| Script (v2)                      | Purpose                                                                              |
+|----------------------------------|--------------------------------------------------------------------------------------|
+| `v2/cleanup-puzzles-2-pangrams.js`        | Remove bad pangrams from `data/puzzles-2.json` and drop puzzles with no pangram left. |
+| `v2/enrich-puzzles-2.js`                 | Recompute `valid_words` and `total_points` for every puzzle.                        |
+| `v2/remove-invalid-valid-words.js`       | Remove fragment / nonsense words from `valid_words` / `pangrams`.                   |
+| `v2/extract-bad-pangrams.js`             | Extract ✗ pangrams from `pangram-review.txt` into `data/bad-pangrams.txt`.          |
+| `v2/find-invalid-words.js`               | List `valid_words` not present in `wiki-100k.txt` for manual review.               |
+| `v2/test-board-selection.js`             | Exercise the random board selection logic over `puzzles-2.json`.                   |
+| `v2/letter-stats-2.js`                   | Letter frequency stats across all puzzles in `data/puzzles-2.json`.                 |
+
+## Docs quick links
+
+| File / folder        | Description                                       |
+|----------------------|---------------------------------------------------|
+| `docs/DATABASE_PLAN.md` | Database schema and migration notes (Supabase).   |
+| `docs/archive/`         | Old notes and experiments.                        |
 
 More background docs live in `docs/README.md` and the files it links to.
