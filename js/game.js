@@ -285,6 +285,10 @@
     opponentScore: 0,
     myUsername: null,
     opponentUsername: null,
+
+    // Bot: extra pool after exhausting puzzle `VALID_WORDS`.
+    botExtraWordsPool: null, // array of UPPERCASE words
+    botExtraWordsReady: false,
   };
 
   /**
@@ -852,6 +856,10 @@
      Bot opponent (local opponent, timed word finding)
      ======================================================================== */
 
+  // Cache word lists in memory across bot games (same page session).
+  var BOT_WIKI_WORDS_CACHE = null; // Array of lowercase words from wiki-100k.txt
+  var BOT_INVALID_WORDS_CACHE = null; // Set of lowercase invalid words
+
   function getBotIntervalSeconds(elapsedSeconds) {
     var base = state.botBaseSeconds;
     if (typeof base !== 'number' || isNaN(base)) base = 4;
@@ -899,12 +907,148 @@
         candidates.push(word);
       });
 
+      // If the puzzle `VALID_WORDS` are exhausted for the bot, allow it to
+      // continue using an "extra pool" of dictionary/common words that fit
+      // the letters but are NOT in `VALID_WORDS`.
+      if (!candidates.length && state.botExtraWordsReady && Array.isArray(state.botExtraWordsPool)) {
+        var extraCandidates = [];
+        var extraPool = state.botExtraWordsPool;
+        for (var i = 0; i < extraPool.length; i++) {
+          var ew = extraPool[i];
+          if (state.opponentWords.has(ew)) continue;
+          if (!isPangram(ew) && state.found.has(ew)) continue;
+          extraCandidates.push(ew);
+        }
+        candidates = extraCandidates;
+      }
+
       if (!candidates.length) return;
 
       var pick = candidates[Math.floor(Math.random() * candidates.length)];
       acceptAndRecordOpponentWord(pick);
       scheduleBotNextWord();
     }, Math.max(0, intervalSeconds) * 1000);
+  }
+
+  /**
+   * Load/build a bot "extra pool" once per puzzle.
+   * These are words that:
+   * - fit the current 7 letters (center + outer)
+   * - are NOT in `VALID_WORDS`
+   * - are not proper nouns (shared blocklist)
+   * - are not locally profane
+   * - optionally exclude anything in `data/invalid-valid-words.txt` (if present)
+   * - optionally exclude anything in `DICTIONARY_BLOCKLIST` (if loaded)
+   *
+   * Notes:
+   * - This is only used after the bot exhausts puzzle `VALID_WORDS`.
+   * - It runs only for bot games.
+   */
+  async function buildBotExtraWordsPool() {
+    if (!state.isBotGame) return;
+    if (state.botExtraWordsReady) return;
+    if (!LOCAL_PUZZLES) return;
+
+    try {
+      if (typeof fetch === 'undefined') {
+        state.botExtraWordsPool = [];
+        state.botExtraWordsReady = true;
+        return;
+      }
+
+      // Load a common 100k word list from wiki-100k.txt (one word per line).
+      var wikiText = '';
+      if (BOT_WIKI_WORDS_CACHE && BOT_WIKI_WORDS_CACHE.length) {
+        wikiText = null;
+      } else {
+        wikiText = await fetch('data/wiki-100k.txt?v=1').then(function (r) { return r.text(); }).catch(function () { return ''; });
+      }
+      if (wikiText === '' || wikiText === null) {
+        if (!BOT_WIKI_WORDS_CACHE || !BOT_WIKI_WORDS_CACHE.length) {
+          state.botExtraWordsPool = [];
+          state.botExtraWordsReady = true;
+          return;
+        }
+      } else {
+        // Parse + cache lowercase words.
+        BOT_WIKI_WORDS_CACHE = wikiText
+          .split(/\r?\n/)
+          .map(function (l) { return String(l).trim().toLowerCase(); })
+          .filter(function (w) { return w && /^[a-z]+$/.test(w); });
+      }
+
+      if (!BOT_WIKI_WORDS_CACHE || !BOT_WIKI_WORDS_CACHE.length) {
+        state.botExtraWordsPool = [];
+        state.botExtraWordsReady = true;
+        return;
+      }
+
+      // Optional: use invalid-valid-words.txt as a safety filter.
+      if (BOT_INVALID_WORDS_CACHE) {
+        // already cached
+      } else {
+        var invalidText = await fetch('data/invalid-valid-words.txt?v=1').then(function (r) { return r.text(); }).catch(function () { return ''; });
+        var invalidSet = new Set();
+        if (invalidText) {
+          invalidSet = new Set(
+            invalidText
+              .split(/\\r?\\n/)
+              .map(function (l) { return String(l).trim().toLowerCase().replace(/#.*$/, '').trim(); })
+              .filter(function (w) { return w && /^[a-z]+$/.test(w); })
+          );
+        }
+        BOT_INVALID_WORDS_CACHE = invalidSet;
+      }
+
+      var center = String(LETTER_SET && LETTER_SET.center ? LETTER_SET.center : '').toUpperCase();
+      if (!center) {
+        state.botExtraWordsPool = [];
+        state.botExtraWordsReady = true;
+        return;
+      }
+
+      var allLettersArr = getAllLetters(); // uppercase [center, ...outer]
+      var allowedLetters = new Set(allLettersArr.map(function (c) { return String(c).toUpperCase(); }));
+
+      var outPool = [];
+      for (var i = 0; i < BOT_WIKI_WORDS_CACHE.length; i++) {
+        var rawLower = BOT_WIKI_WORDS_CACHE[i];
+        if (!rawLower) continue;
+        var wUpper = String(rawLower).toUpperCase();
+        if (wUpper.length < MIN_LENGTH) continue;
+        if (!wUpper.includes(center)) continue;
+
+        // Use only current 7 letters.
+        var ok = true;
+        for (var j = 0; j < wUpper.length; j++) {
+          var ch = wUpper[j];
+          if (!allowedLetters.has(ch)) { ok = false; break; }
+        }
+        if (!ok) continue;
+
+        // Not part of puzzle valid set.
+        if (VALID_WORDS && VALID_WORDS.has(wUpper)) continue;
+
+        // Exclude proper nouns + local profanity.
+        if (isProperNoun(wUpper)) continue;
+        var lower = wUpper.toLowerCase();
+        if (LOCAL_PROFANITY && LOCAL_PROFANITY.has(lower)) continue;
+        if (BOT_INVALID_WORDS_CACHE && BOT_INVALID_WORDS_CACHE.size > 0 && BOT_INVALID_WORDS_CACHE.has(lower)) continue;
+
+        // If remote dictionary blocklist was loaded, exclude too.
+        if (DICTIONARY_BLOCKLIST && DICTIONARY_BLOCKLIST.has(wUpper)) continue;
+
+        outPool.push(wUpper);
+      }
+
+      // Deduplicate just in case.
+      state.botExtraWordsPool = Array.from(new Set(outPool)).sort();
+      state.botExtraWordsReady = true;
+    } catch (e) {
+      // Fail open to normal VALID_WORDS behavior.
+      state.botExtraWordsPool = [];
+      state.botExtraWordsReady = true;
+    }
   }
 
   /* ========================================================================
@@ -1126,6 +1270,9 @@
       state.botName = BOT_LEVELS[state.botLevel].name;
       state.opponentUsername = state.botName;
       if (opponentUsernameEl) opponentUsernameEl.textContent = state.botName || 'Opponent';
+      // Load extra bot word pool before starting timer so the bot can
+      // keep playing after exhausting VALID_WORDS.
+      await buildBotExtraWordsPool();
       // Start the round immediately so the bot schedule begins without waiting for user input.
       startTimer();
     }
