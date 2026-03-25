@@ -108,10 +108,9 @@
   // Bot difficulties: base seconds between found words in minute 0.
   // Then it gets 1 second slower (interval increases by +1 each minute).
   var BOT_LEVELS = [
-    // Base interval is increased by +3 seconds for each difficulty level.
-    { name: 'Wordsmith', baseSeconds: 7 },   // best
-    { name: 'Literate', baseSeconds: 10 },   // medium
-    { name: 'Covfefe', baseSeconds: 13 },   // worst
+    { name: 'Wordsmith', baseSeconds: 2 },   // best
+    { name: 'Literate', baseSeconds: 5 },    // medium
+    { name: 'Covfefe', baseSeconds: 8 },     // worst
   ];
 
   /* ========================================================================
@@ -669,7 +668,21 @@
 
   /** If all valid words found in Round 1 and round not already over, end the game. */
   function checkWin() {
-    // Intentionally no-op: reaching "all words found" should NOT end the game.
+    if (!state || state.gameOver || state.roundOver || state.roundPhase !== 'round_1') return;
+    // End only when the player has completed the puzzle.
+    //
+    // Note: in the current scoring implementation, when all `VALID_WORDS`
+    // are found, the player's score should reach the puzzle maximum
+    // (`totalBoardPoints`). We use `>= maxPoints` for robustness.
+    if (state.found.size !== VALID_WORDS.size) return;
+
+    var maxPoints = typeof state.totalBoardPoints === 'number' && !isNaN(state.totalBoardPoints)
+      ? state.totalBoardPoints
+      : computeTotalBoardPoints();
+
+    if (state.score >= maxPoints) {
+      endGame('All words found!');
+    }
   }
 
   /** Reveal opponent's words in the opponent panel (at end of round). */
