@@ -57,6 +57,24 @@
           </div>
         </div>
       </div>
+
+      <div class="mode-card" id="bot-card" data-mode="bot">
+        <h3>Challenge a bot</h3>
+        <p>Pick a difficulty. The bot will automatically find words on a timer.</p>
+        <div class="mode-content" id="bot-content">
+          <div class="btn-row" id="bot-start-row">
+            <button type="button" id="btn-bot-wordsmith">Wordsmith</button>
+            <button type="button" id="btn-bot-literate" class="btn-secondary">Literate</button>
+            <button type="button" id="btn-bot-covfefe" class="btn-secondary">Covfefe</button>
+          </div>
+          <div id="bot-play-area" style="display:none;">
+            <p id="bot-selected-robot" class="bot-selected-robot" aria-live="polite">Selected: —</p>
+            <div class="btn-row" id="bot-play-row">
+              <button type="button" id="btn-bot-play">Play</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -264,6 +282,14 @@
       var btnMatchMe = document.getElementById('btn-match-me');
       var btnCancelMatch = document.getElementById('btn-cancel-match');
 
+      var botCard = document.getElementById('bot-card');
+      var botContent = document.getElementById('bot-content');
+      var btnBotWordsmith = document.getElementById('btn-bot-wordsmith');
+      var btnBotLiterate = document.getElementById('btn-bot-literate');
+      var btnBotCovfefe = document.getElementById('btn-bot-covfefe');
+      var btnBotPlay = document.getElementById('btn-bot-play');
+      var botSelectedRobotEl = document.getElementById('bot-selected-robot');
+
       var searchTimeout = null;
 
       function expandCard(card) {
@@ -282,6 +308,12 @@
       matchCard.addEventListener('click', function (e) {
         if (!matchCard.classList.contains('expanded') && !e.target.closest('.mode-content')) {
           expandCard(matchCard);
+        }
+      });
+
+      botCard.addEventListener('click', function (e) {
+        if (!botCard.classList.contains('expanded') && !e.target.closest('.mode-content')) {
+          expandCard(botCard);
         }
       });
 
@@ -386,6 +418,47 @@
           if (btnMatchMe) { btnMatchMe.disabled = false; btnMatchMe.textContent = 'Find match'; }
         });
       });
+
+      function startBotGame(levelIndex) {
+        // Local bot match: no Supabase matchmaking, just redirect with query params.
+        window.location.href = 'game.html?bot=1&botLevel=' + encodeURIComponent(levelIndex);
+      }
+
+      var selectedBotLevel = null;
+      var botPlayAreaEl = document.getElementById('bot-play-area');
+
+      function setBotSelection(levelIndex, label) {
+        selectedBotLevel = levelIndex;
+        if (botSelectedRobotEl) botSelectedRobotEl.textContent = 'Selected: ' + label;
+
+        // Visual selection: make the chosen one "primary" and others secondary.
+        if (btnBotWordsmith) btnBotWordsmith.classList.toggle('btn-secondary', levelIndex !== 0);
+        if (btnBotLiterate) btnBotLiterate.classList.toggle('btn-secondary', levelIndex !== 1);
+        if (btnBotCovfefe) btnBotCovfefe.classList.toggle('btn-secondary', levelIndex !== 2);
+
+        if (botPlayAreaEl) botPlayAreaEl.style.display = '';
+        if (btnBotPlay) btnBotPlay.disabled = false;
+      }
+
+      if (btnBotWordsmith) {
+        btnBotWordsmith.addEventListener('click', function () { setBotSelection(0, 'Wordsmith'); });
+      }
+      if (btnBotLiterate) {
+        btnBotLiterate.addEventListener('click', function () { setBotSelection(1, 'Literate'); });
+      }
+      if (btnBotCovfefe) {
+        btnBotCovfefe.addEventListener('click', function () { setBotSelection(2, 'Covfefe'); });
+      }
+
+      if (btnBotPlay) {
+        btnBotPlay.addEventListener('click', function () {
+          if (selectedBotLevel == null) return;
+          btnBotPlay.disabled = true;
+          btnBotPlay.textContent = 'Playing…';
+          // URL botLevel should be 1|2|3 (Wordsmith/Literate/Covfefe).
+          startBotGame(selectedBotLevel + 1);
+        });
+      }
 
       var challengePollId = null;
       function startChallengeStatusPoll() {

@@ -1,0 +1,81 @@
+COLWOOD	REMOVE	Place/surname; not general everyday English.
+COMIDA	REMOVE	Foreign language (“comida” = food); not standard English word.
+COMM	REMOVE	Abbreviation/shorthand; not a normal board-word.
+COMMANDO	KEEP	Common English word (“commando”).
+CONALL	REMOVE	Proper noun/name.
+CONANT	REMOVE	Proper noun/surname.
+CONCEPTO	REMOVE	Foreign/Spanish “concept”; not standard English.
+CONCHO	REMOVE	Technical/rare shell term; not average-known.
+CONCOCTING	KEEP	Common verb (“concocting”).
+CONCRETION	REMOVE	Technical/science term; too niche for average.
+CONDICION	REMOVE	Foreign/Spanish “condition”; not English.
+CONDOR	KEEP	Common word (bird).
+CONDUCED	REMOVE	Rare past form of “conduce”; not common everyday usage.
+CONDUCTION	REMOVE	Technical/physics term.
+CONFRERE	REMOVE	Formal/rare “fellow”; not common everyday English.
+CONIC	REMOVE	Technical math/geometry term.
+CONJUNCTION	KEEP	Common school grammar term (conjunction).
+CONJUNTO	REMOVE	Foreign/Portuguese/Spanish word; not English.
+CONNUT	REMOVE	Unclear/likely not standard English.
+CONOR	REMOVE	Proper noun/name.
+CONT	REMOVE	Abbreviation; not standard word.
+CONTENTEMENT	REMOVE	Archaic/rare form (“contentement”); not common.
+CONTIGO	REMOVE	Foreign (“contigo” = with you).
+CONTINU	REMOVE	Truncated/unclear; not standard English.
+CONTORTION	KEEP	Common word (“contortion”).
+CONTR	REMOVE	Abbreviation.
+CONVENING	KEEP	Common word (“convening”).
+CONVERGENCE	REMOVE	Mathematical/technical term; not average common.
+CONVICTING	KEEP	Standard verb (“convicting”).
+COONROD	REMOVE	Obscure/unclear; not average-known English.
+COOT	KEEP	Common bird word.
+COOTE	REMOVE	Rare/variant; looks like name/less common spelling.
+COPA	REMOVE	Too ambiguous/foreign usage (“copa”).
+CORCORAN	REMOVE	Proper noun/surname.
+CORNEA	KEEP	Common medical term (cornea).
+CORONAL	REMOVE	Medical/technical term; not average-known.
+CORRIE	REMOVE	Geography term; likely too uncommon.
+CORTA	REMOVE	Foreign/Spanish “corta”; not English.
+CORTO	REMOVE	Foreign/Italian/Spanish; not English.
+COTG	REMOVE	Abbreviation.
+COTON	REMOVE	Not a common standard English word.
+COTTARD	REMOVE	Proper noun/surname.
+COUERED	REMOVE	Obscure/garbled spelling (“covered”); not standard.
+COUN	REMOVE	Abbreviation/unclear.
+CRANCH	REMOVE	Proper noun/surname/obscure.
+CRANIAL	REMOVE	Technical anatomy term; not average.
+CRAY	REMOVE	Obscure term (not “crayfish”); not common enough.
+CREAMED	KEEP	Common word (“creamed”).
+CREAN	REMOVE	Proper noun/rare form; not average-known.
+CREDE	REMOVE	Unclear/rare; not common English word.
+CRICK	KEEP	Common word (cricket or surname); standard enough.
+CRINOLINE	KEEP	Common clothing word.
+CRITO	REMOVE	Proper noun (Crito).
+CROLL	REMOVE	Obscure/rare.
+CROMER	REMOVE	Place name/proper noun.
+CROTCH	KEEP	Common body word (crotch).
+CROTCHET	KEEP	Common music term; also general English.
+CROUPIER	KEEP	Common word (casino staff).
+CRURENT	REMOVE	Unclear/rare; not common English.
+CUDDLE	KEEP	Common word.
+CUEILLIR	REMOVE	Foreign language (“cueillir”); not English.
+CUELLO	REMOVE	Foreign/Spanish/rare proper name; not English.
+CUFFY	REMOVE	Uncommon; likely not a standard board word.
+CUIT	REMOVE	Uncommon/archaic meaning; not average common.
+CULPEPPER	REMOVE	Proper noun/surname/place.
+CULTUR	REMOVE	Truncated/unclear (“culture”); not standard.
+CUNARD	REMOVE	Company/proper noun.
+CUNCTA	REMOVE	Latin plural (“cunctorum” etc.); not standard English.
+CUNG	REMOVE	Uncommon/proper-name-like; not average common.
+CUPPED	KEEP	Common word (“cupped”).
+CURABLE	KEEP	Common everyday adjective.
+CURATOR	KEEP	Common word.
+CURDLE	KEEP	Common word.
+CURRAN	REMOVE	Proper noun/surname.
+CURRICLE	REMOVE	Rare word; not average-known.
+CURRIE	REMOVE	Proper noun/surname (and less common units); remove for safety.
+CURULE	REMOVE	Rare term; not average common.
+CUTLET	KEEP	Common word.
+CUTTLE	KEEP	Common English word (cuttle); commonly known via cuttlefish.
+CUTTY	REMOVE	Uncommon/slang/variant; not average common.
+

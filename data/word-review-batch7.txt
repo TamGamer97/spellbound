@@ -1,0 +1,61 @@
+CAERE	REMOVE	Proper noun/classical term; not common English.
+CALIF	REMOVE	Abbrev/short form (Calif.); not a standard standalone common word.
+CALLANDAR	REMOVE	Obscure/garbled; not common English.
+CALONNE	REMOVE	Place name; not common English word.
+CAMBER	REMOVE	Engineering/technical term; not “average 40yr old” common.
+CAMBREMER	REMOVE	Place name/proper noun; not common.
+CAMPANIAN	REMOVE	Proper noun/geology term; not common everyday English.
+CANAANITE	REMOVE	Religious/historical term; not common.
+CANCELED	KEEP	Common word (“canceled”).
+CANCELLING	KEEP	Common verb form (“cancelling”).
+CANOVA	REMOVE	Proper noun (artist); not common English word.
+CANTAR	REMOVE	Uncommon/foreign term; not common.
+CANTATA	KEEP	Reasonably common English music term.
+CANTED	KEEP	Valid English adjective/verb (“canted”).
+CANTOR	REMOVE	Religious term; not common for average boards.
+CAOUTCHOUC	REMOVE	Technical word (“rubber”) variant; too niche.
+CAPA	REMOVE	Niche/abbrev; not common English word.
+CAPEL	REMOVE	Proper noun/name; not common.
+CAPITE	REMOVE	Latin form; not common English word.
+CAPOTE	REMOVE	Proper noun (Truman Capote); not common.
+CAPPING	KEEP	Common word (“capping”).
+CAPTAINCY	REMOVE	Technical/formal word; not “average 40yr” everyday.
+CARABAO	REMOVE	Animal/proper noun; not common English for average.
+CARAFE	KEEP	Common everyday word (“carafe”).
+CARAPACE	REMOVE	Biology term; too niche.
+CARAVANE	REMOVE	Foreign spelling/form; not common English.
+CARBO	REMOVE	Abbrev/Latin root; not common standalone word.
+CARDAN	REMOVE	Technical term; not common everyday.
+CARDING	KEEP	Common process word (“carding”).
+CAREENED	REMOVE	Less common verb form; not average-known.
+CAREENING	REMOVE	Niche wording; likely not “average 40yr old” familiar.
+CAREERED	REMOVE	Uncommon/archaic use; not average common.
+CAREFREE	KEEP	Common everyday word.
+CARETH	REMOVE	Archaic/rare.
+CARIA	REMOVE	Proper noun/place.
+CARIED	REMOVE	Looks like misspelling of “carried”; not common form for boards.
+CARKER	REMOVE	Foreign/obscure.
+CARRE	REMOVE	Foreign term; not common.
+CARRO	REMOVE	Obscure/foreign; not common.
+CARROL	REMOVE	Surname/name variant; not common.
+CARRYALL	KEEP	Common word (“carryall bag”).
+CARTING	KEEP	Common verb (“carting”).
+CATCHER	KEEP	Common word (“catcher”).
+CATERER	KEEP	Common word (“caterer”).
+CATHY	REMOVE	Proper name.
+CATILINA	REMOVE	Proper noun.
+CATLIN	REMOVE	Proper noun.
+CATON	REMOVE	Proper noun.
+CATRINA	REMOVE	Proper noun/foreign.
+CATTARO	REMOVE	Place name.
+CAVIARE	REMOVE	Obscure miss/variant of “caviar”; not standard.
+CAYA	REMOVE	Foreign/obscure.
+CEBU	REMOVE	Place name.
+CELIE	REMOVE	Proper noun/name.
+CENA	REMOVE	Latin word; not common English.
+CENTERING	KEEP	Common word (“centering”).
+CERRO	REMOVE	Place name.
+CERTI	REMOVE	Not standard common word.
+CERVERA	REMOVE	Proper noun/place.
+CEUTA	REMOVE	Place name.
+

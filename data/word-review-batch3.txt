@@ -1,0 +1,72 @@
+ANONYME	REMOVE	Non-English/foreign spelling (“anonyme”); not broadly common English.
+ANTAR	REMOVE	Obscure/likely abbreviation or proper noun; not generally known.
+ANTERO	REMOVE	Anatomical/technical prefix (“antero-”); not everyday English.
+ANTH	REMOVE	Abbreviation/short form; not a normal standalone word for boards.
+ANTIUM	REMOVE	Place/proper noun (ancient region); not common English vocabulary.
+ANYMORE	KEEP	Common spoken word (“anymore”).
+APENNINE	REMOVE	Proper noun (Apennines); not everyday English.
+APING	KEEP	Common verb (“aping”).
+APOLLONIA	REMOVE	Proper noun (name).
+APPALL	KEEP	Common verb (“appall”).
+APPALLINGLY	KEEP	Derivation of “appalling”; still standard English even if slightly less common.
+APPANAGE	REMOVE	Historical/less common term; not likely known to average 40yr old.
+APPELLANT	REMOVE	Legal term; not broad everyday vocabulary.
+APPORTANT	REMOVE	Foreign/rare form; not standard common English usage.
+APPREHEND	KEEP	Common enough (“apprehend”).
+APPROCHA	REMOVE	Foreign spelling (“approcha”); not English.
+APPUNTO	REMOVE	Italian/foreign (“appunto”); not English.
+ARABE	REMOVE	Foreign word/spelling; not general English.
+ARBITRATE	KEEP	Common enough (“arbitrate”).
+ARBOREAL	REMOVE	Technical biology term; not average everyday word.
+ARCA	REMOVE	Non-standard/Latin/foreign usage; not common English.
+ARCANA	REMOVE	“Arcana” can be meaning “mysteries” but is niche; likely too uncommon for average.
+ARCHY	REMOVE	Suffix/rare standalone (“-archy”); not clear as everyday word.
+ARCO	REMOVE	Place/surname/music term; not common English word.
+ARIBERTI	REMOVE	Proper noun/name.
+ARION	REMOVE	Myth/proper noun; not average common vocabulary.
+ARLEE	REMOVE	Proper noun/name-like.
+ARMADO	REMOVE	Historical/proper noun associations (“Armada”); likely not common.
+ARMANDE	REMOVE	Name/ballet term; not broadly common word.
+ARMINE	REMOVE	Obscure proper name/variant; not everyday English.
+ARMUT	REMOVE	Foreign (German “armut”); not English.
+ARNAULD	REMOVE	Proper noun/name.
+ARNAULT	REMOVE	Proper noun/name.
+ARNOT	REMOVE	Proper noun/surname; not common English.
+ARRAH	REMOVE	Archaic/probably not common word for average speaker.
+ARRAYING	KEEP	Acceptable common verb (“array”).
+ARRETEE	REMOVE	Foreign-language spelling (“arrêtée”); not English.
+ARRIAN	REMOVE	Proper noun (historian/name); not common.
+ARRIVERAIT	REMOVE	Foreign-language form (“arriverait”); not English.
+ARROGATED	REMOVE	Past tense of “arrogate” but uncommon; likely too wired/rare.
+ATEN	REMOVE	Proper noun/abbr; not common English word.
+ATER	REMOVE	Not common English; looks like Latin/obscure form.
+ATING	REMOVE	Not a standard English word for boards.
+ATTACHA	REMOVE	Obscure/garbled or foreign; not standard English.
+ATTAR	KEEP	Common word (“attar” perfume oil).
+ATTEN	REMOVE	Abbreviation/unclear; not common English.
+ATTILIO	REMOVE	Proper noun/name.
+ATTIRA	REMOVE	Foreign/rare spelling; not standard English.
+ATTO	REMOVE	Physics unit word; not likely known by average player.
+ATUNCI	REMOVE	Foreign/obscure; not English.
+ATWATER	REMOVE	Surname/proper noun.
+AUBER	REMOVE	Foreign/proper noun; not common English.
+AULT	REMOVE	Proper noun/surname-like; not common.
+AURAI	REMOVE	Foreign-language form; not English.
+AUROIT	REMOVE	Uncommon/obscure; not average.
+AUTA	REMOVE	Obscure/possibly foreign; not common.
+AUTEUIL	REMOVE	Place name proper noun (French).
+AVALER	REMOVE	Foreign-language verb form (“avaler”).
+AVAUNT	REMOVE	Archaic; not common modern English.
+AVENDO	REMOVE	Foreign/obscure; not English.
+AVENTINE	REMOVE	Place name (Aventine hill); not common.
+AVETE	REMOVE	Foreign-language form (“avete”).
+AVICE	REMOVE	Unclear/less common; could be name—remove.
+AVICENNA	REMOVE	Proper noun (person); not a general English common word.
+AVID	KEEP	Common word (“avid”).
+AWARDING	KEEP	Standard verb (“award” → awarding).
+AWEEL	REMOVE	Archaic/rare Scots form; not average.
+AYAH	KEEP	Common enough (“ayah”).
+AYEAR	REMOVE	Unclear/likely “a year” phrase; not common standalone.
+AYER	REMOVE	Surname/proper noun; not common English.
+AYMER	REMOVE	Proper noun/name.
+

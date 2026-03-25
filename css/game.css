@@ -249,6 +249,11 @@ body.solo-mode .side-panel-right {
   visibility: hidden;
 }
 
+/* Bot mode: show opponent panel like versus (we still reuse the solo layout). */
+body.solo-mode.bot-mode .side-panel-right {
+  visibility: visible;
+}
+
 .player-panel {
   width: 100%;
   max-width: 220px;

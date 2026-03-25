@@ -15,6 +15,30 @@
     return params && params.get('gameId') ? params.get('gameId') : null;
   })();
 
+  // Bot mode (local opponent, no Supabase):
+  // - bot=1 is just a mode flag.
+  // - botLevel is 1|2|3 in the URL (Wordsmith/Literate/Covfefe),
+  //   but we also accept the older 0|1|2 for backward compatibility.
+  var botLevel = (function () {
+    var p = typeof window !== 'undefined' && window.location && window.location.search && window.location.search.slice(1);
+    var params = p ? new URLSearchParams(p) : null;
+    if (!params) return null;
+    var botFlag = params.get('bot');
+    if (!botFlag) return null;
+    var levelRaw = params.get('botLevel');
+    if (levelRaw === null || typeof levelRaw === 'undefined') return null;
+    var n = parseInt(levelRaw, 10);
+    if (isNaN(n)) return null;
+
+    // Accept:
+    // - 0|1|2 (legacy): use as-is
+    // - 1|2|3 (current): map to 0|1|2
+    if (n >= 0 && n < 3) return n;
+    if (n >= 1 && n <= 3) return n - 1;
+
+    return null;
+  })();
+
   /** Local puzzle set (data/puzzles-2.json). Loaded before init; used for versus (puzzle_index) and solo (random). */
   var LOCAL_PUZZLES = [];
   /** Last 100 game boards (any mode) for variety — see js/recent-boards.js */
@@ -75,6 +99,15 @@
   }
   const PANGRAM_BONUS = 5;
   const TOTAL_SECONDS = 5 * 60;
+
+  // Bot difficulties: base seconds between found words in minute 0.
+  // Then it gets 1 second slower (interval increases by +1 each minute).
+  var BOT_LEVELS = [
+    // Base interval is increased by +3 seconds for each difficulty level.
+    { name: 'Wordsmith', baseSeconds: 7 },   // best
+    { name: 'Literate', baseSeconds: 10 },   // medium
+    { name: 'Covfefe', baseSeconds: 13 },   // worst
+  ];
 
   /* ========================================================================
      DOM references (optional elements may be null if not in layout)
@@ -182,6 +215,7 @@
         timerEl.textContent = '—';
         timerEl.classList.add('bitter-end');
       }
+      if (state.isBotGame) scheduleBotNextWord();
     });
   }
   if (btnRoundClose) {
@@ -233,6 +267,13 @@
     gameOver: false,
     roundOver: false,
     gameId: gameId,
+    isBotGame: botLevel !== null && typeof botLevel !== 'undefined' && botLevel >= 0 && botLevel < 3,
+    botLevel: botLevel,
+    botTimerStarted: false,
+    botStartTs: null,
+    botFindTimeoutId: null,
+    botName: null,
+    botBaseSeconds: null,
     myUserId: null,
     opponentWords: new Set(),
     roundPhase: 'round_1',
@@ -499,7 +540,7 @@
       return;
     }
 
-    if (gameId && state.opponentWords && state.opponentWords.has(raw) && !isPangram(raw)) {
+    if ((gameId || state.isBotGame) && state.opponentWords && state.opponentWords.has(raw) && !isPangram(raw)) {
       showValidation('Already found by opponent', 'invalid');
       wordInput.value = '';
       updateMobileWordDisplay();
@@ -589,7 +630,8 @@
     updateMobileWordDisplay();
     if (scoreEl) scoreEl.textContent = state.score;
     if (!gameId || !window.db || !window.db.updateMyGamePlayer) {
-      if (opponentScoreEl) opponentScoreEl.textContent = state.score;
+      // Solo mode only: keep opponent panel in sync (bot mode manages opponentScore separately).
+      if (!state.isBotGame && opponentScoreEl) opponentScoreEl.textContent = state.score;
     }
     if (gameId && window.db && window.db.updateMyGamePlayer) {
       window.db.updateMyGamePlayer(gameId, { score: state.score, words_found: Array.from(state.found) }).catch(function () {});
@@ -624,14 +666,20 @@
 
   /** If all valid words found in Round 1 and round not already over, end the game. */
   function checkWin() {
-    if (state.found.size === VALID_WORDS.size && !state.gameOver && !state.roundOver && state.roundPhase === 'round_1') {
+    // Previously we ended early when the player had found every valid word.
+    // Now we require the player to reach DOUBLE the maximum board points.
+    // (This keeps the same "early win" behavior consistent across solo/versus/bot.)
+    var maxPoints = typeof state.totalBoardPoints === 'number' && !isNaN(state.totalBoardPoints)
+      ? state.totalBoardPoints
+      : computeTotalBoardPoints();
+    if (state.score >= 2 * maxPoints && !state.gameOver && !state.roundOver && state.roundPhase === 'round_1') {
       endGame('All words found!');
     }
   }
 
   /** Reveal opponent's words in the opponent panel (at end of round). */
   function revealOpponentWords() {
-    if (!opponentWordsListEl || !gameId) return;
+    if (!opponentWordsListEl || !(gameId || state.isBotGame)) return;
     if (opponentWordsPlaceholder) opponentWordsPlaceholder.style.display = 'none';
     opponentWordsListEl.innerHTML = '';
     var words = state.opponentWords ? Array.from(state.opponentWords) : [];
@@ -652,6 +700,10 @@
     if (state.timerId) {
       clearInterval(state.timerId);
       state.timerId = null;
+    }
+    if (state.botFindTimeoutId) {
+      clearTimeout(state.botFindTimeoutId);
+      state.botFindTimeoutId = null;
     }
     if (timerEl) {
       timerEl.textContent = '0:00';
@@ -677,12 +729,12 @@
       }
       var myName = state.myUsername || 'You';
       var oppName = state.opponentUsername || 'Opponent';
-      var oppScore = (gameId && state.opponentScore != null) ? state.opponentScore : state.score;
+      var oppScore = ((gameId || state.isBotGame) && state.opponentScore != null) ? state.opponentScore : state.score;
       if (scoresEl) {
-        scoresEl.textContent = myName + ': ' + state.score + (gameId ? ' · ' + oppName + ': ' + oppScore : '');
+        scoresEl.textContent = myName + ': ' + state.score + ((gameId || state.isBotGame) ? ' · ' + oppName + ': ' + oppScore : '');
       }
       var winnerText = '';
-      if (gameId && state.opponentScore != null) {
+      if ((gameId || state.isBotGame) && state.opponentScore != null) {
         var myHasPangram = false;
         state.found.forEach(function (w) {
           if (!myHasPangram && isPangram(w)) myHasPangram = true;
@@ -740,7 +792,7 @@
         showOverlay();
       });
     } else {
-      if (gameId) revealOpponentWords();
+      if (gameId || state.isBotGame) revealOpponentWords();
       showOverlay();
     }
   }
@@ -780,6 +832,71 @@
       else if (state.secondsLeft <= 120) timerEl.classList.add('warning');
     }
     state.timerId = setInterval(tick, 1000);
+
+    if (state.isBotGame && !state.botTimerStarted) {
+      state.botTimerStarted = true;
+      state.botStartTs = Date.now();
+      scheduleBotNextWord();
+    }
+  }
+
+  /* ========================================================================
+     Bot opponent (local opponent, timed word finding)
+     ======================================================================== */
+
+  function getBotIntervalSeconds(elapsedSeconds) {
+    var base = state.botBaseSeconds;
+    if (typeof base !== 'number' || isNaN(base)) base = 4;
+    // Base interval increases by +1 each passing minute.
+    return base + Math.floor(elapsedSeconds / 60);
+  }
+
+  function acceptAndRecordOpponentWord(raw) {
+    var word = String(raw || '').toUpperCase();
+    if (!word || state.opponentWords.has(word)) return;
+
+    state.opponentWords.add(word);
+
+    var basePoints = pointsForWordLength(word.length);
+    var bonus = isPangram(word) ? PANGRAM_BONUS : 0;
+    state.opponentScore += basePoints + bonus;
+    if (opponentScoreEl) opponentScoreEl.textContent = state.opponentScore;
+  }
+
+  function scheduleBotNextWord() {
+    if (!state.isBotGame) return;
+    if (state.gameOver) return;
+
+    if (state.botFindTimeoutId) {
+      clearTimeout(state.botFindTimeoutId);
+      state.botFindTimeoutId = null;
+    }
+
+    var startTs = state.botStartTs || Date.now();
+    state.botStartTs = startTs;
+    var elapsedSeconds = (Date.now() - startTs) / 1000;
+    var intervalSeconds = getBotIntervalSeconds(elapsedSeconds);
+
+    state.botFindTimeoutId = setTimeout(function () {
+      state.botFindTimeoutId = null;
+      if (state.gameOver) return;
+
+      // Find a word the bot can take next.
+      var candidates = [];
+      VALID_WORDS.forEach(function (w) {
+        var word = String(w).toUpperCase();
+        if (state.opponentWords.has(word)) return;
+        // Non-pangrams are exclusive: if the player already has it, bot can't take it.
+        if (!isPangram(word) && state.found.has(word)) return;
+        candidates.push(word);
+      });
+
+      if (!candidates.length) return;
+
+      var pick = candidates[Math.floor(Math.random() * candidates.length)];
+      acceptAndRecordOpponentWord(pick);
+      scheduleBotNextWord();
+    }, Math.max(0, intervalSeconds) * 1000);
   }
 
   /* ========================================================================
@@ -885,6 +1002,42 @@
     return Math.floor(Math.random() * n);
   }
 
+  /**
+   * Bot mode puzzle picker:
+   * - Does NOT use RB/recent history.
+   * - Prefers puzzles with `total_points > 250`.
+   * - Falls back to any local puzzle if none match the threshold.
+   * @returns {number} Puzzle index, or -1 if no puzzles.
+   */
+  function pickBotPuzzleIndex() {
+    if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return -1;
+    var n = LOCAL_PUZZLES.length;
+
+    // Prefer high-scoring boards.
+    var minPoints = 250;
+    var highPoints = [];
+
+    function getPuzzleTotalPoints(p) {
+      if (p && typeof p.total_points === 'number' && !isNaN(p.total_points)) return p.total_points;
+      // Compute from the stored word lists (in case `total_points` is missing).
+      var v = Array.isArray(p && p.valid_words) ? p.valid_words : [];
+      var pang = Array.isArray(p && p.pangrams) ? p.pangrams : [];
+      var wordPt = 0;
+      for (var i = 0; i < v.length; i++) wordPt += pointsForWordLength(String(v[i] || '').length);
+      var pangPt = pang.length * PANGRAM_BONUS;
+      return wordPt + pangPt;
+    }
+
+    for (var idx = 0; idx < n; idx++) {
+      var p = LOCAL_PUZZLES[idx];
+      var tp = getPuzzleTotalPoints(p);
+      if (tp > minPoints) highPoints.push(idx);
+    }
+
+    var pool = highPoints.length ? highPoints : Array.from({ length: n }, function (_, i) { return i; });
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
   /** Save the current game's puzzle index to recent boards (called when starting a game). */
   function saveRecentBoardIndex(index) {
     if (RB && RB.saveRecentBoardIndex && typeof index === 'number' && index >= 0) {
@@ -911,6 +1064,19 @@
 
   async function initSolo() {
     document.body.classList.add('solo-mode');
+    if (state.isBotGame) document.body.classList.add('bot-mode');
+
+    // Even in bot/solo mode, show the logged-in username in the Player card.
+    // (Versus mode sets this from DB rows; solo/bot needs it too.)
+    if (window.db && window.db.getCurrentUserAsync && typeof window.db.getCurrentUserAsync === 'function') {
+      window.db.getCurrentUserAsync().then(function (me) {
+        if (me && me.username) {
+          state.myUsername = me.username;
+          if (playerUsernameEl) playerUsernameEl.textContent = me.username;
+        }
+      }).catch(function () {});
+    }
+
     state.gameOver = false;
     state.roundOver = false;
     state.secondsLeft = TOTAL_SECONDS;
@@ -923,10 +1089,11 @@
     }
     var puzzleSet = false;
     if (LOCAL_PUZZLES && LOCAL_PUZZLES.length > 0) {
-      var idx = pickSoloPuzzleIndex();
+      var idx = state.isBotGame ? pickBotPuzzleIndex() : pickSoloPuzzleIndex();
       if (idx >= 0 && LOCAL_PUZZLES[idx]) {
         setPuzzleFromData(LOCAL_PUZZLES[idx]);
-        saveRecentBoardIndex(idx);
+        // Bot mode should NOT update the user's recent history.
+        if (!state.isBotGame) saveRecentBoardIndex(idx);
         puzzleSet = true;
       }
     }
@@ -943,6 +1110,17 @@
     state.totalBoardPoints = state.totalBoardPoints || computeTotalBoardPoints();
     if (scoreEl) scoreEl.textContent = '0';
     if (opponentScoreEl) opponentScoreEl.textContent = '0';
+    // Bot opponent setup: assign name + speed, and start the timer immediately.
+    if (state.isBotGame && typeof state.botLevel === 'number' && BOT_LEVELS[state.botLevel]) {
+      state.opponentScore = 0;
+      state.opponentWords = new Set();
+      state.botBaseSeconds = BOT_LEVELS[state.botLevel].baseSeconds;
+      state.botName = BOT_LEVELS[state.botLevel].name;
+      state.opponentUsername = state.botName;
+      if (opponentUsernameEl) opponentUsernameEl.textContent = state.botName || 'Opponent';
+      // Start the round immediately so the bot schedule begins without waiting for user input.
+      startTimer();
+    }
     hideGameLoading();
   }
 
