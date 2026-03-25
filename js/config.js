@@ -7,7 +7,7 @@
 // The values are injected at runtime by the Netlify function:
 //   /.netlify/functions/spellbound-config-js
 // which reads `SUPABASE_URL` and `SUPABASE_ANON_KEY` from Netlify environment variables.
-window.__SPELLBOUND_SUPABASE__ = { url: '', anonKey: '' };
+window.__SPELLBOUND_SUPABASE__ = window.__SPELLBOUND_SUPABASE__ || { url: '', anonKey: '' };
 
 /**
  * Dictionary API for fallback word validation. Words not in the puzzle list are

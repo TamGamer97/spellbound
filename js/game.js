@@ -31,10 +31,15 @@
     if (isNaN(n)) return null;
 
     // Accept:
-    // - 0|1|2 (legacy): use as-is
     // - 1|2|3 (current): map to 0|1|2
-    if (n >= 0 && n < 3) return n;
+    // - 0|1|2 (legacy): map to 0|1|2
+    //
+    // IMPORTANT: prioritize the current scheme first so that:
+    //   botLevel=1 => Wordsmith (index 0)
+    //   botLevel=2 => Literate (index 1)
+    //   botLevel=3 => Covfefe (index 2)
     if (n >= 1 && n <= 3) return n - 1;
+    if (n >= 0 && n < 3) return n;
 
     return null;
   })();

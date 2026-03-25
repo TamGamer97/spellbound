@@ -3,3 +3,6 @@
 # Local environment variables (do not commit)
 /.env
 /.env.local
+
+# Local generated secrets for browser config (gitignored)
+/js/config.secrets.js
