@@ -1,0 +1,61 @@
+ALENE	REMOVE	Niche/obscure (not broadly used common word for everyday speech).
+ALERTE	REMOVE	Foreign-language spelling (“alerte”); not standard English usage.
+ALERTLY	REMOVE	Rare adverb form; not “average” common vocabulary.
+ALIO	REMOVE	Looks like Latin/foreign term; not common English word.
+ALITER	REMOVE	Obsolete/Latin usage (“otherwise”); not broadly known.
+ALLERENT	REMOVE	Archaic/Latin conjugation; not standard modern English.
+ALLOCATION	KEEP	Common word (“allocate/allocation”).
+ALLONBY	REMOVE	Place name/surname; not general English vocabulary.
+ALLUME	REMOVE	Obscure/foreign spelling (“allumer”); not common English.
+ALLYING	KEEP	Real English verb (“ally”).
+ALLYN	REMOVE	Surname/proper name; not common general vocabulary.
+ALMAMEN	REMOVE	Obscure; not widely known.
+ALMENO	REMOVE	Foreign language (“almeno”); not English.
+ALMERIA	REMOVE	Place name proper noun.
+ALNAR	REMOVE	Not a broadly common English word.
+ALOE	KEEP	Common everyday word.
+ALTHO	REMOVE	Abbreviation/variant (“although” shorthand); not worth keeping.
+ALTONA	REMOVE	Place name proper noun.
+ALTRUI	REMOVE	Latin (“altrui”); not common English.
+ALTRURIA	REMOVE	Uncommon/possibly fictional or obscure place; not general English.
+ALVIN	REMOVE	Proper name.
+AMALEK	REMOVE	Biblical/proper name.
+AMALGAM	KEEP	Common enough modern English term.
+AMALGAMATE	KEEP	Real word (though more technical, it’s standard English).
+AMALIE	REMOVE	Proper name.
+AMBIENT	KEEP	Common adjective (fairly known in everyday speech/tech).
+AMEER	REMOVE	Foreign title/name; not common English word.
+AMENAIT	REMOVE	Foreign-language past form; not standard English.
+AMERTUME	REMOVE	Foreign-language spelling; not standard English.
+AMIEL	REMOVE	Proper name.
+AMME	REMOVE	Unclear/obscure; not common word.
+AMOOR	REMOVE	Unclear/obscure; likely not the intended common English word.
+AMOY	REMOVE	Place proper noun.
+AMRAM	REMOVE	Biblical/proper name.
+AMREI	REMOVE	Proper name.
+AMTMANN	REMOVE	Foreign title/rare term; not common English vocabulary.
+ANAL	REMOVE	Common word, but the “anal” substring can be sensitive/NSFW—remove for safety.
+ANANDA	REMOVE	Proper name/religious term; not common everyday English.
+ANATOLIA	REMOVE	Place proper noun.
+ANDAMAN	REMOVE	Place proper noun.
+ANDAN	REMOVE	Obscure/unclear English usage.
+ANDANDO	REMOVE	Foreign language.
+ANDANTE	REMOVE	Known in music, but likely too niche for “average 40yr old”.
+ANDARE	REMOVE	Foreign language term.
+ANDAVA	REMOVE	Foreign language/proper name-like.
+ANDEREM	REMOVE	Foreign language/obscure.
+ANFING	REMOVE	Unclear/obscure English.
+ANGEGEBEN	REMOVE	German term (“angegeben”/given); not English.
+ANGELANGT	REMOVE	Obscure/garbled; not standard English word.
+ANGELL	REMOVE	Surname/proper name.
+ANGLED	KEEP	Common past participle adjective/verb.
+ANIE	REMOVE	Obscure/likely foreign spelling.
+ANIGH	REMOVE	Obscure/likely not common English.
+ANIM	REMOVE	Obscure/Latin; not broadly known.
+ANKARA	REMOVE	Place proper noun.
+ANMUT	REMOVE	German term; not English.
+ANNEAU	REMOVE	Foreign spelling (“anneau”); not English.
+ANNONCA	REMOVE	Unclear/likely non-standard.
+ANNULAR	KEEP	Standard English word (geometry/annulus).
+ANNULLING	KEEP	Standard verb form (“annul”).
+

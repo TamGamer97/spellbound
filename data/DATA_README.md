@@ -10,6 +10,12 @@
 | `common-7-letter-words.txt` | Common 7-letter word list (e.g. poslarchive). Used as pangram candidates by the v2 generator. |
 | `wiki-100k.txt` | Word list for generator allowed set and enrichment. |
 
+**Review reference (consolidated)**
+
+- `review-reference-all.txt` | Consolidated annotated reference of:
+  `invalid-valid-words.txt`, `pangram-review.txt`, `bad-pangrams.txt`,
+  `valid-words-export.txt`, and `word-review-candidates.txt`.
+
 **Archive (`data/archive/`):**
 
 Legacy or experimental files not used by the app:
@@ -18,3 +24,8 @@ Legacy or experimental files not used by the app:
 - `puzzles-v3-experimental.json` — Output of v3 Python generator (optional).
 - `pangram-words-extract.txt` — One-time extraction of unique pangrams (redundant with `pangram-review.txt`).
 - `pangram-candidates.txt` — Small manual candidate list (reference).
+
+- Word review batch artifacts are stored under `data/archive/word-review-batches/`:
+  - `word-review-batch*.txt`
+  - `word-review-fast-batch*.txt`
+  (Prefer the consolidated `word-review-all-batches.txt` in the main `data/` folder.)

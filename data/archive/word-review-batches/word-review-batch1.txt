@@ -1,0 +1,60 @@
+AABNEDE	REMOVE	Very obscure/likely archaic variant; not broadly known.
+AACUTE	REMOVE	Looks like a technical/accented artifact (“aacute”); not a common English word.
+AAGOT	REMOVE	Obscure/variant form; not familiar for general English.
+AANVAL	REMOVE	Obscure/possibly not standard English.
+AARDIG	REMOVE	Non-English (Dutch-style spelling); not standard English.
+ABAHT	REMOVE	Obscure; not broadly common.
+ABBA	REMOVE	Primarily a proper noun (band); too “proper-name-like” for general boards.
+ABBAYE	REMOVE	French/foreign spelling (“abbaye”); not typical English word.
+ABIDED	KEEP	Common verb form (“abide”); most English speakers know it.
+ABIGAEL	REMOVE	Proper-noun/name variant; not general common vocabulary.
+ABOON	REMOVE	Scots/rare “above”-type word; not common for average speaker.
+ABORDER	REMOVE	Obscure/rare; likely not familiar.
+ABRIDGING	KEEP	Common verb (“abridging”).
+ABRIR	REMOVE	Foreign language (“abrir”); not English.
+ABUL	REMOVE	Obscure/proper-name-like.
+ACADEMIE	REMOVE	French/foreign spelling (“Académie”); not standard English.
+ACCT	REMOVE	Abbreviation/technical shorthand (“acct”); not a normal word for Spellings.
+ACHETE	REMOVE	Foreign language form (“acheté”); not English.
+ACTA	REMOVE	Latin/legal plural (“acta”); uncommon outside niche contexts.
+ADDA	REMOVE	Proper noun/name-like.
+ADDICTION	KEEP	Common and widely known.
+ADDLED	KEEP	Common adjective (“addled”).
+ADERN	REMOVE	Proper noun/surname-like; not general English word.
+ADORAIT	REMOVE	Foreign language form (“adorait”); not English.
+ADRENAL	KEEP	Common medical term; generally known.
+ADRIANA	REMOVE	Proper noun/name.
+ADULTERATE	KEEP	Common vocabulary word.
+AEGINA	REMOVE	Proper noun (place).
+AENDA	REMOVE	Obscure/likely variant (“agenda” misspelling); not reliable common word.
+AEOLIAN	REMOVE	Niche/technical term; less likely “average 40yr old” known.
+AETHER	REMOVE	Archaic/poetic word; may be known by some but too uncommon.
+AETNA	REMOVE	Proper noun (Etna miss/variant); not general English.
+AFFECTAIT	REMOVE	Foreign-language past form (“affectait”); not English.
+AFRIC	REMOVE	Archaic/unclear; likely not common English.
+AGAG	REMOVE	Proper noun/biblical reference; uncommon.
+AGEING	KEEP	Common British variant (“ageing”).
+AGENDA	KEEP	Common word.
+AGERE	REMOVE	Archaic/Latin-based; not common modern English.
+AGITAIT	REMOVE	Foreign-language past form (“agita it/agitait”); not English.
+AGITANT	REMOVE	Rare/uncommon word form.
+AGNE	REMOVE	Obscure/technical; not commonly known.
+AGOING	REMOVE	Archaic/rare; not common.
+AGONIE	REMOVE	Foreign spelling (“agonie”); not English.
+AGUILAR	REMOVE	Proper noun/surname.
+AGUIRRE	REMOVE	Proper noun/surname.
+AHRIMAN	REMOVE	Proper noun/demon name; not common English.
+AIGUILLE	REMOVE	French/foreign spelling; not English.
+AINE	REMOVE	Non-English/rare proper-name-like.
+AINO	REMOVE	Non-English/proper-name-like.
+AIRMAN	KEEP	Common word (“airman”).
+AIRPLANE	KEEP	Common word.
+AIRTH	REMOVE	Scots/rare term; not common.
+AKIM	REMOVE	Proper noun/name.
+ALAIRE	REMOVE	Looks foreign/obscure; not widely known English.
+ALAMEDA	REMOVE	Place proper noun; not general.
+ALBERTA	REMOVE	Place proper noun.
+ALCALA	REMOVE	Place proper noun.
+ALCUIN	REMOVE	Proper noun/name.
+ALCUNA	REMOVE	Foreign/obscure spelling; not common English.
+ALDA	REMOVE	Proper noun/name.
