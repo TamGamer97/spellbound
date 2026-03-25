@@ -8,6 +8,21 @@ Spelling Bee–style word game with **solo** and **versus** modes, built on Supa
 - **Game data**: precomputed puzzle set in `data/puzzles-2.json`, plus word lists and review files.
 - **Backend**: Supabase (auth, users, games, matchmaking) + optional Netlify Functions (e.g. on‑the‑fly puzzle generation).
 
+## Bot mode
+
+In addition to **solo** and **versus**, the lobby includes **“Challenge a bot”** with 3 difficulty levels:
+- `Wordsmith` (fastest bot)
+- `Literate`
+- `Covfefe` (slowest bot)
+
+How it works:
+- The lobby starts the bot by redirecting to `game.html` with:
+  - `bot=1` (mode flag)
+  - `botLevel=1|2|3` (difficulty)
+- Bot games use a local opponent (no Supabase matchmaking).
+- The bot finds words automatically on a timer and the opponent card shows the bot name and score.
+- Bot games do **not** use the “recent boards” history tracking that versus/solo uses for variety.
+
 ## How puzzles are generated
 
 - The main generator lives in `scripts/v2/index.js` (see `scripts/v2/README.md` for full details).
