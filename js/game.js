@@ -500,12 +500,10 @@
 
     if (!raw) return;
 
-    if (VALID_WORDS.size > 0 && state.found.size >= VALID_WORDS.size) {
-      showValidation('Found all words!', 'great');
-      wordInput.value = '';
-      updateMobileWordDisplay();
-      return;
-    }
+    // If the player has already found all valid words, we simply don't
+    // trigger any special "win" flow here. Further submits will be handled
+    // normally (e.g. "Taken" for already-found words) and the game ends
+    // via the timer/normal round logic.
 
     if (raw.length < MIN_LENGTH) {
       showValidation('Too short', 'invalid');
@@ -671,15 +669,7 @@
 
   /** If all valid words found in Round 1 and round not already over, end the game. */
   function checkWin() {
-    // Previously we ended early when the player had found every valid word.
-    // Now we require the player to reach DOUBLE the maximum board points.
-    // (This keeps the same "early win" behavior consistent across solo/versus/bot.)
-    var maxPoints = typeof state.totalBoardPoints === 'number' && !isNaN(state.totalBoardPoints)
-      ? state.totalBoardPoints
-      : computeTotalBoardPoints();
-    if (state.score >= 2 * maxPoints && !state.gameOver && !state.roundOver && state.roundPhase === 'round_1') {
-      endGame('All words found!');
-    }
+    // Intentionally no-op: reaching "all words found" should NOT end the game.
   }
 
   /** Reveal opponent's words in the opponent panel (at end of round). */
