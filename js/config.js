@@ -2,10 +2,12 @@
  * Spellbound — Supabase config
  * Project URL: Supabase Dashboard → Spellbound → Settings → API → Project URL
  */
-window.__SPELLBOUND_SUPABASE__ = {
-  url: 'https://wzhdutwkcqaabkbbltyk.supabase.co',
-  anonKey: 'sb_publishable_BBAiZj0TNkQkTbJbCY-KlQ_EBXHxeCr'
-};
+// NOTE:
+// This file intentionally does NOT contain Supabase credentials.
+// The values are injected at runtime by the Netlify function:
+//   /.netlify/functions/spellbound-config-js
+// which reads `SUPABASE_URL` and `SUPABASE_ANON_KEY` from Netlify environment variables.
+window.__SPELLBOUND_SUPABASE__ = { url: '', anonKey: '' };
 
 /**
  * Dictionary API for fallback word validation. Words not in the puzzle list are

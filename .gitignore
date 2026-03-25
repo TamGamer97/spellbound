@@ -1,1 +1,5 @@
 /demo-recording
+
+# Local environment variables (do not commit)
+/.env
+/.env.local
