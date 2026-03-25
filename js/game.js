@@ -108,9 +108,9 @@
   // Bot difficulties: base seconds between found words in minute 0.
   // Then it gets 1 second slower (interval increases by +1 each minute).
   var BOT_LEVELS = [
-    { name: 'Wordsmith', baseSeconds: 2 },   // best
-    { name: 'Literate', baseSeconds: 5 },    // medium
-    { name: 'Covfefe', baseSeconds: 8 },     // worst
+    { name: 'Wordsmith', baseSeconds: 4 },   // best
+    { name: 'Literate', baseSeconds: 7 },    // medium
+    { name: 'Covfefe', baseSeconds: 10 },     // worst
   ];
 
   /* ========================================================================
