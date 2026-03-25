@@ -673,18 +673,15 @@
   /** If all valid words found in Round 1 and round not already over, end the game. */
   function checkWin() {
     if (!state || state.gameOver || state.roundOver || state.roundPhase !== 'round_1') return;
-    // End only when the player has completed the puzzle.
-    //
-    // Note: in the current scoring implementation, when all `VALID_WORDS`
-    // are found, the player's score should reach the puzzle maximum
-    // (`totalBoardPoints`). We use `>= maxPoints` for robustness.
+    // End only when the player has found all puzzle words AND score is at
+    // least 10× the puzzle maximum (`totalBoardPoints`).
     if (state.found.size !== VALID_WORDS.size) return;
 
     var maxPoints = typeof state.totalBoardPoints === 'number' && !isNaN(state.totalBoardPoints)
       ? state.totalBoardPoints
       : computeTotalBoardPoints();
 
-    if (state.score >= maxPoints) {
+    if (state.score >= 10 * maxPoints) {
       endGame('All words found!');
     }
   }
