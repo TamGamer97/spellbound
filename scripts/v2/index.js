@@ -10,8 +10,26 @@ const MIN_WORD_LENGTH = 4;
 const MAX_WORD_LENGTH = 12;
 const MIN_WORD_COUNT = 15;
 const MIN_PANGRAMS = 2;
-/** Letters that must not appear in any puzzle (no S, Q, X, or Z boards). */
-const BANNED_LETTERS = new Set(["s", "q", "x", "z"]);
+/**
+ * Letters that must not appear in any generated puzzle.
+ * NYT-style: no S (easy plurals). Q/X/Z/J/etc. are allowed for more varied boards.
+ */
+const BANNED_LETTERS = new Set(["s"]);
+
+/** Scrabble tile values — used to try pangrams / centers with rarer letters more often. */
+const SCRABBLE_VALUES = {
+  a: 1, b: 3, c: 3, d: 2, e: 1, f: 4, g: 2, h: 4, i: 1, j: 8, k: 5, l: 1, m: 3,
+  n: 1, o: 1, p: 3, q: 10, r: 1, s: 1, t: 1, u: 1, v: 4, w: 4, x: 8, y: 4, z: 10,
+};
+
+function raritySumForLetterString(lowerSevenLetters) {
+  let sum = 0;
+  for (let i = 0; i < lowerSevenLetters.length; i++) {
+    const ch = lowerSevenLetters[i];
+    sum += SCRABBLE_VALUES[ch] || 0;
+  }
+  return sum;
+}
 const WIKI_WORD_LIST_PATH = path.join(__dirname, "../../data/wiki-100k.txt");
 
 /** Only words in the 10k list are allowed in valid_words and pangrams. No local file or 20k—only this 10k source. */
@@ -94,10 +112,6 @@ function isValidWord(word, lettersSet, centerLetter) {
   return true;
 }
 
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
 /**
  * Generate one Spelling Bee puzzle (NYT rules):
  * - Exactly 7 unique letters, one center letter
@@ -138,7 +152,7 @@ function generatePuzzle(wordList, allowedSet, excludeLetterSets) {
       if (!bannedHit) afterBanned++;
     }
     console.log("DEBUG pangrams (7-letter words in allowedSet):", totalRaw);
-    console.log("DEBUG pangrams after excluding banned letters", Array.from(BANNED_LETTERS).join(","), ":", afterBanned);
+    console.log("DEBUG pangrams after excluding banned letters (no S):", afterBanned);
     const sample = rawPangrams.slice(0, 30).map(w => {
       const letters = getUniqueLetters(w);
       const hasBanned = Array.from(BANNED_LETTERS).some(b => letters.includes(b));
@@ -173,12 +187,16 @@ function generatePuzzle(wordList, allowedSet, excludeLetterSets) {
         excludeLetterSets.size + ")."
       );
     }
-    throw new Error("No pangrams found (in allowed list and without S/Q).");
+    throw new Error("No pangrams found (in allowed list; boards exclude S only).");
   }
 
-  // Try every pangram (in random order) and, for each, try all 7 possible center letters.
+  // Try pangrams in an order biased toward rarer letter sets (with noise for variety).
   // Pre-filtering baseCandidates per pangram keeps this fast.
-  const shuffledPangrams = shuffle([...pangrams]);
+  const shuffledPangrams = [...pangrams].sort((a, b) => {
+    const ra = raritySumForLetterString(getUniqueLetters(a)) + Math.random() * 14;
+    const rb = raritySumForLetterString(getUniqueLetters(b)) + Math.random() * 14;
+    return rb - ra;
+  });
   for (const randomPangram of shuffledPangrams) {
     const letters = getUniqueLetters(randomPangram).split("");
     const lettersSet = new Set(letters);
@@ -192,7 +210,11 @@ function generatePuzzle(wordList, allowedSet, excludeLetterSets) {
       return true;
     });
 
-    const centers = shuffle([...letters]);
+    const centers = [...letters].sort((a, b) => {
+      const sa = (SCRABBLE_VALUES[a] || 0) + Math.random() * 4;
+      const sb = (SCRABBLE_VALUES[b] || 0) + Math.random() * 4;
+      return sb - sa;
+    });
 
     for (const center of centers) {
       const outer = letters.filter((ch) => ch !== center);

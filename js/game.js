@@ -50,8 +50,13 @@
   var RB = typeof window !== 'undefined' && window.SpellboundRecentBoards ? window.SpellboundRecentBoards : null;
   /** Blocklist for dictionary fallback: words in this set are never accepted. */
   var DICTIONARY_BLOCKLIST = new Set();
-  /** Prevents double-submit while dictionary/profanity check is in flight. */
-  var dictionaryCheckInFlight = false;
+  /** Abort previous dictionary API request when the player submits a different word. */
+  var dictionaryFetchController = null;
+  /**
+   * Incremented on each dictionary-path submit so async completions from an older attempt
+   * never accept/clear the wrong word (avoids "freeze then only first word counts").
+   */
+  var activeDictionaryReqId = 0;
   /** Words we've confirmed as valid via dictionary this session (skip re-fetch on retry). */
   var dictionaryValidCache = new Set();
 
@@ -62,10 +67,15 @@
     'slut', 'whore', 'wanker', 'bollocks', 'darn', 'dang', 'freaking', 'effing'
   ]);
 
+  /** Sync: true if the word is blocked by the local profanity list. */
+  function isProfanityBlocked(word) {
+    var key = String(word).trim().toLowerCase();
+    return LOCAL_PROFANITY.has(key);
+  }
+
   /** Returns a Promise<boolean>: true if the word is in the local profanity blocklist. No network. */
   function checkProfanity(word) {
-    var key = String(word).trim().toLowerCase();
-    return Promise.resolve(LOCAL_PROFANITY.has(key));
+    return Promise.resolve(isProfanityBlocked(word));
   }
 
   /** Returns true if the word (case-insensitive) is in the shared blocklist (countries, months, names). See js/proper-noun-blocklist.js */
@@ -557,19 +567,13 @@
 
     var inPuzzleList = VALID_WORDS.has(raw);
     if (inPuzzleList) {
-      if (dictionaryCheckInFlight) return;
-      dictionaryCheckInFlight = true;
-      checkProfanity(raw)
-        .then(function (hasProfanity) {
-          if (hasProfanity) {
-            showValidation("That word isn't allowed", 'invalid');
-            wordInput.value = '';
-            updateMobileWordDisplay();
-          } else {
-            acceptAndRecordWord(raw);
-          }
-        })
-        .finally(function () { dictionaryCheckInFlight = false; });
+      if (isProfanityBlocked(raw)) {
+        showValidation("That word isn't allowed", 'invalid');
+        wordInput.value = '';
+        updateMobileWordDisplay();
+        return;
+      }
+      acceptAndRecordWord(raw);
       return;
     }
 
@@ -580,49 +584,57 @@
       return;
     }
 
+    activeDictionaryReqId++;
+    var reqId = activeDictionaryReqId;
+    if (dictionaryFetchController) {
+      try {
+        dictionaryFetchController.abort();
+      } catch (e) { /* ignore */ }
+    }
+    dictionaryFetchController = new AbortController();
+    var signal = dictionaryFetchController.signal;
+
     var apiBase = typeof window.__SPELLBOUND_DICTIONARY_API__ !== 'undefined' && window.__SPELLBOUND_DICTIONARY_API__
       ? window.__SPELLBOUND_DICTIONARY_API__
       : 'https://api.dictionaryapi.dev/api/v2/entries/en';
     var apiUrl = apiBase.replace(/\/$/, '') + '/' + encodeURIComponent(raw.toLowerCase());
 
-    if (dictionaryCheckInFlight) return;
-    dictionaryCheckInFlight = true;
-
-    function doProfanityThenAccept() {
-      dictionaryValidCache.add(raw);
-      return checkProfanity(raw).then(function (hasProfanity) {
+    function doProfanityThenAccept(word) {
+      dictionaryValidCache.add(word);
+      return checkProfanity(word).then(function (hasProfanity) {
+        if (reqId !== activeDictionaryReqId) return;
         if (hasProfanity) {
           showValidation("That word isn't allowed", 'invalid');
           wordInput.value = '';
           updateMobileWordDisplay();
         } else {
-          acceptAndRecordWord(raw);
+          acceptAndRecordWord(word);
         }
       });
     }
 
     if (dictionaryValidCache.has(raw)) {
-      doProfanityThenAccept().finally(function () { dictionaryCheckInFlight = false; });
+      doProfanityThenAccept(raw).catch(function () {});
       return;
     }
 
-    fetch(apiUrl)
+    fetch(apiUrl, { signal: signal })
       .then(function (res) {
+        if (reqId !== activeDictionaryReqId) return;
         if (!res.ok) {
           showValidation('Not a word', 'invalid');
           wordInput.value = '';
           updateMobileWordDisplay();
           return;
         }
-        return doProfanityThenAccept();
+        return doProfanityThenAccept(raw);
       })
-      .catch(function () {
+      .catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        if (reqId !== activeDictionaryReqId) return;
         showValidation('Not a word', 'invalid');
         wordInput.value = '';
         updateMobileWordDisplay();
-      })
-      .finally(function () {
-        dictionaryCheckInFlight = false;
       });
   }
 
@@ -1125,17 +1137,65 @@
     if (!gameId) { startTimer(); honeycomb.removeEventListener('click', startOnce); }
   });
 
+  /** Scrabble tile values — sum over 7 unique letters ≈ how “spicy” the board is. */
+  var LETTER_SCRABBLE = {
+    A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4, I: 1, J: 8, K: 5, L: 1, M: 3,
+    N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10,
+  };
+
+  function puzzleLetterRaritySum(p) {
+    if (!p) return 0;
+    var c = String(p.center_letter || '').toUpperCase();
+    var o = String(p.outer_letters || '').toUpperCase();
+    var seen = {};
+    var sum = 0;
+    for (var i = 0; i < c.length; i++) {
+      var ch = c[i];
+      if (seen[ch]) continue;
+      seen[ch] = true;
+      sum += LETTER_SCRABBLE[ch] || 0;
+    }
+    for (var j = 0; j < o.length; j++) {
+      var ch2 = o[j];
+      if (seen[ch2]) continue;
+      seen[ch2] = true;
+      sum += LETTER_SCRABBLE[ch2] || 0;
+    }
+    return sum;
+  }
+
+  /** Weight ≥ 1; higher for boards with Q, J, X, Z, K, V, etc. */
+  function puzzleRarityPickWeight(p) {
+    var s = puzzleLetterRaritySum(p);
+    return Math.pow(1.042, s);
+  }
+
+  function pickWeightedPuzzleIndex(indices, getWeight) {
+    var total = 0;
+    var weights = [];
+    for (var i = 0; i < indices.length; i++) {
+      var w = getWeight(LOCAL_PUZZLES[indices[i]]);
+      if (!(w > 0) || !isFinite(w)) w = 1;
+      weights.push(w);
+      total += w;
+    }
+    var r = Math.random() * total;
+    for (var j = 0; j < indices.length; j++) {
+      r -= weights[j];
+      if (r <= 0) return indices[j];
+    }
+    return indices[indices.length - 1];
+  }
+
   /**
-   * Pick a puzzle index at random; if it's in the user's recent list, retry.
-   * Max 200 tries then allow any. This is the primary path while there are still
-   * unused local boards available.
+   * Pick a puzzle index; avoids recent history when possible.
+   * Biased toward boards with rarer letters (Scrabble-style weights).
    * @returns {number} Puzzle index, or -1 if no puzzles.
    */
   function pickSoloPuzzleIndex() {
     if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return -1;
     var recent = RB && RB.getRecentBoardIndices ? RB.getRecentBoardIndices() : [];
     var recentSet = new Set(recent);
-    var maxTries = 200;
     var n = LOCAL_PUZZLES.length;
 
     // If every local board has been played at least once (within our recent history),
@@ -1144,11 +1204,12 @@
       return -1;
     }
 
-    for (var t = 0; t < maxTries; t++) {
-      var idx = Math.floor(Math.random() * n);
-      if (!recentSet.has(idx)) return idx;
+    var eligible = [];
+    for (var i = 0; i < n; i++) {
+      if (!recentSet.has(i)) eligible.push(i);
     }
-    return Math.floor(Math.random() * n);
+    if (eligible.length === 0) return Math.floor(Math.random() * n);
+    return pickWeightedPuzzleIndex(eligible, puzzleRarityPickWeight);
   }
 
   /**
@@ -1156,6 +1217,7 @@
    * - Does NOT use RB/recent history.
    * - Prefers puzzles with `total_points > 250`.
    * - Falls back to any local puzzle if none match the threshold.
+   * - Among candidates, biased toward rarer letter sets.
    * @returns {number} Puzzle index, or -1 if no puzzles.
    */
   function pickBotPuzzleIndex() {
@@ -1184,7 +1246,7 @@
     }
 
     var pool = highPoints.length ? highPoints : Array.from({ length: n }, function (_, i) { return i; });
-    return pool[Math.floor(Math.random() * pool.length)];
+    return pickWeightedPuzzleIndex(pool, puzzleRarityPickWeight);
   }
 
   /** Save the current game's puzzle index to recent boards (called when starting a game). */
