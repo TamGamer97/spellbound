@@ -1214,17 +1214,31 @@
 
   /**
    * Bot mode puzzle picker:
-   * - Does NOT use RB/recent history.
+   * - Uses RB/recent history to avoid repeat boards.
    * - Prefers puzzles with `total_points > 250`.
-   * - Falls back to any local puzzle if none match the threshold.
+   * - Falls back to any eligible local puzzle if none match the threshold.
    * - Among candidates, biased toward rarer letter sets.
-   * @returns {number} Puzzle index, or -1 if no puzzles.
+   * @returns {number} Puzzle index, or -1 if all recent boards are exhausted.
    */
   function pickBotPuzzleIndex() {
     if (!LOCAL_PUZZLES || LOCAL_PUZZLES.length === 0) return -1;
+    var recent = RB && RB.getRecentBoardIndices ? RB.getRecentBoardIndices() : [];
+    var recentSet = new Set(recent);
     var n = LOCAL_PUZZLES.length;
 
-    // Prefer high-scoring boards.
+    // If every local board has been played at least once (within our recent history),
+    // signal exhaustion so the caller can fall back to on-the-fly generation.
+    if (n > 0 && recentSet.size >= n) {
+      return -1;
+    }
+
+    var eligible = [];
+    for (var i = 0; i < n; i++) {
+      if (!recentSet.has(i)) eligible.push(i);
+    }
+    if (eligible.length === 0) return -1;
+
+    // Prefer high-scoring boards (but only among eligible).
     var minPoints = 250;
     var highPoints = [];
 
@@ -1239,13 +1253,14 @@
       return wordPt + pangPt;
     }
 
-    for (var idx = 0; idx < n; idx++) {
-      var p = LOCAL_PUZZLES[idx];
+    for (var idx = 0; idx < eligible.length; idx++) {
+      var i = eligible[idx];
+      var p = LOCAL_PUZZLES[i];
       var tp = getPuzzleTotalPoints(p);
-      if (tp > minPoints) highPoints.push(idx);
+      if (tp > minPoints) highPoints.push(i);
     }
 
-    var pool = highPoints.length ? highPoints : Array.from({ length: n }, function (_, i) { return i; });
+    var pool = highPoints.length ? highPoints : eligible;
     return pickWeightedPuzzleIndex(pool, puzzleRarityPickWeight);
   }
 
@@ -1303,8 +1318,7 @@
       var idx = state.isBotGame ? pickBotPuzzleIndex() : pickSoloPuzzleIndex();
       if (idx >= 0 && LOCAL_PUZZLES[idx]) {
         setPuzzleFromData(LOCAL_PUZZLES[idx]);
-        // Bot mode should NOT update the user's recent history.
-        if (!state.isBotGame) saveRecentBoardIndex(idx);
+        saveRecentBoardIndex(idx);
         puzzleSet = true;
       }
     }
