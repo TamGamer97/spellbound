@@ -14,8 +14,10 @@
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/game.css">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="letters-bg" id="lettersBg" aria-hidden="true"></div>
   <div class="game-loading" id="game-loading" aria-live="polite" aria-busy="true">
     <div class="game-loading-spinner"></div>
     <p class="game-loading-text">Loading…</p>
@@ -161,5 +163,23 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/db.js"></script>
   <script src="js/game.js"></script>
+  <script>
+  (function(){
+    var lbg=document.getElementById('lettersBg');
+    if(!lbg)return;
+    var ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for(var i=0;i<16;i++){
+      var el=document.createElement('div');
+      el.className='lf';
+      el.setAttribute('aria-hidden','true');
+      el.textContent=ALPHA[Math.floor(Math.random()*26)];
+      el.style.left=Math.random()*100+'%';
+      el.style.animationDuration=(14+Math.random()*18)+'s';
+      el.style.animationDelay=(-Math.random()*22)+'s';
+      el.style.fontSize=(1.5+Math.random()*3)+'rem';
+      lbg.appendChild(el);
+    }
+  })();
+  </script>
 </body>
 </html>

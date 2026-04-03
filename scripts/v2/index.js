@@ -53,7 +53,7 @@ const FILTER_OBSCURE_SUFFIXES = true;
  */
 function loadWordList() {
   const filePath = WIKI_WORD_LIST_PATH;
-  if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(filePath)) {
     throw new Error("Missing word list: " + filePath);
   }
 
@@ -69,8 +69,8 @@ function loadWordList() {
     if (FILTER_OBSCURE_SUFFIXES && OBSCURE_SUFFIXES.some(s => word.endsWith(s))) {
       continue;
     }
-    words.add(word);
-  }
+          words.add(word);
+        }
 
   return Array.from(words);
 }
@@ -221,19 +221,19 @@ function generatePuzzle(wordList, allowedSet, excludeLetterSets) {
 
       const candidateWords = baseCandidates.filter((w) => w.includes(center));
       const validWords = candidateWords.filter((w) => allowedSet.has(w));
-      const pangramWords = validWords.filter(
+    const pangramWords = validWords.filter(
         (w) => getUniqueLetters(w).length === 7
-      );
+    );
 
-      if (
-        validWords.length >= MIN_WORD_COUNT &&
+    if (
+      validWords.length >= MIN_WORD_COUNT &&
         pangramWords.length >= MIN_PANGRAMS
-      ) {
-        return {
-          letters,
-          center,
-          outer,
-          validWords: validWords.sort(),
+    ) {
+      return {
+        letters,
+        center,
+        outer,
+        validWords: validWords.sort(),
           pangramWords: pangramWords.sort(),
         };
       }

@@ -177,9 +177,9 @@
   }
   function doLeave() {
     if (gameId && window.db && window.db.leaveGame) {
-      window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+      window.db.leaveGame(gameId).then(function () { window.location.href = '/lobby'; }).catch(function () { window.location.href = '/lobby'; });
     } else {
-      window.location.href = 'lobby.html';
+      window.location.href = '/lobby';
     }
   }
 
@@ -243,9 +243,9 @@
   if (btnRoundLeave) {
     btnRoundLeave.addEventListener('click', function () {
       if (gameId && window.db && window.db.leaveGame) {
-        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+        window.db.leaveGame(gameId).then(function () { window.location.href = '/lobby'; }).catch(function () { window.location.href = '/lobby'; });
       } else {
-        window.location.href = 'lobby.html';
+        window.location.href = '/lobby';
       }
     });
   }
@@ -256,9 +256,9 @@
         opponentLeftNotifOverlay.setAttribute('aria-hidden', 'true');
       }
       if (gameId && window.db && window.db.leaveGame) {
-        window.db.leaveGame(gameId).then(function () { window.location.href = 'lobby.html'; }).catch(function () { window.location.href = 'lobby.html'; });
+        window.db.leaveGame(gameId).then(function () { window.location.href = '/lobby'; }).catch(function () { window.location.href = '/lobby'; });
       } else {
-        window.location.href = 'lobby.html';
+        window.location.href = '/lobby';
       }
     });
   }
@@ -1422,7 +1422,7 @@
             closeInGameChallengePopup();
             var accepterRecent = RB && RB.getRecentBoardIndices ? RB.getRecentBoardIndices() : [];
             db.acceptChallenge(id, accepterRecent).then(function (gameId) {
-              window.location.href = 'game.html?gameId=' + encodeURIComponent(gameId);
+              window.location.href = '/game?gameId=' + encodeURIComponent(gameId);
             }).catch(closeInGameChallengePopup);
           });
         }
