@@ -1,5 +1,6 @@
 # Netlify redirects & rewrites (publish root)
 # Order: more specific paths first. Query strings are preserved on rewrites.
+/    /spellbound-redesigned.html    200
 
 # Live game stays on the original game page
 /game    /game.html    200
