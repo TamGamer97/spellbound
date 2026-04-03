@@ -362,16 +362,86 @@ button.mode-btn{display:block;box-sizing:border-box;font:inherit}
 .modal-sub{color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:1.3rem}
 .modal-score{font-family:'Fredoka One',cursive;font-size:3.2rem;color:var(--teal);margin-bottom:.2rem}
 .modal-slbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:1.4rem}
-.modal-btns{display:flex;gap:.7rem;justify-content:center}
+.modal-btns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
 
-/* RESPONSIVE */
+/* RESPONSIVE — tablet */
 @media(max-width:900px){
-  .hero-inner{grid-template-columns:1fr}.hero-board{display:none}
-  .modes-grid{grid-template-columns:1fr}
-  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .container{padding:0 1.25rem}
+  .hero{padding:2.5rem 0 2rem}
+  .hero-inner{grid-template-columns:1fr;gap:2rem;text-align:center}
+  .hero-board{display:none}
+  .hero-desc{margin-left:auto;margin-right:auto}
+  .hero-btns{justify-content:center}
+  .hero-stats{justify-content:center;flex-wrap:wrap;gap:1.25rem 2rem}
+  .modes-hero{padding:2rem 0 1.5rem}
+  .modes-grid{grid-template-columns:1fr;gap:1.1rem;margin-bottom:2rem}
+  .mode-card{padding:1.65rem 1.35rem}
+  .steps-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .how-title{font-size:clamp(1.35rem,4vw,1.75rem)}
   .game-wrap{grid-template-columns:1fr;padding:1rem}
   .player-card{position:static}
-  .auth-inner{grid-template-columns:1fr}.auth-left{display:none}
+  .auth-inner{grid-template-columns:1fr;gap:2rem;padding:0 1.25rem}
+  .auth-left{display:none}
+  .auth-wrap{padding:1.5rem 0}
+  #screen-lobby .modes-hero{padding-top:2rem}
+}
+
+/* RESPONSIVE — nav + compact UI */
+@media(max-width:720px){
+  nav{padding:.65rem 1rem;flex-wrap:wrap;row-gap:.5rem;align-items:center}
+  .nav-logo{font-size:1.35rem}
+  .nav-links{gap:.75rem 1rem;flex-wrap:wrap;justify-content:center}
+  .nav-links li{font-size:.8rem}
+  .btn-ghost-nav,.btn-solid-nav{padding:.45rem .95rem;font-size:.78rem}
+  .nav-welcome{max-width:120px;font-size:.76rem}
+  #nav-right-user .lb-settings{width:2.15rem;height:2.15rem;font-size:1.05rem}
+  .section-title{font-size:clamp(1.65rem,6vw,2.4rem)}
+  .section-sub{font-size:.9rem;margin-left:auto;margin-right:auto;padding:0 .25rem}
+  .toast{left:1rem;right:1rem;max-width:none;transform:none;text-align:center;padding:.55rem 1rem;font-size:.82rem;white-space:normal;line-height:1.35}
+}
+
+/* RESPONSIVE — phone */
+@media(max-width:560px){
+  nav{flex-direction:column;align-items:stretch;padding:.65rem 1rem;padding-top:max(.65rem,env(safe-area-inset-top));padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right))}
+  .nav-logo{text-align:center;font-size:1.4rem}
+  .nav-links{order:unset;width:100%;justify-content:center;padding-top:.55rem;margin-top:.15rem;border-top:1px solid var(--border);gap:.5rem .85rem}
+  .nav-right{align-self:center;margin-top:.25rem}
+  .nav-right.guest-only{flex-wrap:wrap;justify-content:center}
+  .hero{padding:1.75rem 0 1.5rem}
+  h1.hero-title{font-size:clamp(2rem,10vw,2.85rem)}
+  .hero-btns{flex-direction:column;align-items:stretch;gap:.65rem;max-width:320px;margin-left:auto;margin-right:auto}
+  .hero-btns .btn-primary,.hero-btns .btn-outline{width:100%;text-align:center;box-sizing:border-box}
+  .hero-stats{gap:1rem 1.5rem}
+  .stat-n{font-size:1.45rem}
+  .modes-hero{padding:1.5rem 0 1rem}
+  .mode-card{padding:1.4rem 1.1rem;gap:.75rem}
+  .mode-name{font-size:clamp(1.15rem,4.5vw,1.45rem)}
+  .mode-desc{font-size:.82rem}
+  .mode-details{padding-top:.65rem}
+  .mode-btn{min-height:44px;padding:.78rem 1rem}
+  .bot-levels{gap:.35rem}
+  .bot-chip{font-size:.65rem;padding:.22rem .55rem}
+  .steps-grid{grid-template-columns:1fr;gap:.85rem}
+  .step-card{padding:1.15rem .95rem}
+  .modal-box{padding:1.75rem 1.25rem;width:min(100%,380px)}
+  .modal-btns{flex-direction:column;align-items:stretch}
+  .modal-btns .btn-primary,.modal-btns .btn-outline{width:100%;text-align:center;box-sizing:border-box}
+  .modal-title{font-size:1.55rem}
+  .screen.active{padding-bottom:env(safe-area-inset-bottom,0px)}
+  footer{padding:1.25rem 1rem;padding-bottom:max(1.25rem,env(safe-area-inset-bottom));font-size:.76rem}
+  .auth-card{padding:1.35rem 1.1rem}
+  .fsub{min-height:44px}
+  .lb-notif-actions button{min-height:44px}
+  .ftabs{margin-bottom:1.25rem}
+  .lb-modal-bd{max-height:min(70vh,520px)}
+  #screen-lobby .modes-hero{padding-top:1.5rem}
+  #screen-lobby .lb-howto-btn{font-size:.82rem;padding:.45rem 1rem}
+}
+
+/* Touch / coarse pointers */
+@media(hover:none) and (pointer:coarse){
+  .nav-links li,.btn-primary,.btn-outline,.mode-btn,.nav-logo{cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .mode-card.lb-exp-card:active{transform:scale(.99)}
 }
 </style>
 </head>
@@ -424,8 +494,8 @@ button.mode-btn{display:block;box-sizing:border-box;font:inherit}
           <h1 class="hero-title">Spell it.<br>Prove it.<br><span class="accent">Win it.</span></h1>
           <p class="hero-desc">The word-spelling game reimagined — challenge friends, battle bots, or race the clock using seven letters.</p>
           <div class="hero-btns">
-            <button class="btn-primary" onclick="showScreen('modes')">Play Now →</button>
-            <button class="btn-outline" onclick="showScreen('auth')">Create Account</button>
+            <button type="button" class="btn-primary" onclick="showScreen('modes')">Play Now →</button>
+            <button type="button" class="btn-outline guest-only" onclick="showScreen('auth')">Create Account</button>
           </div>
           <div class="hero-stats">
             <div><div class="stat-n">Online</div><div class="stat-l">Multiplayer</div></div>
@@ -592,7 +662,7 @@ button.mode-btn{display:block;box-sizing:border-box;font:inherit}
             <div class="mode-details">
               <div class="mode-detail"><span class="pip"></span>Wordsmith, Literate, or Covfefe</div>
               <div class="mode-detail"><span class="pip"></span>Instant start — no waiting</div>
-              <div class="mode-detail"><span class="pip"></span>Bot finds words on a timer</div>
+              <div class="mode-detail"><span class="pip"></span>Can you beat a bot?</div>
             </div>
             <p class="lb-expand-hint">Tap to pick difficulty</p>
             <div class="lb-mode-content" id="lb-bot-content">

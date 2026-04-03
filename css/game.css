@@ -1,6 +1,26 @@
 /* ==========================================================================
    Spellbound — Game page (honeycomb, panels, timer, leave)
+   Matches spellbound-redesigned.html tokens
    ========================================================================== */
+
+:root {
+  --bg: #151e2e;
+  --bg2: #1a2540;
+  --card: #1f2d47;
+  --card2: #263454;
+  --border: rgba(197, 205, 232, 0.1);
+  --teal: #1db896;
+  --teal-dim: rgba(29, 184, 150, 0.15);
+  --teal-glow: rgba(29, 184, 150, 0.35);
+  --text: #e8ecf8;
+  --muted: #8a97b8;
+  --circle: #c5cde8;
+  --circle-txt: #1a2540;
+  --red: #e05555;
+  --amber: #e8a020;
+  --radius: 14px;
+  --radius-lg: 20px;
+}
 
 /* --------------------------------------------------------------------------
    Loading overlay (puzzles / game data)
@@ -9,7 +29,7 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #151e2e;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -27,8 +47,8 @@
 .game-loading-spinner {
   width: 42px;
   height: 42px;
-  border: 3px solid #64748b;
-  border-top-color: #2dd4bf;
+  border: 3px solid var(--card2);
+  border-top-color: var(--teal);
   border-radius: 50%;
   animation: gameLoadingSpin 0.8s linear infinite;
 }
@@ -38,9 +58,9 @@
 }
 
 .game-loading-text {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
-  color: #94a3b8;
+  color: var(--muted);
   margin: 0;
 }
 
@@ -61,8 +81,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  background: #151e2e;
-  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
   overflow: hidden;
   min-height: 0;
 }
@@ -117,6 +138,7 @@ body {
 .game-header {
   width: 100%;
   position: relative;
+  z-index: 1;
   padding: 1.5rem 4rem 0.5rem;
   flex-shrink: 0;
   display: flex;
@@ -139,37 +161,37 @@ body {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  padding: 0.4rem 0.9rem;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #94a3b8;
+  padding: 0.48rem 1.15rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.83rem;
+  font-weight: 800;
+  color: var(--text);
   background: transparent;
-  border: 1px solid #64748b;
-  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
-  z-index: 1;
+  z-index: 2;
 }
 
 .btn-leave:hover {
-  color: #e2e8f0;
-  border-color: #64748b;
+  color: var(--teal);
+  border-color: var(--teal);
 }
 
 .game-title {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Fredoka One', cursive;
   font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: #e2e8f0;
-  text-transform: uppercase;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  text-transform: none;
   margin: 0;
   text-align: center;
-  margin-right: -0.2em;
+  margin-right: -0.1em;
   text-shadow:
-    0 0 40px rgba(13, 148, 136, 0.2),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    0 0 28px var(--teal-glow),
+    0 2px 4px rgba(0, 0, 0, 0.35);
 }
 
 .timer-display {
@@ -188,23 +210,23 @@ body {
 }
 
 .timer-value {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.75rem;
-  font-weight: 700;
-  color: #e2e8f0;
+  font-weight: 800;
+  color: var(--text);
 }
 
 .timer-value.warning {
-  color: #f59e0b;
+  color: var(--amber);
 }
 
 .timer-value.danger {
-  color: #ef4444;
+  color: var(--red);
 }
 
 /* Last 10 seconds: huge countdown that overlaps title above and legend below */
 .timer-value.timer-countdown {
-  color: #ef4444;
+  color: var(--red);
   position: absolute;
   left: 50%;
   top: 50%;
@@ -213,7 +235,7 @@ body {
   line-height: 1;
   white-space: nowrap;
   z-index: 10;
-  text-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+  text-shadow: 0 0 30px rgba(224, 85, 85, 0.45);
   pointer-events: none;
 }
 
@@ -234,13 +256,16 @@ body {
 .timer-legend {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  color: #94a3b8;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 /* --------------------------------------------------------------------------
    Main content area & game wrapper
    -------------------------------------------------------------------------- */
 .page-main {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   justify-content: center;
@@ -290,29 +315,30 @@ body.solo-mode.bot-mode .side-panel-right {
   width: 100%;
   max-width: 220px;
   max-height: 520px;
-  background: #3b4a61;
-  border: 1px solid #64748b;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
   padding: 1rem;
 }
 
 .player-panel-title {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #e2e8f0;
+  color: var(--muted);
   margin-bottom: 0.25rem;
   text-align: center;
 }
 
 .player-panel-username {
   font-size: 0.8rem;
-  color: #94a3b8;
+  font-weight: 700;
+  color: var(--text);
   text-align: center;
   margin: 0 0 0.5rem;
   min-height: 1.2em;
@@ -325,20 +351,21 @@ body.solo-mode.bot-mode .side-panel-right {
   gap: 0.1rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #64748b;
+  border-bottom: 1px solid var(--border);
 }
 
 .player-score-value {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Fredoka One', cursive;
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #2dd4bf;
+  font-weight: 400;
+  color: var(--teal);
 }
 
 .player-score-legend {
   font-size: 0.65rem;
   letter-spacing: 0.06em;
-  color: #94a3b8;
+  font-weight: 600;
+  color: var(--muted);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -350,15 +377,15 @@ body.solo-mode.bot-mode .side-panel-right {
 }
 
 .words-panel-title {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--muted);
   margin-bottom: 0.5rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #64748b;
+  border-bottom: 1px solid var(--border);
 }
 
 /* Words panel dropdown: desktop shows as static title + list */
@@ -376,15 +403,15 @@ body.solo-mode.bot-mode .side-panel-right {
   width: 100%;
   padding: 0 0 0.3rem;
   margin-bottom: 0.5rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--muted);
   background: none;
   border: none;
-  border-bottom: 1px solid #64748b;
+  border-bottom: 1px solid var(--border);
   cursor: default;
   text-align: left;
 }
@@ -403,7 +430,7 @@ body.solo-mode.bot-mode .side-panel-right {
 
 .words-list-placeholder {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--muted);
   font-style: italic;
   text-align: center;
   padding: 1rem 0.5rem;
@@ -412,13 +439,13 @@ body.solo-mode.bot-mode .side-panel-right {
 
 .opponent-left-msg {
   font-size: 0.85rem;
-  color: #ef4444;
-  font-weight: 600;
+  color: var(--red);
+  font-weight: 700;
   text-align: center;
   padding: 0.5rem;
   margin: 0 0 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 6px;
+  background: rgba(224, 85, 85, 0.12);
+  border-radius: var(--radius);
 }
 
 .game-wrapper {
@@ -438,7 +465,7 @@ body.solo-mode.bot-mode .side-panel-right {
   padding: 0;
   overflow-y: auto;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--muted);
   line-height: 1.5;
   flex: 1;
   min-height: 0;
@@ -446,7 +473,7 @@ body.solo-mode.bot-mode .side-panel-right {
 
 .words-list li {
   padding: 0.25rem 0;
-  border-bottom: 1px solid #64748b;
+  border-bottom: 1px solid var(--border);
 }
 
 .words-list li:last-child {
@@ -454,8 +481,8 @@ body.solo-mode.bot-mode .side-panel-right {
 }
 
 .words-list li.pangram {
-  color: #2dd4bf;
-  font-weight: 700;
+  color: var(--teal);
+  font-weight: 800;
 }
 
 /* --------------------------------------------------------------------------
@@ -478,9 +505,9 @@ body.solo-mode.bot-mode .side-panel-right {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.95rem;
+  font-weight: 400;
   letter-spacing: 0.05em;
   cursor: pointer;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -491,23 +518,23 @@ body.solo-mode.bot-mode .side-panel-right {
 
 .hex:hover {
   transform: scale(1.08);
-  filter: brightness(1.15);
+  filter: brightness(1.09);
 }
 
 .hex.outer {
-  background: #cbd5f5;
-  color: #1e293b;
+  background: var(--circle);
+  color: var(--circle-txt);
 }
 
 .hex.center {
-  background: #0d9488;
+  background: var(--teal);
   color: #fff;
-  filter: drop-shadow(0 0 12px rgba(13, 148, 136, 0.5));
+  filter: drop-shadow(0 0 14px var(--teal-glow));
 }
 
 .hex.center:hover {
   transform: scale(1.08);
-  filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.8)) brightness(1.1);
+  filter: drop-shadow(0 0 22px var(--teal-glow)) brightness(1.08);
 }
 
 .hex-center { left: 140px; top: 135px; }
@@ -549,24 +576,32 @@ body.solo-mode.bot-mode .side-panel-right {
 
 .word-input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1.15rem;
-  color: #e2e8f0;
-  caret-color: #0d9488;
-  background: #3b4a61;
-  border: 2px solid #64748b;
-  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  caret-color: var(--teal);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
   outline: none;
-  transition: border-color 0.2s;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .word-input:focus {
-  border-color: #0d9488;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(29, 184, 150, 0.1);
 }
 
 .word-input::placeholder {
-  color: #94a3b8;
+  color: rgba(138, 151, 184, 0.45);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 600;
 }
 
 /* Mobile-only word strip: no placeholder, no line; shown only on small screens */
@@ -582,24 +617,35 @@ body.solo-mode.bot-mode .side-panel-right {
 }
 
 .btn {
-  padding: 0.5rem 1.25rem;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  background: #3b4a61;
-  border: 2px solid #64748b;
-  border-radius: 8px;
+  padding: 0.72rem 1.1rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .btn:hover {
-  background: #475569;
-  border-color: #0d9488;
-  color: #2dd4bf;
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Primary action — matches redesign game Enter */
+#btn-enter.btn {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--bg);
+}
+
+#btn-enter.btn:hover {
+  opacity: 0.88;
+  color: var(--bg);
 }
 
 .btn-shuffle {
@@ -618,15 +664,15 @@ body.solo-mode.bot-mode .side-panel-right {
 .validation-message {
   min-height: 1.25rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
-  color: #94a3b8;
+  color: var(--muted);
 }
 
-.validation-message.great   { color: #34d399; }
-.validation-message.taken   { color: #94a3b8; }
-.validation-message.pangram { color: #2dd4bf; }
-.validation-message.invalid { color: #ef4444; }
+.validation-message.great   { color: var(--teal); }
+.validation-message.taken   { color: var(--muted); }
+.validation-message.pangram { color: var(--teal); }
+.validation-message.invalid { color: var(--red); }
 
 /* --------------------------------------------------------------------------
    Leave game confirmation
@@ -634,7 +680,8 @@ body.solo-mode.bot-mode .side-panel-right {
 .leave-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(10, 15, 28, 0.88);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -653,23 +700,24 @@ body.solo-mode.bot-mode .side-panel-right {
 .leave-modal {
   width: 100%;
   max-width: 340px;
-  background: #3b4a61;
-  border: 1px solid #64748b;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   padding: 1.5rem;
 }
 
 .leave-modal h2 {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #e2e8f0;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text);
   margin: 0 0 0.5rem;
 }
 
 .leave-modal-text {
   font-size: 0.9rem;
-  color: #cbd5f5;
+  color: var(--muted);
   margin: 0 0 1.25rem;
 }
 
@@ -680,30 +728,36 @@ body.solo-mode.bot-mode .side-panel-right {
 }
 
 .btn-leave-cancel {
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  color: #e2e8f0;
-  background: #64748b;
-  border: 1px solid #94a3b8;
+  padding: 0.6rem 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
 }
 
 .btn-leave-cancel:hover {
-  background: #94a3b8;
-  border-color: #cbd5f5;
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .btn-leave-confirm {
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  color: #ef4444;
+  padding: 0.6rem 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--red);
   background: transparent;
-  border: 1px solid #94a3b8;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
 }
 
 .btn-leave-confirm:hover {
   color: #fff;
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--red);
+  background: rgba(224, 85, 85, 0.15);
 }
 
 /* --------------------------------------------------------------------------
@@ -712,7 +766,8 @@ body.solo-mode.bot-mode .side-panel-right {
 .round-end-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(10, 15, 28, 0.88);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -731,36 +786,37 @@ body.solo-mode.bot-mode .side-panel-right {
 .round-end-modal {
   width: 100%;
   max-width: 380px;
-  background: #3b4a61;
-  border: 1px solid #64748b;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   padding: 1.75rem;
 }
 
 .round-end-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2dd4bf;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--teal);
   margin: 0 0 0.5rem;
 }
 
 .round-end-message {
   font-size: 0.95rem;
-  color: #cbd5f5;
+  color: var(--muted);
   margin: 0 0 0.25rem;
 }
 
 .round-end-winner {
   font-size: 1.1rem;
-  font-weight: 700;
-  color: #e2e8f0;
+  font-weight: 800;
+  color: var(--text);
   margin: 0 0 0.5rem;
 }
 
 .round-end-scores {
   font-size: 0.95rem;
-  color: #cbd5f5;
+  color: var(--muted);
   margin: 0 0 1.25rem;
   line-height: 1.4;
 }
@@ -776,51 +832,54 @@ body.solo-mode.bot-mode .side-panel-right {
 .btn-round-leave {
   flex: 1;
   min-width: 120px;
-  padding: 0.6rem 1rem;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border-radius: 10px;
   cursor: pointer;
-  border: 1px solid #475569;
-  transition: background 0.2s, color 0.2s;
+  border: 1.5px solid var(--border);
+  transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
 }
 
 .btn-round-keep-playing {
-  background: #0f766e;
-  color: #99f6e4;
-  border-color: #0d9488;
+  background: var(--teal);
+  color: var(--bg);
+  border-color: var(--teal);
 }
 
 .btn-round-keep-playing:hover {
-  background: #0d9488;
+  opacity: 0.88;
 }
 
 .btn-round-close {
-  background: #64748b;
-  color: #e2e8f0;
-  border-color: #94a3b8;
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .btn-round-close:hover {
-  background: #94a3b8;
+  border-color: var(--teal);
+  color: var(--teal);
 }
 
 .btn-round-leave {
-  background: #64748b;
-  color: #e2e8f0;
-  border-color: #94a3b8;
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--border);
 }
 
 .btn-round-leave:hover {
-  background: #94a3b8;
+  color: var(--text);
+  border-color: var(--muted);
 }
 
 /* Opponent went back to lobby (round-end notification) */
 .opponent-left-notif-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(10, 15, 28, 0.88);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -839,23 +898,24 @@ body.solo-mode.bot-mode .side-panel-right {
 .opponent-left-notif-modal {
   width: 100%;
   max-width: 340px;
-  background: #3b4a61;
-  border: 1px solid #64748b;
-  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
 .opponent-left-notif-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2dd4bf;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--teal);
   margin: 0 0 0.5rem;
 }
 
 .opponent-left-notif-msg {
   font-size: 0.9rem;
-  color: #cbd5f5;
+  color: var(--muted);
   margin: 0 0 1rem;
   line-height: 1.4;
 }
@@ -866,24 +926,25 @@ body.solo-mode.bot-mode .side-panel-right {
 }
 
 .btn-opponent-left-back {
-  padding: 0.5rem 1rem;
-  font-family: inherit;
+  padding: 0.65rem 1.15rem;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
-  background: #0d9488;
-  color: #fff;
-  border: 1px solid #0f766e;
-  border-radius: 6px;
+  font-weight: 800;
+  background: var(--teal);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .btn-opponent-left-back:hover {
-  background: #0f766e;
+  opacity: 0.88;
 }
 
 /* Timer in "keep finding words" mode shows no limit */
 .timer-display .timer-value.bitter-end {
-  color: #cbd5f5;
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -984,7 +1045,7 @@ body.solo-mode.bot-mode .side-panel-right {
     margin-left: 0.25rem;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
-    border-top: 5px solid #94a3b8;
+    border-top: 5px solid var(--muted);
     transition: transform 0.2s ease;
   }
 
@@ -1124,9 +1185,10 @@ body.solo-mode.bot-mode .side-panel-right {
   .mobile-word-display {
     display: block;
     text-align: center;
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
-    color: #e2e8f0;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--teal);
     min-height: 1.25rem;
     padding: 0.25rem 0.5rem;
     margin-top: -1.2rem;
@@ -1273,4 +1335,55 @@ body.solo-mode.bot-mode .side-panel-right {
   .words-list {
     font-size: 0.85rem;
   }
+}
+
+/* --------------------------------------------------------------------------
+   Challenge toast (common.css) — match redesign on game page
+   -------------------------------------------------------------------------- */
+.challenge-notif-modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+.challenge-notif-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: var(--teal);
+}
+.challenge-notif-msg {
+  color: var(--muted);
+}
+.challenge-notif-actions .btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+}
+.btn-challenge-join {
+  background: var(--teal);
+  color: var(--bg);
+  border-color: var(--teal);
+}
+.btn-challenge-join:hover {
+  opacity: 0.88;
+  background: var(--teal);
+}
+.btn-challenge-reject {
+  color: var(--muted);
+  background: transparent;
+}
+.btn-challenge-reject:hover {
+  background: rgba(29, 184, 150, 0.08);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+.btn-challenge-dismiss {
+  background: var(--card2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-challenge-dismiss:hover {
+  border-color: var(--teal);
+  color: var(--teal);
 }
