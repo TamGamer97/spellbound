@@ -21,7 +21,7 @@ How it works:
   - `botLevel=1|2|3` (difficulty)
 - Bot games use a local opponent (no Supabase matchmaking).
 - The bot finds words automatically on a timer and the opponent card shows the bot name and score.
-- Bot games do **not** use the “recent boards” history tracking that versus/solo uses for variety.
+- Puzzle selection uses the same logic as **solo** (recent-board avoidance, rarity-weighted pick among eligible boards, same Netlify fallback when local boards are exhausted).
 
 ## How puzzles are generated
 
