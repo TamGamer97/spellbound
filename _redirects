@@ -10,7 +10,28 @@
 # Lobby screen (same app shell)
 /lobby   /spellbound-redesigned.html    200!
 
-# Legacy → canonical
-/index.html                  /         301
-/lobby.html                  /lobby    301
-/spellbound-redesigned.html  /         301
+# ---------------------------------------------------------------------------
+# Legacy HTML entry points → canonical URLs (never land on old index/lobby)
+# Order: exact legacy paths before catch-alls. Query strings are preserved.
+# ---------------------------------------------------------------------------
+
+# Old root auth page → home (redesign)
+/index.html                   /         301
+/index.html/                  /         301
+/Index.html                   /         301
+/INDEX.HTML                   /         301
+/index.,html                  /         301
+
+# Old lobby page → /lobby (redesign shell)
+/lobby.html                   /lobby    301
+/lobby.html/                  /lobby    301
+/Lobby.html                   /lobby    301
+/LOBBY.HTML                   /lobby    301
+/lobby.,html                  /lobby    301
+
+# Direct redesign filename → pretty URL
+/spellbound-redesigned.html   /         301
+/spellbound-redesigned.html/  /         301
+
+# Optional: normalize case on canonical routes
+/Lobby                        /lobby    301
