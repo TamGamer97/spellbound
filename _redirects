@@ -1,15 +1,16 @@
 # Netlify redirects & rewrites (publish root)
-# Order: more specific paths first. Query strings are preserved on rewrites.
-/    /spellbound-redesigned.html    200
+# 200! = force rewrite even if index.html or another file would match (shadowing)
 
-# Live game stays on the original game page
+# Root URL: always the redesign (not legacy index.html)
+/    /spellbound-redesigned.html    200!
+
+# Live game
 /game    /game.html    200
 
-# App shell (redesign): home + embedded lobby
-/lobby   /spellbound-redesigned.html    200
-/        /spellbound-redesigned.html    200
+# Lobby screen (same app shell)
+/lobby   /spellbound-redesigned.html    200!
 
-# Legacy → canonical (avoid old index / lobby HTML as entry points)
+# Legacy → canonical
 /index.html                  /         301
 /lobby.html                  /lobby    301
 /spellbound-redesigned.html  /         301
