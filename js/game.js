@@ -686,14 +686,14 @@
   function checkWin() {
     if (!state || state.gameOver || state.roundOver || state.roundPhase !== 'round_1') return;
     // End only when the player has found all puzzle words AND score is at
-    // least 10× the puzzle maximum (`totalBoardPoints`).
+    // least 6× the puzzle maximum (`totalBoardPoints`).
     if (state.found.size !== VALID_WORDS.size) return;
 
     var maxPoints = typeof state.totalBoardPoints === 'number' && !isNaN(state.totalBoardPoints)
       ? state.totalBoardPoints
       : computeTotalBoardPoints();
 
-    if (state.score >= 10 * maxPoints) {
+    if (state.score >= 6 * maxPoints) {
       endGame('All words found!');
     }
   }
@@ -866,8 +866,11 @@
      ======================================================================== */
 
   // Cache word lists in memory across bot games (same page session).
-  var BOT_WIKI_WORDS_CACHE = null; // Array of lowercase words from wiki-100k.txt
+  /** Lowercase words from offline union (see data/bot-intersection-allowlist.txt): Google20k∩Norvig∩Hunspell, NGSL/NAWL∩Norvig∩Hunspell, plus Norvig freq-head∩Hunspell for volume — no wiki. */
+  var BOT_INTERSECTION_ALLOWLIST_CACHE = null;
   var BOT_INVALID_WORDS_CACHE = null; // Set of lowercase invalid words
+  /** Placename/country tokens + other blocked extras (lowercase). See data/bot-extra-blocklist.txt. */
+  var BOT_EXTRA_BLOCKLIST_CACHE = null;
 
   function getBotIntervalSeconds(elapsedSeconds) {
     var base = state.botBaseSeconds;
@@ -931,7 +934,10 @@
         candidates = extraCandidates;
       }
 
-      if (!candidates.length) return;
+      if (!candidates.length) {
+        scheduleBotNextWord();
+        return;
+      }
 
       var pick = candidates[Math.floor(Math.random() * candidates.length)];
       acceptAndRecordOpponentWord(pick);
@@ -941,22 +947,16 @@
 
   /**
    * Load/build a bot "extra pool" once per puzzle.
-   * These are words that:
-   * - fit the current 7 letters (center + outer)
-   * - are NOT in `VALID_WORDS`
-   * - are not proper nouns (shared blocklist)
-   * - are not locally profane
-   * - optionally exclude anything in `data/invalid-valid-words.txt` (if present)
-   * - optionally exclude anything in `DICTIONARY_BLOCKLIST` (if loaded)
-   *
-   * Notes:
-   * - This is only used after the bot exhausts puzzle `VALID_WORDS`.
-   * - It runs only for bot games.
+   * Built offline (scripts/build-bot-intersection-allowlist.ps1): union of
+   *   Norvig ∩ Google 20k ∩ Hunspell US ∩ Hunspell GB;
+   *   NGSL+NAWL ∩ Norvig ∩ Hunspell US ∩ GB;
+   *   first ~45k Norvig frequency lines (len>=4) ∩ Hunspell US ∩ GB (more coverage, still corpus frequency + spelling dicts).
+   * Hive filter + isProperNoun + invalid-valid + blocklist still apply in buildBotExtraWordsPool.
+   * Then filter to hive + not VALID_WORDS + proper-noun / invalid / blocklist / profanity rules.
    */
   async function buildBotExtraWordsPool() {
     if (!state.isBotGame) return;
     if (state.botExtraWordsReady) return;
-    if (!LOCAL_PUZZLES) return;
 
     try {
       if (typeof fetch === 'undefined') {
@@ -965,28 +965,18 @@
         return;
       }
 
-      // Load a common 100k word list from wiki-100k.txt (one word per line).
-      var wikiText = '';
-      if (BOT_WIKI_WORDS_CACHE && BOT_WIKI_WORDS_CACHE.length) {
-        wikiText = null;
-      } else {
-        wikiText = await fetch('data/wiki-100k.txt?v=1').then(function (r) { return r.text(); }).catch(function () { return ''; });
-      }
-      if (wikiText === '' || wikiText === null) {
-        if (!BOT_WIKI_WORDS_CACHE || !BOT_WIKI_WORDS_CACHE.length) {
-          state.botExtraWordsPool = [];
-          state.botExtraWordsReady = true;
-          return;
-        }
-      } else {
-        // Parse + cache lowercase words.
-        BOT_WIKI_WORDS_CACHE = wikiText
-          .split(/\r?\n/)
-          .map(function (l) { return String(l).trim().toLowerCase(); })
-          .filter(function (w) { return w && /^[a-z]+$/.test(w); });
+      // Intersection allowlist (~5k words): strict common English only.
+      if (!BOT_INTERSECTION_ALLOWLIST_CACHE || !BOT_INTERSECTION_ALLOWLIST_CACHE.length) {
+        var allowText = await fetch('data/bot-intersection-allowlist.txt?v=4').then(function (r) { return r.text(); }).catch(function () { return ''; });
+        BOT_INTERSECTION_ALLOWLIST_CACHE = allowText
+          ? allowText
+              .split(/\r?\n/)
+              .map(function (l) { return String(l).trim().toLowerCase(); })
+              .filter(function (w) { return w && /^[a-z]+$/.test(w); })
+          : [];
       }
 
-      if (!BOT_WIKI_WORDS_CACHE || !BOT_WIKI_WORDS_CACHE.length) {
+      if (!BOT_INTERSECTION_ALLOWLIST_CACHE || !BOT_INTERSECTION_ALLOWLIST_CACHE.length) {
         state.botExtraWordsPool = [];
         state.botExtraWordsReady = true;
         return;
@@ -1001,12 +991,28 @@
         if (invalidText) {
           invalidSet = new Set(
             invalidText
-              .split(/\\r?\\n/)
+              .split(/\r?\n/)
               .map(function (l) { return String(l).trim().toLowerCase().replace(/#.*$/, '').trim(); })
               .filter(function (w) { return w && /^[a-z]+$/.test(w); })
           );
         }
         BOT_INVALID_WORDS_CACHE = invalidSet;
+      }
+
+      if (BOT_EXTRA_BLOCKLIST_CACHE) {
+        // already cached
+      } else {
+        var blText = await fetch('data/bot-extra-blocklist.txt?v=1').then(function (r) { return r.text(); }).catch(function () { return ''; });
+        var blSet = new Set();
+        if (blText) {
+          blSet = new Set(
+            blText
+              .split(/\r?\n/)
+              .map(function (l) { return String(l).trim().toLowerCase().replace(/#.*$/, '').trim(); })
+              .filter(function (w) { return w && /^[a-z]+$/.test(w); })
+          );
+        }
+        BOT_EXTRA_BLOCKLIST_CACHE = blSet;
       }
 
       var center = String(LETTER_SET && LETTER_SET.center ? LETTER_SET.center : '').toUpperCase();
@@ -1020,8 +1026,8 @@
       var allowedLetters = new Set(allLettersArr.map(function (c) { return String(c).toUpperCase(); }));
 
       var outPool = [];
-      for (var i = 0; i < BOT_WIKI_WORDS_CACHE.length; i++) {
-        var rawLower = BOT_WIKI_WORDS_CACHE[i];
+      for (var i = 0; i < BOT_INTERSECTION_ALLOWLIST_CACHE.length; i++) {
+        var rawLower = BOT_INTERSECTION_ALLOWLIST_CACHE[i];
         if (!rawLower) continue;
         var wUpper = String(rawLower).toUpperCase();
         if (wUpper.length < MIN_LENGTH) continue;
@@ -1043,6 +1049,9 @@
         var lower = wUpper.toLowerCase();
         if (LOCAL_PROFANITY && LOCAL_PROFANITY.has(lower)) continue;
         if (BOT_INVALID_WORDS_CACHE && BOT_INVALID_WORDS_CACHE.size > 0 && BOT_INVALID_WORDS_CACHE.has(lower)) continue;
+
+        // Large placename / geo / proper-noun token list (see data/bot-extra-blocklist.txt).
+        if (BOT_EXTRA_BLOCKLIST_CACHE && BOT_EXTRA_BLOCKLIST_CACHE.size > 0 && BOT_EXTRA_BLOCKLIST_CACHE.has(lower)) continue;
 
         // If remote dictionary blocklist was loaded, exclude too.
         if (DICTIONARY_BLOCKLIST && DICTIONARY_BLOCKLIST.has(wUpper)) continue;

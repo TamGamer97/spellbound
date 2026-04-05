@@ -3,7 +3,7 @@
 body.pages {
   min-height: 100vh;
   background: #1e293b;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   color: #e2e8f0;
   display: flex;
   flex-direction: column;
@@ -15,7 +15,7 @@ body.pages {
 
 .pages .page-title {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #e2e8f0;
@@ -38,7 +38,7 @@ body.pages {
   max-width: 360px;
   background: #334155;
   border: 1px solid #475569;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   padding: 2rem;
   margin-top: 2rem;
@@ -54,9 +54,9 @@ body.pages {
 .auth-tabs button {
   flex: 1;
   padding: 0.6rem 1rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #94a3b8;
   background: transparent;
   border: none;
@@ -112,9 +112,9 @@ body.pages {
 .auth-form button[type="submit"] {
   width: 100%;
   padding: 0.75rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
   background: #0d9488;
   border: none;
@@ -159,7 +159,7 @@ body.pages {
 .mode-card {
   background: #334155;
   border: 1px solid #475569;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   padding: 1.25rem 1.5rem;
   cursor: pointer;
@@ -173,7 +173,7 @@ body.pages {
 
 .mode-card h3 {
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.05em;
   color: #e2e8f0;
   margin-bottom: 0.25rem;
@@ -221,9 +221,9 @@ body.pages {
 
 .mode-content button {
   padding: 0.5rem 1rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
   background: #0d9488;
   border: none;
@@ -341,7 +341,7 @@ body.pages {
   color: #94a3b8;
   background: transparent;
   border: 1px solid #475569;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
 }
@@ -375,13 +375,13 @@ body.pages {
 }
 
 .lobby-how-to-btn {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.9rem;
   font-weight: 500;
   color: #0d9488;
   background: transparent;
   border: 1px solid #0d9488;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 0.4rem 0.9rem;
   cursor: pointer;
   transition: color 0.2s, background 0.2s, border-color 0.2s;
@@ -418,7 +418,7 @@ body.pages {
   overflow-y: auto;
   background: #334155;
   border: 1px solid #475569;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(13, 148, 136, 0.12);
 }
 
@@ -433,7 +433,7 @@ body.pages {
 
 .how-to-play-header h2 {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   color: #e2e8f0;
   margin: 0;
@@ -512,7 +512,7 @@ body.pages {
   max-width: 380px;
   background: #334155;
   border: 1px solid #475569;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
@@ -527,7 +527,7 @@ body.pages {
 
 .settings-header h2 {
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.05em;
   color: #e2e8f0;
   margin: 0;
